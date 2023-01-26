@@ -1,4 +1,4 @@
-stages:          # List of stages for jobs, and their order of execution
+stages:
   - build
   - test
   - deploy
