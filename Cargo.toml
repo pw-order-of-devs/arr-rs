@@ -14,7 +14,7 @@ name = "arr_rs"
 path = "src/lib.rs"
 
 [dependencies]
-num = "0.4"
+num-traits = "0.2"
 
 [dev-dependencies]
 rstest = "0.16"

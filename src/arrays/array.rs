@@ -1,4 +1,4 @@
-use num::NumCast;
+use num_traits::NumCast;
 
 use crate::base::base_array::ArrayBase;
 

@@ -1,4 +1,4 @@
-use num::NumCast;
+use num_traits::NumCast;
 
 /// Base Array structure
 pub trait ArrayBase where Self: Sized + Clone {
