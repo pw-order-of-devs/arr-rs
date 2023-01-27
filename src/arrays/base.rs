@@ -112,7 +112,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::new(vec![1,2,3,4], vec![4]);
-    /// let len = arr.ndim();
+    /// let len = arr.len();
     /// assert_eq!(4, len);
     /// ```
     fn len(&self) -> usize;
