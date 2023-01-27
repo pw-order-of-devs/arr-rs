@@ -10,20 +10,30 @@ jobs:
   build:
     runs-on: rust:1.67-alpine
     steps:
-      - name: build
-        run: cargo build
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: cargo build --release --all-features
 
-  quality:
+  lint:
+    needs: build
     runs-on: rust:1.67-alpine
     steps:
-      - name: prepare
-        run: |
-          apk update
-          apk add rustup
-          rustup component add clippy
-
-      - name: test
-        run: cargo test
-
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
       - name: lint
         run: cargo clippy --all-targets --all-features -- -D warnings
+
+  quality:
+    needs: build
+    runs-on: rust:1.67-alpine
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+      - run: cargo test
