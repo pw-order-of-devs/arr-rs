@@ -3,8 +3,8 @@ use arr_rs::prelude::*;
 
 #[rstest(
 elements, shape, expected,
-case(vec![1, 2, 3, 4], vec![4], "Array { elements: [1, 2, 3, 4], shape: [4] }"),
-case(vec![1, 2, 3, 4], vec![2, 2], "Array { elements: [1, 2, 3, 4], shape: [2, 2] }"),
+case(vec![1, 2, 3, 4], vec![4], "Array { elements: [1.0, 2.0, 3.0, 4.0], shape: [4] }"),
+case(vec![1, 2, 3, 4], vec![2, 2], "Array { elements: [1.0, 2.0, 3.0, 4.0], shape: [2, 2] }"),
 )] fn test_new(elements: Vec<i32>, shape: Vec<usize>, expected: &str) {
     assert_eq!(expected, format!("{:?}", Array::new(elements, shape)))
 }
@@ -15,16 +15,16 @@ case(vec![1, 2, 3, 4], vec![2, 2], "Array { elements: [1, 2, 3, 4], shape: [2, 2
 
 #[rstest(
 shape, expected,
-case(vec![4], "Array { elements: [0, 0, 0, 0], shape: [4] }"),
-case(vec![2, 2], "Array { elements: [0, 0, 0, 0], shape: [2, 2] }"),
+case(vec![4], "Array { elements: [0.0, 0.0, 0.0, 0.0], shape: [4] }"),
+case(vec![2, 2], "Array { elements: [0.0, 0.0, 0.0, 0.0], shape: [2, 2] }"),
 )] fn test_zeros(shape: Vec<usize>, expected: &str) {
     assert_eq!(expected, format!("{:?}", Array::zeros(shape)))
 }
 
 #[rstest(
 shape, expected,
-case(vec![4], "Array { elements: [1, 1, 1, 1], shape: [4] }"),
-case(vec![2, 2], "Array { elements: [1, 1, 1, 1], shape: [2, 2] }"),
+case(vec![4], "Array { elements: [1.0, 1.0, 1.0, 1.0], shape: [4] }"),
+case(vec![2, 2], "Array { elements: [1.0, 1.0, 1.0, 1.0], shape: [2, 2] }"),
 )] fn test_ones(shape: Vec<usize>, expected: &str) {
     assert_eq!(expected, format!("{:?}", Array::ones(shape)))
 }

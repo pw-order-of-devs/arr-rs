@@ -1,5 +1,5 @@
 # arr-rs
 
-Arrays library written in Rust inspired by NumPy
+Implementation of multidimensional arrays written in Rust
 
-**[WIP]** Work In Progress. Not yet ready for production
+**[WIP]** Work In Progress and on early stage

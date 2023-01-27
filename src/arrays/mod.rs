@@ -1,2 +1,2 @@
-pub mod base;
+/// default implementation of array
 pub mod array;

@@ -1,3 +1,5 @@
+use num::NumCast;
+
 /// Base Array structure
 pub trait ArrayBase where Self: Sized + Clone {
 
@@ -18,7 +20,8 @@ pub trait ArrayBase where Self: Sized + Clone {
     ///
     /// let arr_2 = Array::new(vec![1, 2, 3, 4], vec![2, 2]);
     /// // [[1, 2], [3, 4]]
-    fn new(elements: Vec<i32>, shape: Vec<usize>) -> Self;
+    fn new<I, A>(elements: I, shape: Vec<usize>) -> Self
+        where A: NumCast, I: IntoIterator<Item=A> + Clone;
 
     /// Creates new empty array
     ///
@@ -72,7 +75,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// let multiplied = arr.product();
     /// assert_eq!(24, multiplied);
     /// ```
-    fn product(&self) -> i32;
+    fn product<F: NumCast>(&self) -> F;
 
     /// Sum of array elements
     ///
@@ -85,7 +88,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// let sum = arr.sum();
     /// assert_eq!(10, sum);
     /// ```
-    fn sum(&self) -> i32;
+    fn sum<F: NumCast>(&self) -> F;
 
     /// Count of array dimensions
     ///
