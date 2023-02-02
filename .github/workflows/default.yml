@@ -50,9 +50,11 @@ jobs:
 
       - name: coverage
         uses: actions-rs/grcov@v0.1
+        with:
+          config: configs/grcov.yml
 
       - name: coverage report
         uses: actions/upload-artifact@v3
         with:
           name: test_coverage
-          path: /tmp/grcov-report-*
+          path: /tmp/report.html
