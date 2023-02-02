@@ -37,8 +37,9 @@ jobs:
         with:
           toolchain: nightly
           override: true
+
       - name: coverage
-      - uses: actions-rs/cargo@v1
+        uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features --no-fail-fast
@@ -46,10 +47,12 @@ jobs:
           CARGO_INCREMENTAL: '0'
           RUSTFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
           RUSTDOCFLAGS: '-Zprofile -Ccodegen-units=1 -Cinline-threshold=0 -Clink-dead-code -Coverflow-checks=off -Cpanic=abort -Zpanic_abort_tests'
+
       - name: coverage
-      - uses: actions-rs/grcov@v0.1
+        uses: actions-rs/grcov@v0.1
+
       - name: Coveralls upload
-      - uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           path-to-lcov: ${{ steps.coverage.outputs.report }}
