@@ -51,7 +51,7 @@ jobs:
       - name: coverage
         uses: actions-rs/grcov@v0.1
         with:
-          config: configs/grcov.yml
+          config: .github/config/grcov.yml
 
       - name: coverage report
         uses: actions/upload-artifact@v3
