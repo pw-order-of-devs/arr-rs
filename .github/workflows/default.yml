@@ -38,7 +38,7 @@ jobs:
           toolchain: nightly
           override: true
 
-      - name: coverage
+      - name: tests
         uses: actions-rs/cargo@v1
         with:
           command: test
@@ -51,8 +51,8 @@ jobs:
       - name: coverage
         uses: actions-rs/grcov@v0.1
 
-      - name: Coveralls upload
-        uses: codecov/codecov-action@v3
+      - name: coverage report
+        uses: actions/upload-artifact@v3
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          path-to-lcov: ${{ steps.coverage.outputs.report }}
+          name: test_coverage
+          path: ${{ steps.coverage.outputs.file }}
