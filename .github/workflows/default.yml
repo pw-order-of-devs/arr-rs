@@ -55,4 +55,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: test_coverage
-          path: ${{ steps.coverage.outputs.file }}
+          path: /tmp/grcov-report-*
