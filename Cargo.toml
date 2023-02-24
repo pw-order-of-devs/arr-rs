@@ -1,0 +1,20 @@
+[package]
+name = "arr-rs"
+version = "0.0.0"
+edition = "2021"
+authors = [ "Paweł Walus <losseheil.aikanar@gmail.com>" ]
+description = "arr-rs - rust arrays library"
+keywords = ["arrays", "collections"]
+homepage = "https://gitlab.com/pw-order-of-devs/arr-rs"
+repository = "https://gitlab.com/pw-order-of-devs/arr-rs"
+license = "MIT"
+
+[lib]
+name = "arr_rs"
+path = "src/lib.rs"
+
+[dependencies]
+num-traits = "0.2"
+
+[dev-dependencies]
+rstest = "0.16"
