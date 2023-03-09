@@ -68,3 +68,14 @@ case(vec![1, 2, 3, 4], vec![2, 2], false),
 )] fn test_is_empty(elements: Vec<i32>, shape: Vec<usize>, expected: bool) {
     assert_eq!(expected, Array::new(elements, shape).is_empty())
 }
+
+#[rstest(
+array, expected,
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), vec![4]),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), vec![6]),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), vec![6]),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![8]),
+)] fn test_ravel(array: Array, expected: Vec<usize>) {
+    println!("{:?}", array.ravel());
+    assert_eq!(expected, array.ravel().get_shape())
+}

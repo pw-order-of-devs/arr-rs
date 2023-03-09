@@ -53,4 +53,16 @@ impl ArrayBase for Array {
     fn is_empty(&self) -> bool {
         self.len() == 0
     }
+
+    fn get_elements<F>(&self) -> Vec<F> where F: NumCast {
+        self.elements.clone().into_iter().map(|m| NumCast::from(m).unwrap()).collect()
+    }
+
+    fn get_shape(&self) -> Vec<usize> {
+        self.shape.clone()
+    }
+
+    fn ravel(&self) -> Self {
+        Array::new(self.elements.clone(), vec![self.len()])
+    }
 }
