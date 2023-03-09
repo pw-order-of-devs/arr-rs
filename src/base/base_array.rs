@@ -136,4 +136,48 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// assert_eq!(true, empty_2);
     /// ```
     fn is_empty(&self) -> bool;
+
+    /// Obtain the vector containing array elements
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::new(vec![1,2,3,4], vec![4]);
+    /// assert_eq!(vec![1, 2, 3, 4], arr.get_elements());
+    /// ```
+    fn get_elements<F: NumCast>(&self) -> Vec<F>;
+
+    /// Obtain the vector containing array shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::new(vec![1,2,3,4], vec![4]);
+    /// assert_eq!(vec![4], arr.get_shape());
+    /// ```
+    fn get_shape(&self) -> Vec<usize>;
+
+    /// Return a contiguous flattened array
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = vec![8];
+    ///
+    /// let arr_1 = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]);
+    /// assert_eq!(expected, arr_1.ravel().get_shape());
+    ///
+    /// let arr_2 = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]);
+    /// assert_eq!(expected, arr_2.ravel().get_shape());
+    ///
+    /// let arr_3 = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 2, 2]);
+    /// assert_eq!(expected, arr_3.ravel().get_shape());
+    /// ```
+    fn ravel(&self) -> Self;
 }
