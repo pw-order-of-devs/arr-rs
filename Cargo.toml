@@ -2,11 +2,11 @@
 name = "arr-rs"
 version = "0.0.0"
 edition = "2021"
-authors = [ "Paweł Walus <losseheil.aikanar@gmail.com>" ]
+authors = [ "Paweł Walus <pawel.walus@protonmail.com>" ]
 description = "arr-rs - rust arrays library"
 keywords = ["arrays", "collections"]
-homepage = "https://gitlab.com/pw-order-of-devs/arr-rs"
-repository = "https://gitlab.com/pw-order-of-devs/arr-rs"
+homepage = "https://github.com/pw-order-of-devs"
+repository = "https://github.com/pw-order-of-devs/arr-rs"
 license = "MIT"
 
 [lib]
