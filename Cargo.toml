@@ -13,5 +13,9 @@ license = "MIT"
 name = "arr_rs"
 path = "src/lib.rs"
 
+[features]
+default = ["macros"]
+macros = []
+
 [dev-dependencies]
 rstest = "0.16"
