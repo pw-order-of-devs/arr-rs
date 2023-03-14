@@ -1,7 +1,8 @@
 use crate::base::base_type::Numeric;
 
 /// Base Array structure
-pub trait ArrayBase<N: Numeric> where Self: Sized + Clone + std::fmt::Display {
+pub trait ArrayBase<N: Numeric> where Self: Sized + Clone +
+std::fmt::Display + FromIterator<N> + IntoIterator<Item=N> {
 
     /// Creates new array
     ///
@@ -53,7 +54,7 @@ pub trait ArrayBase<N: Numeric> where Self: Sized + Clone + std::fmt::Display {
     ///
     /// # Arguments
     ///
-    /// * `shape` - vector representing array elements
+    /// * `shape` - vector representing array shape
     ///
     /// # Examples
     ///
@@ -63,6 +64,23 @@ pub trait ArrayBase<N: Numeric> where Self: Sized + Clone + std::fmt::Display {
     /// let arr: Array<f64> = Array::ones(vec![4]);
     /// assert_eq!("[1, 1, 1, 1]", format!("{arr}"));
     fn ones(shape: Vec<usize>) -> Self;
+
+    /// Reshapes an array
+    ///
+    /// # Arguments
+    ///
+    /// * `shape` - vector representing new array shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]);
+    /// assert_eq!("[1, 2, 3, 4]", format!("{arr}"));
+    /// let arr = arr.reshape(vec![2, 2]);
+    /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
+    fn reshape(&self, shape: Vec<usize>) -> Self;
 
     /// Multiplication of array elements
     ///
@@ -162,6 +180,10 @@ pub trait ArrayBase<N: Numeric> where Self: Sized + Clone + std::fmt::Display {
     fn get_shape(&self) -> Vec<usize>;
 
     /// Return an index of element at the given coordinates
+    ///
+    /// # Arguments
+    ///
+    /// * `coords` - vector representing the coordinates of the element in array
     ///
     /// # Examples
     ///

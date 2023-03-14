@@ -2,7 +2,7 @@ use crate::arrays::array::Array;
 use crate::base::base_array::ArrayBase;
 use crate::base::base_type::Numeric;
 
-impl <N: Numeric>std::fmt::Display for Array<N> {
+impl <N: Numeric> std::fmt::Display for Array<N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if f.alternate() {
             write!(f, "{}", build_string(self, true))
@@ -15,7 +15,7 @@ impl <N: Numeric>std::fmt::Display for Array<N> {
 /// Display trait for numeric Array
 pub trait ArrayDisplay<N: Numeric> {}
 
-impl <N: Numeric>ArrayDisplay<N> for Array<N> {}
+impl <N: Numeric> ArrayDisplay<N> for Array<N> {}
 
 fn build_string<N: Numeric>(arr: &Array<N>, pretty: bool) -> String {
     if arr.is_empty() {
