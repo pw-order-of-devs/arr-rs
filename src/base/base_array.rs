@@ -1,7 +1,7 @@
 use crate::base::base_type::Numeric;
 
 /// Base Array structure
-pub trait ArrayBase<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayBase<N: Numeric> where Self: Sized + Clone + std::fmt::Display {
 
     /// Creates new array
     ///
@@ -16,10 +16,11 @@ pub trait ArrayBase<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::new(vec![1, 2, 3, 4], vec![4]);
-    /// // [1, 2, 3, 4]
+    /// assert_eq!("[1, 2, 3, 4]", format!("{arr}"));
     ///
-    /// let arr_2 = Array::new(vec![1, 2, 3, 4], vec![2, 2]);
-    /// // [[1, 2], [3, 4]]
+    /// let arr = Array::new(vec![1, 2, 3, 4], vec![2, 2]);
+    /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
+    /// assert_eq!("[[1, 2], \n [3, 4]]", format!("{arr:#}"));
     fn new(elements: Vec<N>, shape: Vec<usize>) -> Self;
 
     /// Creates new empty array
@@ -30,7 +31,7 @@ pub trait ArrayBase<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::empty();
-    /// // []
+    /// assert_eq!("[]", format!("{arr}"));
     fn empty() -> Self;
 
     /// Creates new array of zeros
@@ -45,7 +46,7 @@ pub trait ArrayBase<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::zeros(vec![4]);
-    /// // [0, 0, 0, 0]
+    /// assert_eq!("[0, 0, 0, 0]", format!("{arr}"));
     fn zeros(shape: Vec<usize>) -> Self;
 
     /// Creates new array of ones
@@ -60,7 +61,7 @@ pub trait ArrayBase<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::ones(vec![4]);
-    /// // [1, 1, 1, 1]
+    /// assert_eq!("[1, 1, 1, 1]", format!("{arr}"));
     fn ones(shape: Vec<usize>) -> Self;
 
     /// Multiplication of array elements
@@ -159,6 +160,26 @@ pub trait ArrayBase<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(vec![4], arr.get_shape());
     /// ```
     fn get_shape(&self) -> Vec<usize>;
+
+    /// Return an index of element at the given coordinates
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 2, 2]);
+    ///
+    /// let idx_1 = arr.index(&[0, 0, 0]);
+    /// assert_eq!(0, idx_1);
+    ///
+    /// let idx_2 = arr.index(&[1, 0, 1]);
+    /// assert_eq!(5, idx_2);
+    ///
+    /// let idx_3 = arr.index(&[1, 1, 1]);
+    /// assert_eq!(7, idx_3);
+    /// ```
+    fn index(&self, coords: &[usize]) -> usize;
 
     /// Return a contiguous flattened array
     ///

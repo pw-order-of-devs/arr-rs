@@ -1,5 +1,5 @@
 /// Base numeric type for array
-pub trait Numeric: Copy + Clone + PartialEq + PartialOrd +
+pub trait Numeric: Copy + Clone + PartialEq + PartialOrd + std::fmt::Display +
 std::ops::Add<Self, Output=Self> + std::ops::Sub<Self, Output=Self> +
 std::ops::Mul<Self, Output=Self> + std::ops::Div<Self, Output=Self> {
     /// Zero constant value
