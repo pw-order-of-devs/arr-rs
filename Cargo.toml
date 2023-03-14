@@ -13,8 +13,5 @@ license = "MIT"
 name = "arr_rs"
 path = "src/lib.rs"
 
-[dependencies]
-num-traits = "0.2"
-
 [dev-dependencies]
 rstest = "0.16"

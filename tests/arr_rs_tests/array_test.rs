@@ -3,14 +3,15 @@ use arr_rs::prelude::*;
 
 #[rstest(
 elements, shape, expected,
-case(vec![1, 2, 3, 4], vec![4], "Array { elements: [1.0, 2.0, 3.0, 4.0], shape: [4] }"),
-case(vec![1, 2, 3, 4], vec![2, 2], "Array { elements: [1.0, 2.0, 3.0, 4.0], shape: [2, 2] }"),
+case(vec![1, 2, 3, 4], vec![4], "Array { elements: [1, 2, 3, 4], shape: [4] }"),
+case(vec![1, 2, 3, 4], vec![2, 2], "Array { elements: [1, 2, 3, 4], shape: [2, 2] }"),
 )] fn test_new(elements: Vec<i32>, shape: Vec<usize>, expected: &str) {
     assert_eq!(expected, format!("{:?}", Array::new(elements, shape)))
 }
 
 #[test] fn test_empty() {
-    assert_eq!("Array { elements: [], shape: [0] }", format!("{:?}", Array::empty()))
+    let arr: Array<f64> = Array::empty();
+    assert_eq!("Array { elements: [], shape: [0] }", format!("{arr:?}"))
 }
 
 #[rstest(
@@ -18,7 +19,8 @@ shape, expected,
 case(vec![4], "Array { elements: [0.0, 0.0, 0.0, 0.0], shape: [4] }"),
 case(vec![2, 2], "Array { elements: [0.0, 0.0, 0.0, 0.0], shape: [2, 2] }"),
 )] fn test_zeros(shape: Vec<usize>, expected: &str) {
-    assert_eq!(expected, format!("{:?}", Array::zeros(shape)))
+    let arr: Array<f64> = Array::zeros(shape);
+    assert_eq!(expected, format!("{arr:?}"))
 }
 
 #[rstest(
@@ -26,7 +28,8 @@ shape, expected,
 case(vec![4], "Array { elements: [1.0, 1.0, 1.0, 1.0], shape: [4] }"),
 case(vec![2, 2], "Array { elements: [1.0, 1.0, 1.0, 1.0], shape: [2, 2] }"),
 )] fn test_ones(shape: Vec<usize>, expected: &str) {
-    assert_eq!(expected, format!("{:?}", Array::ones(shape)))
+    let arr: Array<f64> = Array::ones(shape);
+    assert_eq!(expected, format!("{arr:?}"))
 }
 
 #[rstest(
@@ -75,7 +78,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), vec![4]),
 case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), vec![6]),
 case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), vec![6]),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![8]),
-)] fn test_ravel(array: Array, expected: Vec<usize>) {
+)] fn test_ravel(array: Array<i32>, expected: Vec<usize>) {
     println!("{:?}", array.ravel());
     assert_eq!(expected, array.ravel().get_shape())
 }
