@@ -8,6 +8,3 @@ pub use crate::base::{
 pub use crate::arrays::{
     array::Array,
 };
-
-// other required items
-pub use std::str::FromStr;

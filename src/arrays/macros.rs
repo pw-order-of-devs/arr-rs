@@ -13,25 +13,17 @@
 #[macro_export]
 macro_rules! array {
     ($($x:expr),* $(,)*) => {{
-        let string = format!("{:?}", vec![$($x,)*])
-            .chars()
-            .filter(|c| !c.is_whitespace())
-            .collect::<String>();
+        let string = format!("{:?}", vec![$($x,)*]).replace(" ", "");
+        let ndim = string.find(|p| p != '[').unwrap_or(0);
 
         // get shape
-        let ndim = string.chars().take_while(|&c| c == string.chars().next().unwrap_or('[')).count();
-        let mut str = string[ndim - 1 .. string.len() - (ndim - 1)].to_string();
-        let mut shape = (0..ndim).map(|_| {
-            let tmp_str = str.replace("[[", "[").replace("]]", "]").replace("],[", "]#[");
-            let parts = tmp_str.split("#").collect::<Vec<&str>>();
-            let shape_part = parts[0].split(',').collect::<Vec<&str>>().len();
-            assert!(parts.into_iter().all(|p| p.split(',').collect::<Vec<&str>>().len() == shape_part));
-            let parts_to_replace = tmp_str.split("#").collect::<Vec<&str>>();
-            parts_to_replace.into_iter().for_each(|f| str = str.replace(f, "0"));
-            str = format!("[{str}]");
-            shape_part
-        }).collect::<Vec<usize>>();
-        shape.reverse();
+        let mut _string = string.clone();
+        let mut shape = Vec::new();
+        for i in (0..ndim).rev() {
+            let tmp_str = _string.replace(&format!("{},{}", "]".repeat(i), "[".repeat(i)), "]#[");
+            _string = _string[0 .. _string.find(&"]".repeat(i)).unwrap() + i].to_string();
+            shape.push(tmp_str.split("#").count());
+        };
 
         // get array elements
         let elems = string
