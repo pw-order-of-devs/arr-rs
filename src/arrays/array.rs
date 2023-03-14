@@ -55,6 +55,18 @@ impl <N: Numeric>ArrayBase<N> for Array<N> {
         self.shape.clone()
     }
 
+    fn index(&self, coords: &[usize]) -> usize {
+        assert_eq!(self.shape.len(), coords.len(), "coords length must match array dimension");
+        for (i, _) in coords.iter().enumerate() { assert!(coords[i] < self.shape[i], "coord value must match array shape"); }
+        let mut index = 0;
+        let mut stride = 1;
+        for i in (0..self.shape.len()).rev() {
+            index += coords[i] * stride;
+            stride *= self.shape[i];
+        }
+        index
+    }
+
     fn ravel(&self) -> Self {
         Array::new(self.elements.clone(), vec![self.len()])
     }

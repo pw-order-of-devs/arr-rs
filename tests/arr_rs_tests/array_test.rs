@@ -3,15 +3,17 @@ use arr_rs::prelude::*;
 
 #[rstest(
 elements, shape, expected,
-case(vec![1, 2, 3, 4], vec![4], "Array { elements: [1, 2, 3, 4], shape: [4] }"),
-case(vec![1, 2, 3, 4], vec![2, 2], "Array { elements: [1, 2, 3, 4], shape: [2, 2] }"),
+case(vec![1, 2, 3, 4], vec![4], "[1, 2, 3, 4]"),
+case(vec![1, 2, 3, 4], vec![2, 2], "[[1, 2], [3, 4]]"),
 )] fn test_new(elements: Vec<i32>, shape: Vec<usize>, expected: &str) {
-    assert_eq!(expected, format!("{:?}", Array::new(elements, shape)))
+    assert_eq!(expected, format!("{}", Array::new(elements, shape)))
 }
 
-#[test] fn test_empty() {
-    let arr: Array<f64> = Array::empty();
-    assert_eq!("Array { elements: [], shape: [0] }", format!("{arr:?}"))
+#[rstest(
+array, expected,
+case(Array::empty(), "[]"),
+)] fn test_empty(array: Array<f64>, expected: &str) {
+    assert_eq!(expected, format!("{array}"))
 }
 
 #[rstest(
@@ -73,12 +75,23 @@ case(vec![1, 2, 3, 4], vec![2, 2], false),
 }
 
 #[rstest(
+array, coords, expected,
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[0, 0], 0),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[1, 1], 3),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), &[1, 1], 4),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), &[2, 0], 4),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[0, 0, 1], 1),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[1, 1, 1], 7),
+)] fn test_index(array: Array<i32>, coords: &[usize], expected: usize) {
+    assert_eq!(expected, array.index(coords))
+}
+
+#[rstest(
 array, expected,
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), vec![4]),
 case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), vec![6]),
 case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), vec![6]),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![8]),
 )] fn test_ravel(array: Array<i32>, expected: Vec<usize>) {
-    println!("{:?}", array.ravel());
     assert_eq!(expected, array.ravel().get_shape())
 }
