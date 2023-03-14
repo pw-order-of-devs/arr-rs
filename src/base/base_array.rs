@@ -1,7 +1,7 @@
-use num_traits::NumCast;
+use crate::base::base_type::Numeric;
 
 /// Base Array structure
-pub trait ArrayBase where Self: Sized + Clone {
+pub trait ArrayBase<N: Numeric> where Self: Sized + Clone {
 
     /// Creates new array
     ///
@@ -20,8 +20,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     ///
     /// let arr_2 = Array::new(vec![1, 2, 3, 4], vec![2, 2]);
     /// // [[1, 2], [3, 4]]
-    fn new<I, A>(elements: I, shape: Vec<usize>) -> Self
-        where A: NumCast, I: IntoIterator<Item=A> + Clone;
+    fn new(elements: Vec<N>, shape: Vec<usize>) -> Self;
 
     /// Creates new empty array
     ///
@@ -30,7 +29,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::empty();
+    /// let arr: Array<f64> = Array::empty();
     /// // []
     fn empty() -> Self;
 
@@ -45,7 +44,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::zeros(vec![4]);
+    /// let arr: Array<f64> = Array::zeros(vec![4]);
     /// // [0, 0, 0, 0]
     fn zeros(shape: Vec<usize>) -> Self;
 
@@ -60,7 +59,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::ones(vec![4]);
+    /// let arr: Array<f64> = Array::ones(vec![4]);
     /// // [1, 1, 1, 1]
     fn ones(shape: Vec<usize>) -> Self;
 
@@ -75,7 +74,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// let multiplied = arr.product();
     /// assert_eq!(24, multiplied);
     /// ```
-    fn product<F: NumCast>(&self) -> F;
+    fn product(&self) -> N;
 
     /// Sum of array elements
     ///
@@ -88,7 +87,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// let sum = arr.sum();
     /// assert_eq!(10, sum);
     /// ```
-    fn sum<F: NumCast>(&self) -> F;
+    fn sum(&self) -> N;
 
     /// Count of array dimensions
     ///
@@ -131,7 +130,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// let empty_1 = arr_1.is_empty();
     /// assert_eq!(false, empty_1);
     ///
-    /// let arr_2 = Array::empty();
+    /// let arr_2: Array<f64> = Array::empty();
     /// let empty_2 = arr_2.is_empty();
     /// assert_eq!(true, empty_2);
     /// ```
@@ -147,7 +146,7 @@ pub trait ArrayBase where Self: Sized + Clone {
     /// let arr = Array::new(vec![1,2,3,4], vec![4]);
     /// assert_eq!(vec![1, 2, 3, 4], arr.get_elements());
     /// ```
-    fn get_elements<F: NumCast>(&self) -> Vec<F>;
+    fn get_elements(&self) -> Vec<N>;
 
     /// Obtain the vector containing array shape
     ///
