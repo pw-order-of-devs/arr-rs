@@ -6,9 +6,9 @@
 /// use arr_rs::array;
 /// use arr_rs::prelude::*;
 ///
-/// array![[1,2],[3,4],[5,6],[7,8]];
-/// array![[1,2,3,4],[5,6,7,8]];
-/// array![[[1,2],[3,4]],[[5,6],[7,8]]];
+/// let arr: Array<i16> = array![1, 2, 3, 4, 5, 6, 7, 8];
+/// let arr: Array<i32> = array![[1, 2], [3, 4], [5, 6], [7, 8]];
+/// let arr: Array<f64> = array![[1, 2, 3, 4], [5, 6, 7, 8]];
 /// ```
 #[macro_export]
 macro_rules! array {
@@ -30,7 +30,7 @@ macro_rules! array {
             .replace("[", "").replace("]", "").replace(" ", "")
             .split_terminator(',')
             .map(|e| e.parse().unwrap())
-            .collect::<Vec<f64>>();
+            .collect::<Vec<_>>();
 
         // return array
         Array::new(elems, shape)
