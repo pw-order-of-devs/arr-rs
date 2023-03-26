@@ -24,6 +24,25 @@ std::fmt::Display + FromIterator<N> + IntoIterator<Item=N> {
     /// assert_eq!("[[1, 2], \n [3, 4]]", format!("{arr:#}"));
     fn new(elements: Vec<N>, shape: Vec<usize>) -> Self;
 
+    /// Creates new array with random elements from (0 ..= 1) range
+    ///
+    /// # Arguments
+    ///
+    /// * `elements` - vector representing array elements
+    /// * `shape` - vector representing array elements
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::<f64>::rand(vec![4]);
+    /// assert_eq!(4, arr.len());
+    ///
+    /// let arr = Array::<f64>::rand(vec![4, 4, 4]);
+    /// assert_eq!(64, arr.len());
+    fn rand(shape: Vec<usize>) -> Self;
+
     /// Creates new empty array
     ///
     /// # Examples

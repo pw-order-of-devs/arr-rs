@@ -6,15 +6,17 @@
 /// use arr_rs::array;
 /// use arr_rs::prelude::*;
 ///
-/// let arr: Array<i16> = array![1, 2, 3, 4, 5, 6, 7, 8];
-/// let arr: Array<i32> = array![[1, 2], [3, 4], [5, 6], [7, 8]];
-/// let arr: Array<f64> = array![[1, 2, 3, 4], [5, 6, 7, 8]];
+/// let arr: Array<i16> = array!(1, 2, 3, 4, 5, 6, 7, 8);
+/// let arr: Array<i16> = array!([1, 2, 3, 4, 5, 6, 7, 8]);
+/// let arr: Array<i32> = array!([[1, 2], [3, 4], [5, 6], [7, 8]]);
+/// let arr: Array<f64> = array!([[1, 2, 3, 4], [5, 6, 7, 8]]);
 /// ```
 #[macro_export]
 macro_rules! array {
     ($($x:expr),* $(,)*) => {{
         let string = format!("{:?}", vec![$($x,)*]).replace(" ", "");
-        let ndim = string.find(|p| p != '[').unwrap_or(0);
+        let ndim = string.find(|p| p != '[').unwrap_or(1) - 1;
+        let ndim = if ndim == 0 { 1 } else { ndim };
 
         // get shape
         let mut _string = string.clone();
