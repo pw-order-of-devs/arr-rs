@@ -16,9 +16,9 @@ impl <N: Numeric> ArrayBase<N> for Array<N> {
     }
 
     fn rand(shape: Vec<usize>) -> Self {
-        let elements: Vec<N> = (0..shape.iter().product())
-            .map(|_| N::rand(N::ZERO ..= N::ONE))
-            .collect();
+        let size = shape.iter().product();
+        let mut elements: Vec<N> = Vec::with_capacity(size);
+        (0..size).for_each(|_| elements.push(N::rand(N::ZERO ..= N::ONE)));
         Array { elements, shape }
     }
 

@@ -10,6 +10,15 @@ case(vec![1, 2, 3, 4], vec![2, 2], "[[1, 2], [3, 4]]"),
 }
 
 #[rstest(
+shape, expected,
+case(vec![4], 4),
+case(vec![4, 4], 16),
+case(vec![4, 4, 4], 64),
+)] fn test_rand(shape: Vec<usize>, expected: usize) {
+    assert_eq!(expected, Array::<f64>::rand(shape).len())
+}
+
+#[rstest(
 array, expected,
 case(Array::empty(), "[]"),
 )] fn test_empty(array: Array<f64>, expected: &str) {
