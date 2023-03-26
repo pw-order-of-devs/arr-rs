@@ -15,6 +15,13 @@ impl <N: Numeric> ArrayBase<N> for Array<N> {
         Array { elements, shape, }
     }
 
+    fn rand(shape: Vec<usize>) -> Self {
+        let elements: Vec<N> = (0..shape.iter().product())
+            .map(|_| N::rand(N::ZERO ..= N::ONE))
+            .collect();
+        Array { elements, shape }
+    }
+
     fn empty() -> Self {
         Array::new(Vec::<N>::new(), vec![0])
     }

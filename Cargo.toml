@@ -17,5 +17,8 @@ path = "src/lib.rs"
 default = ["macros"]
 macros = []
 
+[dependencies]
+rand = "0.8"
+
 [dev-dependencies]
 rstest = "0.16"
