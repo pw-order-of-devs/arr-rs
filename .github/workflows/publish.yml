@@ -10,7 +10,8 @@ jobs:
     name: Changelog
     runs-on: ubuntu-latest
     steps:
-      - name: "Generate release changelog"
+      - uses: actions/checkout@v3
+      - name: Generate release changelog
         uses: heinrichreimer/github-changelog-generator-action@v2.3
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -26,7 +27,6 @@ jobs:
           prWoLabels: true
           author: true
           verbose: true
-
       - name: Commit CHANGELOG Changes
         run: |
           git config user.name "GitHub Actions"
