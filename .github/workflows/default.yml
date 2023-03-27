@@ -3,24 +3,35 @@ name: default build
 on:
   push:
     branches: '**'
-  pull_request:
-    branches: '**'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Cache .cargo directory
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-rust-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-      - run: cargo build --release --all-features
+      - name: build
+        run: cargo build --release --all-features
 
   lint:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Cache .cargo directory
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-rust-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -33,25 +44,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Cache .cargo directory
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo
+          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: ${{ runner.os }}-rust-
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
-
       - name: tests
         uses: actions-rs/cargo@v1
         with:
           command: test
           args: --all-features --no-fail-fast
 
-      - name: coverage
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: 0.22.0
-          args: -- --test-threads 1
-
   audit:
-    needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
