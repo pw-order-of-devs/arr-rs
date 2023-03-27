@@ -2,7 +2,7 @@ name: publish to crates.io
 
 on:
   push:
-    tags: '*'
+    branches: '**'
 
 jobs:
   changelog:
