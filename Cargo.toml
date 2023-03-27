@@ -21,4 +21,4 @@ macros = []
 rand = "0.8"
 
 [dev-dependencies]
-rstest = "0.16"
+rstest = "0.17"

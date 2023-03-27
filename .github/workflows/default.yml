@@ -9,15 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cache .cargo directory
-        uses: actions/cache@v3
-        with:
-          path: ~/.cargo
-          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-rust-
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
+          cache: true
       - name: build
         run: cargo build --release --all-features
 
@@ -26,44 +21,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cache .cargo directory
-        uses: actions/cache@v3
-        with:
-          path: ~/.cargo
-          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-rust-
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
-          components: clippy
+          cache: true
       - name: lint
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: |
+          rustup component add clippy
+          cargo clippy --all-targets --all-features -- -D warnings
 
   quality:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Cache .cargo directory
-        uses: actions/cache@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          path: ~/.cargo
-          key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: ${{ runner.os }}-rust-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: nightly
-          override: true
+          toolchain: stable
+          cache: true
       - name: tests
-        uses: actions-rs/cargo@v1
+        run: |
+          cargo check
+          cargo test --all-features --no-fail-fast
+      - name: coverage
+        run: |
+          cargo install cargo-tarpaulin 
+          cargo tarpaulin --out html -- --test-threads 1
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v3
         with:
-          command: test
-          args: --all-features --no-fail-fast
+          name: code-coverage-report
+          path: tarpaulin-report.html
 
   audit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/audit-check@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          toolchain: stable
+          cache: true
+      - run: |
+          cargo install cargo-audit
+          cargo audit
