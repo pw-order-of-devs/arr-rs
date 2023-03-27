@@ -26,7 +26,7 @@ jobs:
           author: true
           verbose: true
       - name: Print changelog
-      - run:
+        run:
           cat CHANGELOG
       - name: Archive generated changelog
         uses: actions/upload-artifact@v3
