@@ -25,7 +25,6 @@ jobs:
         with:
           toolchain: stable
           cache: true
-          components: clippy
       - name: lint
         run: |
           rustup component add clippy
