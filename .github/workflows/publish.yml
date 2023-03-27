@@ -21,12 +21,12 @@ jobs:
           tag: ${{ github.ref_name }}
           includeInvalidCommits: true
 
-      - name: Commit CHANGELOG.md.md
+      - name: Commit CHANGELOG.md
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           branch: test
           commit_message: 'docs: update CHANGELOG.md.md for ${{ github.ref_name }} [skip ci]'
-          file_pattern: CHANGELOG.md.md
+          file_pattern: CHANGELOG.md
 
   publish:
     if: ${{ false }}
