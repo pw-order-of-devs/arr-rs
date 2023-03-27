@@ -1,0 +1,36 @@
+name: generate changelog
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  changelog:
+    name: Changelog
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate release changelog
+        uses: heinrichreimer/github-changelog-generator-action@v2.3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          output: CHANGELOG
+          headerLabel: "# 📑 Changelog"
+          breakingLabel: '### 💥 Breaking'
+          enhancementLabel: '### 🚀 Enhancements'
+          bugsLabel: '### 🐛 Bug fixes'
+          stripGeneratorNotice: true
+          issues: true
+          issuesWoLabels: false
+          pullRequests: false
+          prWoLabels: true
+          author: true
+          verbose: true
+      - name: Print changelog
+        run:
+          cat CHANGELOG
+      - name: Archive generated changelog
+        uses: actions/upload-artifact@v3
+        with:
+          name: CHANGELOG
+          path: CHANGELOG
