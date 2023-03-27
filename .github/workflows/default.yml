@@ -79,7 +79,7 @@ jobs:
         uses: actions-rs/tarpaulin@v0.1
         with:
           version: '0.22.0'
-          args: '-- --test-threads 1 --out html'
+          args: '--out html -- --test-threads 1'
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
