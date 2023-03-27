@@ -27,7 +27,9 @@ jobs:
           cache: true
           components: clippy
       - name: lint
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: |
+          rustup component add clippy
+          cargo clippy --all-targets --all-features -- -D warnings
 
   quality:
     needs: build
@@ -39,24 +41,13 @@ jobs:
           toolchain: stable
           cache: true
       - name: tests
-        uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --all-features --no-fail-fast
-
-  coverage:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions-rust-lang/setup-rust-toolchain@v1
-        with:
-          toolchain: stable
+        run: |
+          cargo check
+          cargo test --all-features --no-fail-fast
       - name: coverage
-        uses: actions-rs/tarpaulin@v0.1
-        with:
-          version: '0.22.0'
-          args: '--out html -- --test-threads 1'
+        run: |
+          cargo install cargo-tarpaulin 
+          cargo tarpaulin --out html -- --test-threads 1
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
@@ -67,6 +58,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/audit-check@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          toolchain: stable
+          cache: true
+      - run: |
+          cargo install cargo-audit
+          cargo audit
