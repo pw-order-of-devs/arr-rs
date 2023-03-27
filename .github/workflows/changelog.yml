@@ -26,6 +26,10 @@ jobs:
           prWoLabels: true
           author: true
           verbose: true
+      - run: |
+          ls
+      - run: |
+          ls /github/workspace
       - name: Archive generated changelog
         uses: actions/upload-artifact@v3
         with:
