@@ -19,6 +19,7 @@ jobs:
         with:
           token: ${{ github.token }}
           tag: ${{ github.ref_name }}
+          includeInvalidCommits: true
 
       - name: Commit CHANGELOG.md.md
         uses: stefanzweifel/git-auto-commit-action@v4
