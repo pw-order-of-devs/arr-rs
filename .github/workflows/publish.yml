@@ -6,7 +6,6 @@ on:
 
 jobs:
   changelog:
-    if: ${{ false }}
     name: Publish
     runs-on: ubuntu-latest
     steps:
@@ -28,6 +27,7 @@ jobs:
           file_pattern: CHANGELOG.md
 
   publish:
+    if: ${{ false }}
     name: Publish
     runs-on: ubuntu-latest
     steps:
