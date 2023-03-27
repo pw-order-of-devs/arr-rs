@@ -31,4 +31,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: CHANGELOG
-          path: CHANGELOG.md
+          path: CHANGELOG
