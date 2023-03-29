@@ -27,9 +27,7 @@ todo!()
 
 ### Benchmark
 
-```
-todo!()
-```
+Benchmark results can be found [here](https://github.com/pw-order-of-devs/arr-rs/actions/workflows/benchmark.yml)
 
 ### License
 
