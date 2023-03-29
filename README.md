@@ -21,7 +21,7 @@ arr-rs = "0.0.0"
 
 ### Examples
 
-```rust error=SKIP
+```rust
 // import the crate
 use arr_rs::prelude::*;
 
