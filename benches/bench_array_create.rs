@@ -19,42 +19,42 @@ pub(crate) fn config<'a>(c: &'a mut Criterion, name: &'a str) -> BenchmarkGroup<
 
 #[allow(dead_code)]
 pub(crate) fn create_array_1d_1m_benchmark(c: &mut Criterion) {
-    let mut criterion = config(c, "array sum");
+    let mut criterion = config(c, "array create");
     criterion.bench_function("dim: 1D, elements: 1M", |b| b.iter(|| Array::<f64>::rand(vec![1000000])));
     criterion.finish();
 }
 
 #[allow(dead_code)]
 pub(crate) fn create_array_1d_10m_benchmark(c: &mut Criterion) {
-    let mut criterion = config(c, "array sum");
+    let mut criterion = config(c, "array create");
     criterion.bench_function("dim: 1D, elements: 10M", |b| b.iter(|| Array::<f64>::rand(vec![10000000])));
     criterion.finish();
 }
 
 #[allow(dead_code)]
 pub(crate) fn create_array_5d_1m_benchmark(c: &mut Criterion) {
-    let mut criterion = config(c, "array sum");
+    let mut criterion = config(c, "array create");
     criterion.bench_function("dim: 5D, elements: 1M", |b| b.iter(|| Array::<f64>::rand(vec![16; 5])));
     criterion.finish();
 }
 
 #[allow(dead_code)]
 pub(crate) fn create_array_5d_10m_benchmark(c: &mut Criterion) {
-    let mut criterion = config(c, "array sum");
+    let mut criterion = config(c, "array create");
     criterion.bench_function("dim: 5D, elements: 10M", |b| b.iter(|| Array::<f64>::rand(vec![25; 5])));
     criterion.finish();
 }
 
 #[allow(dead_code)]
 pub(crate) fn create_array_10d_1m_benchmark(c: &mut Criterion) {
-    let mut criterion = config(c, "array sum");
+    let mut criterion = config(c, "array create");
     criterion.bench_function("dim: 10D, elements: 1M", |b| b.iter(|| Array::<f64>::rand(vec![4; 10])));
     criterion.finish();
 }
 
 #[allow(dead_code)]
 pub(crate) fn create_array_10d_10m_benchmark(c: &mut Criterion) {
-    let mut criterion = config(c, "array sum");
+    let mut criterion = config(c, "array create");
     criterion.bench_function("dim: 10D, elements: 10M", |b| b.iter(|| Array::<f64>::rand(vec![5; 10])));
     criterion.finish();
 }
