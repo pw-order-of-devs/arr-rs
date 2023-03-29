@@ -15,10 +15,8 @@ jobs:
           cache: true
       - name: benchmark
         run: cargo bench
-      - name: Zip benchmark results
-        run: zip benchmark.zip target/criterion -r
       - name: Archive benchmark results
         uses: actions/upload-artifact@v3
         with:
           name: benchmark
-          path: benchmark.zip
+          path: target/criterion
