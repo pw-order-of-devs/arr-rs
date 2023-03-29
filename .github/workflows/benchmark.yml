@@ -1,0 +1,24 @@
+name: benchmark
+
+on:
+  push:
+    branches: '**'
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          cache: true
+      - name: benchmark
+        run: cargo bench
+      - name: Zip benchmark results
+        run: zip benchmark.zip target/criterion -r
+      - name: Archive benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark
+          path: benchmark.zip
