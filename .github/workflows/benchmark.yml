@@ -1,8 +1,10 @@
 name: benchmark
 
 on:
-  push:
-    branches: '**'
+  pull_request:
+    branches:
+      - master
+      - develop
 
 jobs:
   benchmark:
