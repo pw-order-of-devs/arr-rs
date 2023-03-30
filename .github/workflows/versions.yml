@@ -1,0 +1,26 @@
+name: publish to crates.io
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  versions_update:
+    name: Update versions in Cargo.toml and README.md
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Update Cargo.toml and README.md
+        run: |
+          VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
+          VERSION_TAG="${VERSION_TAG:1}"
+          DEV_TAG="${VERSION_TAG}_dev"
+          sed -i "s/version = \"${VERSION_TAG}\"/version = \"${DEV_TAG}\"/g" Cargo.toml
+          sed -i "s/${VERSION_TAG}/${DEV_TAG}/g" README.md
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update crate versions [skip ci]
+          commit_options: '--no-verify --signoff'
