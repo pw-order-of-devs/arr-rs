@@ -8,3 +8,6 @@ pub use crate::base::{
 pub use crate::arrays::{
     array::Array,
 };
+
+#[cfg(feature = "macros")]
+pub use crate::array;
