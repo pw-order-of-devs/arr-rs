@@ -3,6 +3,7 @@ use arr_rs::prelude::*;
 
 #[rstest(
 array, expected,
+case(Array::new(vec![], vec![0]), "[]"),
 case(Array::new(vec![1, 2, 3, 4], vec![4]), "[1, 2, 3, 4]"),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), "[[1, 2], [3, 4]]"),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), "[1, 2, 3, 4, 5, 6, 7, 8]"),
@@ -14,6 +15,7 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), "[[[1, 2], [3, 4]]
 
 #[rstest(
 array, expected,
+case(Array::new(vec![], vec![0]), "[]"),
 case(Array::new(vec![1, 2, 3, 4], vec![4]), "[1, 2, 3, 4]"),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), "[[1, 2], \n [3, 4]]"),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), "[1, 2, 3, 4, 5, 6, 7, 8]"),

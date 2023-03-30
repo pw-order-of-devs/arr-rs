@@ -3,17 +3,17 @@ use arr_rs::prelude::*;
 
 #[rstest(
 array, expected,
-case(Array::new(vec![1, 2, 3, 4], vec![4]), "[3, 6, 9, 12]"),
-case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), "[[3, 6], [9, 12]]"),
-case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![8]), "[3, 6, 9, 12, 3, 6, 9, 12]"),
-case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), "[[3, 6], [9, 12], [3, 6], [9, 12]]"),
-case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), "[[[3, 6], [9, 12]], [[3, 6], [9, 12]]]"),
-)] fn test_iter_array(array: Array<i32>, expected: &str) {
+case(Array::new(vec![1, 2, 3, 4], vec![4]), array!([3, 6, 9, 12])),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), array!([[3, 6], [9, 12]])),
+case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![8]), array!([3, 6, 9, 12, 3, 6, 9, 12])),
+case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), array!([[3, 6, 9, 12], [3, 6, 9, 12]])),
+case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), array!([[[3, 6], [9, 12]], [[3, 6], [9, 12]]])),
+)] fn test_iter_array(array: Array<i32>, expected: Array<i32>) {
     let iterated: Array<i32> = array.clone().into_iter()
         .map(|i| i * 3)
         .collect::<Array<i32>>()
         .reshape(array.get_shape());
-    assert_eq!(expected, format!("{iterated}"))
+    assert_eq!(expected, iterated)
 }
 
 #[rstest(
@@ -44,8 +44,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 4, 6, 8]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![2, 4, 6, 8, 2, 4, 6, 8]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), vec![2, 4, 6, 8, 2, 4, 6, 8]),
 )] fn test_array_map(array: Array<i32>, expected: Vec<i32>) {
-    let arr = array.map(|item| *item * 2);
-    assert_eq!(expected, arr.get_elements());
+    assert_eq!(expected, array.map(|item| *item * 2).get_elements());
 }
 
 #[rstest(
@@ -54,8 +53,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![0, 2, 6, 12]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![0, 2, 6, 12, 4, 10, 18, 28]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), vec![0, 2, 6, 12, 4, 10, 18, 28]),
 )] fn test_array_map_e(array: Array<i32>, expected: Vec<i32>) {
-    let arr = array.map_e(|idx, item| *item * idx as i32);
-    assert_eq!(expected, arr.get_elements());
+    assert_eq!(expected, array.map_e(|idx, item| *item * idx as i32).get_elements());
 }
 
 #[rstest(
@@ -64,8 +62,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 4]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![2, 4, 2, 4]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), vec![2, 4, 2, 4]),
 )] fn test_array_filter(array: Array<i32>, expected: Vec<i32>) {
-    let arr = array.filter(|item| item % 2 == 0);
-    assert_eq!(expected, arr.get_elements());
+    assert_eq!(expected, array.filter(|item| item % 2 == 0).get_elements());
 }
 
 #[rstest(
@@ -74,8 +71,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![1, 2, 3, 4]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![1, 2, 3, 4]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), vec![1, 2, 3, 4]),
 )] fn test_array_filter_e(array: Array<i32>, expected: Vec<i32>) {
-    let arr = array.filter_e(|idx, item| item % (idx + 1) as i32 == 0);
-    assert_eq!(expected, arr.get_elements());
+    assert_eq!(expected, array.filter_e(|idx, item| item % (idx + 1) as i32 == 0).get_elements());
 }
 
 #[rstest(
@@ -84,10 +80,9 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 4]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![2, 4, 2, 4]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), vec![2, 4, 2, 4]),
 )] fn test_array_filter_map(array: Array<i32>, expected: Vec<i32>) {
-    let arr = array.filter_map(|item|
+    assert_eq!(expected, array.filter_map(|item|
         if item % 2 == 0 { Some(*item) } else { None }
-    );
-    assert_eq!(expected, arr.get_elements());
+    ).get_elements());
 }
 
 #[rstest(
@@ -96,10 +91,9 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![1, 2, 3, 4]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![1, 2, 3, 4]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), vec![1, 2, 3, 4]),
 )] fn test_array_filter_map_e(array: Array<i32>, expected: Vec<i32>) {
-    let arr = array.filter_map_e(|idx, item|
+    assert_eq!(expected, array.filter_map_e(|idx, item|
         if item % (idx + 1) as i32 == 0 { Some(*item) } else { None }
-    );
-    assert_eq!(expected, arr.get_elements());
+    ).get_elements());
 }
 
 #[rstest(
