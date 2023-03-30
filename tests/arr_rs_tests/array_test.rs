@@ -3,10 +3,13 @@ use arr_rs::prelude::*;
 
 #[rstest(
 elements, shape, expected,
-case(vec![1, 2, 3, 4], vec![4], "[1, 2, 3, 4]"),
-case(vec![1, 2, 3, 4], vec![2, 2], "[[1, 2], [3, 4]]"),
-)] fn test_new(elements: Vec<i32>, shape: Vec<usize>, expected: &str) {
-    assert_eq!(expected, format!("{}", Array::new(elements, shape)))
+case(vec![1, 2, 3, 4], vec![4], array!([1, 2, 3, 4])),
+case(vec![1, 2, 3, 4], vec![2, 2], array!([[1, 2], [3, 4]])),
+case(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2], array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]])),
+#[should_panic(expected = "Shape must match values length")]
+case(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![10], array!([1])),
+)] fn test_new(elements: Vec<i32>, shape: Vec<usize>, expected: Array<i32>) {
+    assert_eq!(expected, Array::new(elements, shape))
 }
 
 #[rstest(
@@ -20,39 +23,39 @@ case(vec![4, 4, 4], 64),
 
 #[rstest(
 array, expected,
-case(Array::empty(), "[]"),
-)] fn test_empty(array: Array<f64>, expected: &str) {
-    assert_eq!(expected, format!("{array}"))
+case(Array::empty(), Array::new(vec![], vec![0])),
+)] fn test_empty(array: Array<f64>, expected: Array<f64>) {
+    assert_eq!(expected, array)
 }
 
 #[rstest(
 shape, expected,
-case(vec![4], "[0, 0, 0, 0]"),
-case(vec![2, 2], "[[0, 0], [0, 0]]"),
-)] fn test_zeros(shape: Vec<usize>, expected: &str) {
-    let arr: Array<f64> = Array::zeros(shape);
-    assert_eq!(expected, format!("{arr}"))
+case(vec![4], array!([0, 0, 0, 0])),
+case(vec![2, 2], array!([[0, 0], [0, 0]])),
+)] fn test_zeros(shape: Vec<usize>, expected: Array<f64>) {
+    assert_eq!(expected, Array::<f64>::zeros(shape))
 }
 
 #[rstest(
 shape, expected,
-case(vec![4], "[1, 1, 1, 1]"),
-case(vec![2, 2], "[[1, 1], [1, 1]]"),
-)] fn test_ones(shape: Vec<usize>, expected: &str) {
-    let arr: Array<f64> = Array::ones(shape);
-    assert_eq!(expected, format!("{arr}"))
+case(vec![4], array!([1., 1., 1., 1.])),
+case(vec![2, 2], array!([[1., 1.], [1., 1.]])),
+)] fn test_ones(shape: Vec<usize>, expected: Array<f64>) {
+    assert_eq!(expected, Array::<f64>::ones(shape))
 }
 
 #[rstest(
 array, new_shape, expected,
-case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 2], "[[1, 2], [3, 4]]"),
-case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), vec![4], "[1, 2, 3, 4]"),
-case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), vec![3, 2], "[[1, 2, 3], [4, 5, 6]]"),
-case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), vec![6], "[1, 2, 3, 4, 5, 6]"),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![2, 4], "[[1, 2], [3, 4], [5, 6], [7, 8]]"),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![8], "[1, 2, 3, 4, 5, 6, 7, 8]"),
-)] fn test_reshape(array: Array<i32>, new_shape: Vec<usize>, expected: &str) {
-    assert_eq!(expected, format!("{}", array.reshape(new_shape)))
+case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 2], array!([[1, 2], [3, 4]])),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), vec![4], array!([1, 2, 3, 4])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), vec![3, 2], array!([[1, 2], [3, 4], [5, 6]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), vec![6], array!([1, 2, 3, 4, 5, 6])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![2, 4], array!([[1, 2, 3, 4], [5, 6, 7, 8]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![8], array!([1, 2, 3, 4, 5, 6, 7, 8])),
+#[should_panic(expected = "Shape must match values length")]
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![10], array!([1])),
+)] fn test_reshape(array: Array<i32>, new_shape: Vec<usize>, expected: Array<i32>) {
+    assert_eq!(expected, array.reshape(new_shape))
 }
 
 #[rstest(
@@ -105,6 +108,10 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), &[1, 1], 4),
 case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), &[2, 0], 4),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[0, 0, 1], 1),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[1, 1, 1], 7),
+#[should_panic(expected = "coords length must match array dimension")]
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[2, 3, 4], 0),
+#[should_panic(expected = "coord value must match array shape")]
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], 0),
 )] fn test_index(array: Array<i32>, coords: &[usize], expected: usize) {
     assert_eq!(expected, array.index(coords))
 }
@@ -119,6 +126,10 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), &[1, 1], 5),
 case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), &[2, 0], 5),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[0, 0, 1], 2),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[1, 1, 1], 8),
+#[should_panic(expected = "coords length must match array dimension")]
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[2, 3, 4], 0),
+#[should_panic(expected = "coord value must match array shape")]
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], 0),
 )] fn test_at(array: Array<i32>, coords: &[usize], expected: i32) {
     assert_eq!(expected, array.at(coords))
 }
@@ -135,8 +146,10 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]), 0 .. 1, array!([1, 2,
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]), 0 .. 2, array!([[1, 2, 3, 4], [5, 6, 7, 8]])),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 0 .. 1, array!([[1, 2], [3, 4]])),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 2 .. 3, array!([[5, 6], [7, 8]])),
+#[should_panic(expected = "Slice range out of bounds")]
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 3 .. 10, array!([0])),
 )] fn test_slice(array: Array<i32>, range: std::ops::Range<usize>, expected: Array<i32>) {
-    assert_eq!(format!("{expected}"), format!("{}", array.slice(range)))
+    assert_eq!(expected, array.slice(range))
 }
 
 #[rstest(
