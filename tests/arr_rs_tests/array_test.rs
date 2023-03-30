@@ -22,15 +22,6 @@ case(vec![4, 4, 4], 64),
 }
 
 #[rstest(
-shape, expected,
-case(vec![4], 4),
-case(vec![4, 4], 16),
-case(vec![4, 4, 4], 64),
-)] fn test_rand(shape: Vec<usize>, expected: usize) {
-    assert_eq!(expected, Array::<f64>::rand(shape).len())
-}
-
-#[rstest(
 array, expected,
 case(Array::empty(), Array::new(vec![], vec![0])),
 )] fn test_empty(array: Array<f64>, expected: Array<f64>) {

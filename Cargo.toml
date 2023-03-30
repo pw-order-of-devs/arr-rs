@@ -1,13 +1,13 @@
 [package]
 name = "arr-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = [ "Paweł Walus <pawel.walus@protonmail.com>" ]
 description = "arr-rs - rust arrays library"
 keywords = ["arrays", "collections"]
 homepage = "https://github.com/pw-order-of-devs"
 repository = "https://github.com/pw-order-of-devs/arr-rs"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 
 [lib]
 name = "arr_rs"
