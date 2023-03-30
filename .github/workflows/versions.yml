@@ -1,4 +1,4 @@
-name: publish to crates.io
+name: update crate version
 
 on:
   push:
@@ -14,6 +14,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Update Cargo.toml and README.md
         run: |
+          git fetch --all --tags
           VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
           VERSION_TAG="${VERSION_TAG:1}"
           DEV_TAG="${VERSION_TAG}_dev"
