@@ -10,5 +10,8 @@ pub mod compare;
 /// Display implementation
 pub mod display;
 
+/// Ops implementation
+pub mod ops;
+
 /// Iterable implementation
 pub mod iter;

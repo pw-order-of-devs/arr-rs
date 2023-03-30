@@ -88,9 +88,7 @@ impl <N: Numeric> ArrayBase<N> for Array<N> {
     }
 
     fn slice(&self, range: std::ops::Range<usize>) -> Self {
-        if range.start > range.end || range.end > self.elements.len() {
-            panic!("Slice range out of bounds");
-        }
+        assert!(range.start <= range.end && range.end <= self.elements.len(), "Slice range out of bounds");
         if self.shape.len() == 1 {
             Array::flat(self.elements[range].into())
         } else if range.len() >= self.shape[0] {

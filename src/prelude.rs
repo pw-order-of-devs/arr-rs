@@ -9,5 +9,6 @@ pub use crate::arrays::{
     array::Array,
 };
 
+// macros
 #[cfg(feature = "macros")]
 pub use crate::array;
