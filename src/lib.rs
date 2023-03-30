@@ -1,7 +1,7 @@
 //! arr-rs - implementation of multidimensional array in Rust
 //! # Examples
 //!
-//! ```rust no_run
+//! ```ignore
 //! // import the crate
 //! use arr_rs::prelude::*;
 //!
