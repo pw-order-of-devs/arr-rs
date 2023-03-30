@@ -1,9 +1,9 @@
 name: publish to crates.io
 
 on:
-  pull_request:
+  push:
     branches:
-      - develop
+      - "**"
 
 jobs:
   versions_update:
