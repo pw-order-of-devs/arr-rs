@@ -2,10 +2,10 @@
 
 [![crates.io](https://img.shields.io/crates/v/arr-rs?label=latest)](https://crates.io/crates/arr-rs)
 ![downloads](https://img.shields.io/crates/d/arr-rs.svg)
-[![Documentation](https://docs.rs/arr-rs/badge.svg?version=0.1.0)](https://docs.rs/arr-rs/0.1.0)
+[![Documentation](https://docs.rs/arr-rs/badge.svg?version=latest)](https://docs.rs/arr-rs/latest)
 ![MIT or Apache 2.0 licensed](https://img.shields.io/crates/l/arr-rs.svg) \
 [![CI](https://github.com/pw-order-of-devs/arr-rs/actions/workflows/default.yml/badge.svg)](https://github.com/arr-rs/actions/workflows/default.yml)
-[![Dependency Status](https://deps.rs/crate/arr-rs/0.1.0/status.svg)](https://deps.rs/crate/arr-rs/0.1.0)
+[![Dependency Status](https://deps.rs/crate/arr-rs/latest/status.svg)](https://deps.rs/crate/arr-rs/latest)
 
 ### Crate
 
