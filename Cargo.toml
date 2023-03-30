@@ -1,6 +1,6 @@
 [package]
 name = "arr-rs"
-version = "0.0.0"
+version = "0.1.0"
 edition = "2021"
 authors = [ "Paweł Walus <pawel.walus@protonmail.com>" ]
 description = "arr-rs - rust arrays library"
@@ -13,8 +13,18 @@ license = "MIT"
 name = "arr_rs"
 path = "src/lib.rs"
 
+[features]
+default = ["macros"]
+macros = []
+
 [dependencies]
-num-traits = "0.2"
+rand = "0.8"
 
 [dev-dependencies]
-rstest = "0.16"
+rstest = "0.17"
+criterion = { version = "0.4", features = ["html_reports"] }
+
+[[bench]]
+name = "benches"
+harness = false
+path = "benches/main.rs"
