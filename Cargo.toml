@@ -7,7 +7,7 @@ description = "arr-rs - rust arrays library"
 keywords = ["arrays", "collections"]
 homepage = "https://github.com/pw-order-of-devs"
 repository = "https://github.com/pw-order-of-devs/arr-rs"
-license = "MIT"
+license = "MIT OR Apache-2.0"
 
 [lib]
 name = "arr_rs"
