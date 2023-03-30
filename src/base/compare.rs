@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use crate::prelude::{Array, Numeric};
+use crate::prelude::{Array, ArrayBase, Numeric};
 
 impl <N: Numeric> PartialEq for Array<N> {
 
@@ -40,7 +40,8 @@ impl <N: Numeric> PartialOrd for Array<N> {
 }
 
 fn compare_shape<N: Numeric>(arr1: &Array<N>, arr2: &Array<N>) {
-    if arr1.shape != arr2.shape {
-        panic!("Cannot compare arrays of different shape: {:?} and {:?}", arr1.shape, arr2.shape)
-    }
+    assert_eq!(
+        arr1.get_shape(), arr2.get_shape(),
+        "Cannot compare arrays of different shape: {:?} and {:?}", arr1.shape, arr2.shape
+    );
 }
