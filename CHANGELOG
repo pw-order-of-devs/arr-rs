@@ -1,1 +1,31 @@
-0.0.0 - template
+# 📑 Changelog
+
+## [v0.1.0](https://github.com/pw-order-of-devs/arr-rs/compare/v0.1.0...v0.0.0)
+
+### 🚀 Enhancements
+
+- Implement ops opertions for array [\#42](https://github.com/pw-order-of-devs/arr-rs/issues/42)
+- Benchmark Array creation [\#29](https://github.com/pw-order-of-devs/arr-rs/issues/29)
+- Fold implementation [\#26](https://github.com/pw-order-of-devs/arr-rs/issues/26)
+- Extend unit tests [\#23](https://github.com/pw-order-of-devs/arr-rs/issues/23)
+- Array::new macro [\#18](https://github.com/pw-order-of-devs/arr-rs/issues/18)
+- Remove num-traits dependency - custom trait [\#17](https://github.com/pw-order-of-devs/arr-rs/issues/17)
+- Display trait for Array [\#11](https://github.com/pw-order-of-devs/arr-rs/issues/11)
+- MapFilter implementation [\#10](https://github.com/pw-order-of-devs/arr-rs/issues/10)
+- Map implementation [\#9](https://github.com/pw-order-of-devs/arr-rs/issues/9)
+- Filter implementation [\#8](https://github.com/pw-order-of-devs/arr-rs/issues/8)
+- ForEach implementation [\#7](https://github.com/pw-order-of-devs/arr-rs/issues/7)
+- Iterable implementation [\#6](https://github.com/pw-order-of-devs/arr-rs/issues/6)
+- Subarray implementation [\#5](https://github.com/pw-order-of-devs/arr-rs/issues/5)
+- Ravel array implementation [\#4](https://github.com/pw-order-of-devs/arr-rs/issues/4)
+
+**Closed issues:**
+
+- Prepare usage examples [\#37](https://github.com/pw-order-of-devs/arr-rs/issues/37)
+- Update README [\#19](https://github.com/pw-order-of-devs/arr-rs/issues/19)
+- Update security page [\#13](https://github.com/pw-order-of-devs/arr-rs/issues/13)
+- Provide complete documentation of the library [\#3](https://github.com/pw-order-of-devs/arr-rs/issues/3)
+
+## [v0.0.0](https://github.com/pw-order-of-devs/arr-rs/tree/v0.0.0) (2023-02-24)
+
+[Full Changelog](https://github.com/pw-order-of-devs/arr-rs/compare/488a5adc3757b0b182473ddfcecb5ac22183b607...v0.0.0)
