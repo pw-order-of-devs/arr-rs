@@ -12,19 +12,6 @@ jobs:
     steps:
       - name: Checkout sources
         uses: actions/checkout@v3
-      - name: Update Cargo.toml and README.md
-        run: |
-          git fetch --all --tags
-          VERSION_TAG=$(git describe --tags $(git rev-list --tags --max-count=1))
-          VERSION_TAG="${VERSION_TAG:1}"
-          NEW_VERSION_TAG="${GITHUB_REF#refs/*/}"
-          sed -i "s/version = \"${VERSION_TAG}\"/version = \"${NEW_VERSION_TAG}\"/g" Cargo.toml
-          sed -i "s/${VERSION_TAG}/${NEW_VERSION_TAG}/g" README.md
-      - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: Update crate versions [skip ci]
-          commit_options: '--no-verify --signoff'
       - name: Install stable toolchain
         uses: actions-rs/toolchain@v1
         with:
