@@ -1,6 +1,6 @@
 [package]
 name = "arr-rs"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = [ "Paweł Walus <pawel.walus@protonmail.com>" ]
 description = "arr-rs - rust arrays library"
@@ -8,6 +8,10 @@ keywords = ["arrays", "collections"]
 homepage = "https://github.com/pw-order-of-devs"
 repository = "https://github.com/pw-order-of-devs/arr-rs"
 license = "MIT OR Apache-2.0"
+
+[package.metadata.docs.rs]
+features = ["macros"]
+rustdoc-args = ["--cfg", "docsrs"]
 
 [lib]
 name = "arr_rs"
