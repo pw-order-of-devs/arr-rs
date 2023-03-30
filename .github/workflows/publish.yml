@@ -21,3 +21,19 @@ jobs:
       - run: cargo publish --token ${CRATES_TOKEN}
         env:
           CRATES_TOKEN: ${{ secrets.CRATES_TOKEN }}
+
+  publish-docs:
+    name: Publish docs
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v3
+      - name: Install stable toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+      - name: Build Docs
+        run: cargo doc --no-deps --workspace --all-features
+        env:
+          RUSTDOCFLAGS: --cfg=docsrs
