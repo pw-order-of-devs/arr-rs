@@ -1,6 +1,8 @@
-use crate::arrays::array::Array;
-use crate::base::base_array::ArrayBase;
-use crate::base::base_type::Numeric;
+use crate::arrays::Array;
+use crate::traits::{
+    create::ArrayCreate,
+    types::Numeric,
+};
 
 impl <N: Numeric> IntoIterator for Array<N> {
     type Item = N;

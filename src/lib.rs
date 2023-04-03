@@ -39,7 +39,7 @@
 /// prelude module - imports facade
 pub mod prelude;
 
-/// base modules - trait definitions
-pub mod base;
+/// traits modules - trait definitions
+pub mod traits;
 /// implementation modules - array implementation
 pub mod arrays;

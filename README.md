@@ -5,7 +5,7 @@
 [![Documentation](https://docs.rs/arr-rs/badge.svg?version=latest)](https://docs.rs/arr-rs/latest)
 ![MIT or Apache 2.0 licensed](https://img.shields.io/crates/l/arr-rs.svg) \
 [![CI](https://github.com/pw-order-of-devs/arr-rs/actions/workflows/default.yml/badge.svg)](https://github.com/pw-order-of-devs/arr-rs/actions/workflows/default.yml)
-[![Dependency Status](https://deps.rs/crate/arr-rs/latest/status.svg)](https://deps.rs/crate/arr-rs/latest)
+[![Dependency Status](https://deps.rs/crate/arr-rs/latest/status.svg)](https://deps.rs/crate/arr-rs)
 
 ### Crate
 

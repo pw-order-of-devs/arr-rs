@@ -1,13 +1,15 @@
-// base traits
-pub use crate::base::{
-    base_array::ArrayBase,
-    base_type::Numeric,
+// traits traits
+pub use crate::traits::{
+    create::ArrayCreate,
+    indexing::ArrayIndexing,
+    manipulate::ArrayManipulate,
+    math::ArrayMath,
+    meta::ArrayMeta,
+    types::Numeric,
 };
 
 // implementations
-pub use crate::arrays::{
-    array::Array,
-};
+pub use crate::arrays::Array;
 
 // macros
 #[cfg(feature = "macros")]
