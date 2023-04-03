@@ -1,23 +1,16 @@
-use crate::arrays::array::Array;
-use crate::base::base_array::ArrayBase;
-use crate::base::base_type::Numeric;
+use crate::arrays::Array;
+use crate::traits::{
+    meta::ArrayMeta,
+    types::Numeric,
+};
 
 impl <N: Numeric> std::fmt::Display for Array<N> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        if f.alternate() {
-            write!(f, "{}", build_string(self, true))
-        } else {
-            write!(f, "{}", build_string(self, false))
-        }
+        write!(f, "{}", build_string(self, f.alternate()))
     }
 }
 
-/// Display trait for numeric Array
-pub trait ArrayDisplay<N: Numeric> {}
-
-impl <N: Numeric> ArrayDisplay<N> for Array<N> {}
-
-fn build_string<N: Numeric>(arr: &Array<N>, pretty: bool) -> String {
+fn build_string<N: Numeric>(arr: &Array<N>, alternate: bool) -> String {
     if arr.is_empty() {
         return "[]".to_string();
     } else if arr.len() == 1 {
@@ -39,7 +32,7 @@ fn build_string<N: Numeric>(arr: &Array<N>, pretty: bool) -> String {
             str.push("]".repeat(separators));
             if separators > 0 {
                 str.push(", ".to_string());
-                if pretty {
+                if alternate {
                     str.push("\n".to_string());
                     str.push(" ".repeat(arr.shape.len() - separators));
                 }
