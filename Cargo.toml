@@ -8,13 +8,15 @@ keywords = ["arrays", "collections"]
 homepage = "https://github.com/pw-order-of-devs"
 repository = "https://github.com/pw-order-of-devs/arr-rs"
 license = "MIT OR Apache-2.0"
-metadata.docs.rs.features = ["macros"]
-metadata.docs.rs.rustdoc-args = ["--cfg", "docsrs"]
 include = [
     "Cargo.toml", "Cargo.lock", "README.md",
     "LICENSE-APACHE", "LICENSE-MIT",
-    "/src", "/tests", "/benches"
+    "/src", "/tests", "/benches",
 ]
+
+[package.metadata.docs.rs]
+features = ["macros"]
+rustdoc-args = ["--cfg", "docsrs"]
 
 [lib]
 name = "arr_rs"
