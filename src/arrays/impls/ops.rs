@@ -2,18 +2,56 @@ use std::cmp::Ordering;
 use std::ops::{
     Add, AddAssign,
     Div, DivAssign,
+    Index, IndexMut,
     Mul, MulAssign,
+    Neg,
     Rem, RemAssign,
     Sub, SubAssign,
+
 };
 
 use crate::arrays::Array;
 use crate::traits::{
     create::ArrayCreate,
+    indexing::ArrayIndexing,
     manipulate::ArrayManipulate,
     meta::ArrayMeta,
     types::Numeric,
+    types::SignedNumeric,
 };
+
+// ==== Indexing
+
+impl <N: Numeric> Index<usize> for Array<N> {
+    type Output = N;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.elements[index]
+    }
+}
+
+impl <N: Numeric> Index<&[usize]> for Array<N> {
+    type Output = N;
+
+    fn index(&self, coords: &[usize]) -> &Self::Output {
+        &self.elements[self.index_at(coords)]
+    }
+}
+
+impl <N: Numeric> IndexMut<usize> for Array<N> {
+
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.elements[index]
+    }
+}
+
+impl <N: Numeric> IndexMut<&[usize]> for Array<N> {
+
+    fn index_mut(&mut self, coords: &[usize]) -> &mut Self::Output {
+        let index = self.index_at(coords);
+        &mut self.elements[index]
+    }
+}
 
 // ==== Compare
 
@@ -117,3 +155,17 @@ impl_op_assign!(SubAssign, sub_assign, -=);
 impl_op_assign!(MulAssign, mul_assign, *=);
 impl_op_assign!(DivAssign, div_assign, /=);
 impl_op_assign!(RemAssign, rem_assign, %=);
+
+// ==== Signed Ops
+
+impl <N: SignedNumeric> Neg for Array<N> {
+    type Output = Self;
+
+    fn neg(self) -> Self::Output {
+        let elements = self.elements.into_iter()
+            .map(|a| -a)
+            .collect();
+
+        Array::new(elements, self.shape)
+    }
+}

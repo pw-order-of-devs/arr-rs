@@ -16,16 +16,16 @@ pub trait ArrayIndexing<N: Numeric> where Self: Sized + Clone {
     ///
     /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 2, 2]);
     ///
-    /// let idx_1 = arr.index(&[0, 0, 0]);
+    /// let idx_1 = arr.index_at(&[0, 0, 0]);
     /// assert_eq!(0, idx_1);
     ///
-    /// let idx_2 = arr.index(&[1, 0, 1]);
+    /// let idx_2 = arr.index_at(&[1, 0, 1]);
     /// assert_eq!(5, idx_2);
     ///
-    /// let idx_3 = arr.index(&[1, 1, 1]);
+    /// let idx_3 = arr.index_at(&[1, 1, 1]);
     /// assert_eq!(7, idx_3);
     /// ```
-    fn index(&self, coords: &[usize]) -> usize;
+    fn index_at(&self, coords: &[usize]) -> usize;
 
     /// Return an index of element at the given coordinates
     ///

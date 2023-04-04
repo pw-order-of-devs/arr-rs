@@ -2,6 +2,7 @@ use std::ops::{
     Add, AddAssign,
     Div, DivAssign,
     Mul, MulAssign,
+    Neg,
     RangeInclusive,
     Rem, RemAssign,
     Sub, SubAssign,
@@ -51,3 +52,19 @@ impl_zero_one_numeric!(u8);
 impl_zero_one_numeric!(u16);
 impl_zero_one_numeric!(u32);
 impl_zero_one_numeric!(u64);
+
+/// Signed Numeric type for array
+pub trait SignedNumeric: Numeric + Neg<Output=Self> {}
+
+macro_rules! impl_signed_numeric {
+    ($t:ty) => {
+        impl SignedNumeric for $t {}
+    };
+}
+
+impl_signed_numeric!(f32);
+impl_signed_numeric!(f64);
+impl_signed_numeric!(i8);
+impl_signed_numeric!(i16);
+impl_signed_numeric!(i32);
+impl_signed_numeric!(i64);
