@@ -37,6 +37,25 @@ case(Array::empty(), Array::new(vec![], vec![0])),
 }
 
 #[rstest(
+n, m, k, expected,
+case(2, Some(3), Some(0), array!([[1., 0., 0.], [0., 1., 0.]])),
+case(3, Some(2), Some(1), array!([[0., 1.], [0., 0.], [0., 0.]])),
+case(4, Some(3), Some(0), array!([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.], [0., 0., 0.]])),
+case(4, Some(3), Some(1), array!([[0., 1., 0.], [0., 0., 1.], [0., 0., 0.], [0., 0., 0.]])),
+)] fn test_eye(n: usize, m: Option<usize>, k: Option<usize>, expected: Array<f64>) {
+     assert_eq!(expected, Array::<f64>::eye(n, m, k))
+}
+
+#[rstest(
+n, expected,
+case(2, array!([[1., 0.], [0., 1.]])),
+case(3, array!([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]])),
+case(4, array!([[1., 0., 0., 0.], [0., 1., 0., 0.], [0., 0., 1., 0.], [0., 0., 0., 1.]])),
+)] fn test_identity(n: usize, expected: Array<f64>) {
+     assert_eq!(expected, Array::<f64>::identity(n))
+}
+
+#[rstest(
 shape, expected,
 case(vec![4], array!([0, 0, 0, 0])),
 case(vec![2, 2], array!([[0, 0], [0, 0]])),
@@ -50,4 +69,12 @@ case(vec![4], array!([1., 1., 1., 1.])),
 case(vec![2, 2], array!([[1., 1.], [1., 1.]])),
 )] fn test_ones(shape: Vec<usize>, expected: Array<f64>) {
     assert_eq!(expected, Array::<f64>::ones(shape))
+}
+
+#[rstest(
+shape, fill_value, expected,
+case(vec![4], 2., array!([2., 2., 2., 2.])),
+case(vec![2, 2], 2., array!([[2., 2.], [2., 2.]])),
+)] fn test_full(shape: Vec<usize>, fill_value: f64, expected: Array<f64>) {
+    assert_eq!(expected, Array::<f64>::full(shape, fill_value))
 }
