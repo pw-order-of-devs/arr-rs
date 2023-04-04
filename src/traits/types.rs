@@ -1,8 +1,11 @@
 use std::ops::{
     Add, AddAssign,
+    BitAnd, BitAndAssign,
+    BitOr, BitOrAssign,
+    BitXor, BitXorAssign,
     Div, DivAssign,
     Mul, MulAssign,
-    Neg,
+    Neg, Not,
     RangeInclusive,
     Rem, RemAssign,
     Sub, SubAssign,
@@ -11,14 +14,9 @@ use std::ops::{
 use rand::Rng;
 use rand::distributions::Uniform;
 
-/// Base numeric type for array
+/// Numeric type for array
 pub trait Numeric:
-Copy + Clone + PartialEq + PartialOrd + std::fmt::Display +
-Add<Self, Output=Self> + AddAssign<Self> +
-Sub<Self, Output=Self> + SubAssign<Self> +
-Mul<Self, Output=Self> + MulAssign<Self> +
-Div<Self, Output=Self> + DivAssign<Self> +
-Rem<Self, Output=Self> + RemAssign<Self> {
+Copy + Clone + PartialEq + PartialOrd + std::fmt::Display {
     /// Zero constant value
     const ZERO: Self;
     /// One constant value
@@ -27,7 +25,7 @@ Rem<Self, Output=Self> + RemAssign<Self> {
     fn rand(range: RangeInclusive<Self>) -> Self;
 }
 
-macro_rules! impl_zero_one_numeric {
+macro_rules! impl_numeric {
     ($t:ty) => {
         impl Numeric for $t {
             const ZERO: Self = 0 as $t;
@@ -42,19 +40,44 @@ macro_rules! impl_zero_one_numeric {
     };
 }
 
-impl_zero_one_numeric!(f32);
-impl_zero_one_numeric!(f64);
-impl_zero_one_numeric!(i8);
-impl_zero_one_numeric!(i16);
-impl_zero_one_numeric!(i32);
-impl_zero_one_numeric!(i64);
-impl_zero_one_numeric!(u8);
-impl_zero_one_numeric!(u16);
-impl_zero_one_numeric!(u32);
-impl_zero_one_numeric!(u64);
+impl_numeric!(f32);
+impl_numeric!(f64);
+impl_numeric!(i8);
+impl_numeric!(i16);
+impl_numeric!(i32);
+impl_numeric!(i64);
+impl_numeric!(u8);
+impl_numeric!(u16);
+impl_numeric!(u32);
+impl_numeric!(u64);
+
+impl Numeric for bool {
+    const ZERO: Self = false;
+    const ONE: Self = true;
+
+    fn rand(_: RangeInclusive<Self>) -> Self {
+        let mut rng = rand::thread_rng();
+        rng.gen::<bool>()
+    }
+}
+
+/// Numeric Ops type for array
+pub trait NumericOps: Numeric +
+Add<Self, Output=Self> + AddAssign<Self> +
+Sub<Self, Output=Self> + SubAssign<Self> +
+Mul<Self, Output=Self> + MulAssign<Self> +
+Div<Self, Output=Self> + DivAssign<Self> +
+Rem<Self, Output=Self> + RemAssign<Self> {}
+
+impl NumericOps for f32 {}
+impl NumericOps for f64 {}
+impl NumericOps for i8 {}
+impl NumericOps for i16 {}
+impl NumericOps for i32 {}
+impl NumericOps for i64 {}
 
 /// Signed Numeric type for array
-pub trait SignedNumeric: Numeric + Neg<Output=Self> {}
+pub trait SignedNumeric: NumericOps + Neg<Output=Self> {}
 
 macro_rules! impl_signed_numeric {
     ($t:ty) => {
@@ -68,3 +91,11 @@ impl_signed_numeric!(i8);
 impl_signed_numeric!(i16);
 impl_signed_numeric!(i32);
 impl_signed_numeric!(i64);
+
+/// Signed Numeric type for array
+pub trait BoolNumeric: Numeric + Not +
+BitAnd + BitAndAssign +
+BitOr + BitOrAssign +
+BitXor + BitXorAssign {}
+
+impl BoolNumeric for bool {}

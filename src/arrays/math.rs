@@ -1,10 +1,10 @@
 use crate::arrays::Array;
 use crate::traits::{
     math::ArrayMath,
-    types::Numeric,
+    types::NumericOps,
 };
 
-impl <N: Numeric> ArrayMath<N> for Array<N> {
+impl <N: NumericOps> ArrayMath<N> for Array<N> {
 
     fn product(&self) -> N {
         self.elements.iter().fold(N::ONE, |acc, x| acc * *x)

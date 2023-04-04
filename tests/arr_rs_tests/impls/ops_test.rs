@@ -370,3 +370,77 @@ case(array!([[1., 2.], [3., 4.]]), array!([[-1., -2.], [-3., -4.]])),
 )] fn test_neg(arr: Array<f64>, expected: Array<f64>) {
     assert_eq!(expected, -arr);
 }
+
+// ==== Not
+
+#[rstest(
+arr, expected,
+case(array!([true, false, true, false]), array!([false, true, false, true])),
+case(array!([[true, false], [true, false]]), array!([[false, true], [false, true]])),
+)] fn test_not(arr: Array<bool>, expected: Array<bool>) {
+    assert_eq!(expected, !arr);
+}
+
+// ==== BitAnd
+
+#[rstest(
+arr1, arr2, expected,
+case(array!([true, false, true, false]), array!([true, true, false, false]), array!([true, false, false, false])),
+case(array!([[true, false], [true, false]]), array!([[true, true], [false, false]]), array!([[true, false], [false, false]])),
+#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `[2, 2]`,\n right: `[4]`")]
+case(array!([[true, false], [true, false]]), array!([true, false, true, false]), array!([[true, false], [true, false]])),
+)] fn test_bitand(arr1: Array<bool>, arr2: Array<bool>, expected: Array<bool>) {
+    assert_eq!(expected, arr1 & arr2);
+}
+
+#[rstest(
+arr, value, expected,
+case(array!([true, false, true, false]), true, array!([true, false, true, false])),
+case(array!([[true, false], [true, false]]), true, array!([[true, false], [true, false]])),
+)] fn test_bitand_value(arr: Array<bool>, value: bool, expected: Array<bool>) {
+    assert_eq!(expected, arr & value);
+}
+
+// ==== BitOr
+
+#[rstest(
+arr1, arr2, expected,
+case(array!([true, false, true, false]), array!([true, true, false, false]), array!([true, true, true, false])),
+case(array!([[true, false], [true, false]]), array!([[true, true], [false, false]]), array!([[true, true], [true, false]])),
+#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `[2, 2]`,\n right: `[4]`")]
+case(array!([[true, false], [true, false]]), array!([true, false, true, false]), array!([[true, false], [true, false]])),
+)] fn test_bitor(arr1: Array<bool>, arr2: Array<bool>, expected: Array<bool>) {
+    assert_eq!(expected, arr1 | arr2);
+}
+
+#[rstest(
+arr, value, expected,
+case(array!([true, false, true, false]), true, array!([true, true, true, true])),
+case(array!([true, false, true, false]), false, array!([true, false, true, false])),
+case(array!([[true, false], [true, false]]), true, array!([[true, true], [true, true]])),
+case(array!([[true, false], [true, false]]), false, array!([[true, false], [true, false]])),
+)] fn test_bitor_value(arr: Array<bool>, value: bool, expected: Array<bool>) {
+    assert_eq!(expected, arr | value);
+}
+
+// ==== BitXor
+
+#[rstest(
+arr1, arr2, expected,
+case(array!([true, false, true, false]), array!([true, true, false, false]), array!([false, true, true, false])),
+case(array!([[true, false], [true, false]]), array!([[true, true], [false, false]]), array!([[false, true], [true, false]])),
+#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `[2, 2]`,\n right: `[4]`")]
+case(array!([[true, false], [true, false]]), array!([true, false, true, false]), array!([[true, false], [true, false]])),
+)] fn test_bitxor(arr1: Array<bool>, arr2: Array<bool>, expected: Array<bool>) {
+    assert_eq!(expected, arr1 ^ arr2);
+}
+
+#[rstest(
+arr, value, expected,
+case(array!([true, false, true, false]), true, array!([false, true, false, true])),
+case(array!([true, false, true, false]), false, array!([true, false, true, false])),
+case(array!([[true, false], [true, false]]), true, array!([[false, true], [false, true]])),
+case(array!([[true, false], [true, false]]), false, array!([[true, false], [true, false]])),
+)] fn test_bitxor_value(arr: Array<bool>, value: bool, expected: Array<bool>) {
+    assert_eq!(expected, arr ^ value);
+}

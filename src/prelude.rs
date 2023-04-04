@@ -7,7 +7,9 @@ pub use crate::traits::{
     meta::ArrayMeta,
     types::{
         Numeric,
+        NumericOps,
         SignedNumeric,
+        BoolNumeric,
     },
 };
 
