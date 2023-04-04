@@ -1,13 +1,15 @@
 use std::cmp::Ordering;
 use std::ops::{
     Add, AddAssign,
+    BitAnd, BitAndAssign,
+    BitOr, BitOrAssign,
+    BitXor, BitXorAssign,
     Div, DivAssign,
     Index, IndexMut,
     Mul, MulAssign,
-    Neg,
+    Neg, Not,
     Rem, RemAssign,
     Sub, SubAssign,
-
 };
 
 use crate::arrays::Array;
@@ -16,8 +18,12 @@ use crate::traits::{
     indexing::ArrayIndexing,
     manipulate::ArrayManipulate,
     meta::ArrayMeta,
-    types::Numeric,
-    types::SignedNumeric,
+    types::{
+        Numeric,
+        NumericOps,
+        SignedNumeric,
+        BoolNumeric,
+    },
 };
 
 // ==== Indexing
@@ -96,65 +102,55 @@ impl <N: Numeric> PartialOrd for Array<N> {
 // ==== Ops
 
 macro_rules! impl_op {
-    ($trait:ident, $fn:ident, $op:tt) => {
-        impl<N: Numeric> $trait<Array<N>> for Array<N> {
+    ($op_trait: ident, $op_func: ident, $op_assign_trait: ident, $op_assign_func: ident) => {
+        impl<N: NumericOps> $op_trait<Array<N>> for Array<N> {
             type Output = Array<N>;
 
-            fn $fn(self, other: Self) -> Self::Output {
+            fn $op_func(self, other: Self) -> Self::Output {
                 assert_eq!(self.get_shape(), other.get_shape());
 
                 let elements = self.elements.into_iter()
                     .zip(other.elements.into_iter())
-                    .map(|(a, b)| a $op b)
+                    .map(|(a, b)| a.$op_func(b))
                     .collect();
 
                 Array::new(elements, self.shape)
             }
         }
 
-        impl<N: Numeric> $trait<N> for Array<N> {
+        impl<N: NumericOps> $op_trait<N> for Array<N> {
             type Output = Array<N>;
 
-            fn $fn(self, other: N) -> Self::Output {
-                self.map(|i| *i $op other)
+            fn $op_func(self, other: N) -> Self::Output {
+                self.map(|i| i.$op_func(other))
                     .reshape(self.shape)
             }
         }
-    };
-}
 
-macro_rules! impl_op_assign {
-    ($trait:ident, $fn:ident, $op:tt) => {
-        impl<N: Numeric> $trait<Array<N>> for Array<N> {
-            fn $fn(&mut self, other: Self) -> () {
+        impl<N: NumericOps> $op_assign_trait<Array<N>> for Array<N> {
+            fn $op_assign_func(&mut self, other: Self) -> () {
                 assert_eq!(self.get_shape(), other.get_shape());
 
                 self.elements.iter_mut()
                     .zip(other.elements.into_iter())
-                    .for_each(|(a, b)| *a $op b);
+                    .for_each(|(a, b)| a.$op_assign_func(b));
             }
         }
 
-        impl<N: Numeric> $trait<N> for Array<N> {
-            fn $fn(&mut self, other: N) -> () {
+        impl<N: NumericOps> $op_assign_trait<N> for Array<N> {
+            fn $op_assign_func(&mut self, other: N) -> () {
                 self.elements.iter_mut()
-                    .for_each(|a| *a $op other);
+                    .for_each(|a| a.$op_assign_func(other));
             }
         }
     };
 }
 
-impl_op!(Add, add, +);
-impl_op!(Sub, sub, -);
-impl_op!(Mul, mul, *);
-impl_op!(Div, div, /);
-impl_op!(Rem, rem, %);
-
-impl_op_assign!(AddAssign, add_assign, +=);
-impl_op_assign!(SubAssign, sub_assign, -=);
-impl_op_assign!(MulAssign, mul_assign, *=);
-impl_op_assign!(DivAssign, div_assign, /=);
-impl_op_assign!(RemAssign, rem_assign, %=);
+impl_op!(Add, add, AddAssign, add_assign);
+impl_op!(Sub, sub, SubAssign, sub_assign);
+impl_op!(Mul, mul, MulAssign, mul_assign);
+impl_op!(Div, div, DivAssign, div_assign);
+impl_op!(Rem, rem, RemAssign, rem_assign);
 
 // ==== Signed Ops
 
@@ -169,3 +165,67 @@ impl <N: SignedNumeric> Neg for Array<N> {
         Array::new(elements, self.shape)
     }
 }
+
+// ==== Bool Ops
+
+impl <N: BoolNumeric + From<<N as Not>::Output>> Not for Array<N> {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        let elements: Vec<N> = self.elements.into_iter()
+            .map(|x| (!x).into())
+            .collect();
+
+        Array::new(elements, self.shape)
+    }
+}
+
+macro_rules! impl_bitwise_ops {
+    ($op_trait: ident, $op_func: ident, $op_assign_trait: ident, $op_assign_func: ident) => {
+        impl<N: Numeric + $op_trait<Output = N>> $op_trait<Array<N>> for Array<N> {
+            type Output = Array<N>;
+
+            fn $op_func(self, other: Array<N>) -> Self::Output {
+                assert_eq!(self.get_shape(), other.get_shape());
+
+                let elements = self.elements.into_iter()
+                    .zip(other.elements.into_iter())
+                    .map(|(a, b)| a.$op_func(b))
+                    .collect();
+                Array { elements,shape: self.shape, }
+            }
+        }
+
+        impl<N: Numeric + $op_trait<Output = N>> $op_trait<N> for Array<N> {
+            type Output = Array<N>;
+
+            fn $op_func(self, other: N) -> Self::Output {
+                let elements = self.elements.into_iter()
+                    .map(|a| a.$op_func(other))
+                    .collect();
+                Array { elements,shape: self.shape, }
+            }
+        }
+
+        impl<N: Numeric + $op_trait<Output = N>> $op_assign_trait<Array<N>> for Array<N> {
+            fn $op_assign_func(&mut self, other: Array<N>) {
+                assert_eq!(self.get_shape(), other.get_shape());
+
+                self.elements.iter_mut()
+                    .zip(other.elements.into_iter())
+                    .for_each(|(a, b)| *a = a.$op_func(b));
+            }
+        }
+
+        impl<N: Numeric + $op_trait<Output = N>> $op_assign_trait<N> for Array<N> {
+            fn $op_assign_func(&mut self, other: N) {
+                self.elements.iter_mut()
+                    .for_each(|a| *a = a.$op_func(other));
+            }
+        }
+    };
+}
+
+impl_bitwise_ops!(BitAnd, bitand, BitAndAssign, bitand_assign);
+impl_bitwise_ops!(BitOr, bitor, BitOrAssign, bitor_assign);
+impl_bitwise_ops!(BitXor, bitxor, BitXorAssign, bitxor_assign);

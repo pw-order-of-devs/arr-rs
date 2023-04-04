@@ -18,7 +18,7 @@ use crate::traits::{
     manipulate::ArrayManipulate,
     math::ArrayMath,
     meta::ArrayMeta,
-    types::Numeric,
+    types::NumericOps,
 };
 
 /// Definition of Array
@@ -31,6 +31,6 @@ use crate::traits::{
 /// * ArrayMath       - mathematical functions on array
 /// * ArrayMeta       - metadata of array
 ///
-pub trait ArrayTrait<N: Numeric>
+pub trait ArrayTrait<N: NumericOps>
     where Self: Sized + Clone + std::fmt::Display + FromIterator<N> + IntoIterator<Item=N> +
     ArrayCreate<N> + ArrayIndexing<N> + ArrayManipulate<N> + ArrayMath<N> + ArrayMeta<N> {}

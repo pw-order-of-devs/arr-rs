@@ -1,7 +1,7 @@
-use crate::traits::types::Numeric;
+use crate::traits::types::NumericOps;
 
 /// ArrayTrait - Array Math functions
-pub trait ArrayMath<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayMath<N: NumericOps> where Self: Sized + Clone {
 
     /// Multiplication of array elements
     ///
