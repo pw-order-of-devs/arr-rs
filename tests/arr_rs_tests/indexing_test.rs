@@ -16,7 +16,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[2, 3, 4], 0),
 #[should_panic(expected = "coord value must match array shape")]
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], 0),
 )] fn test_index(array: Array<i32>, coords: &[usize], expected: usize) {
-    assert_eq!(expected, array.index(coords))
+    assert_eq!(expected, array.index_at(coords))
 }
 
 #[rstest(

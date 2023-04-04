@@ -7,7 +7,7 @@ use crate::traits::{
 
 impl <N: Numeric> ArrayIndexing<N> for Array<N> {
 
-    fn index(&self, coords: &[usize]) -> usize {
+    fn index_at(&self, coords: &[usize]) -> usize {
         assert_eq!(self.shape.len(), coords.len(), "coords length must match array dimension");
         for (i, _) in coords.iter().enumerate() { assert!(coords[i] < self.shape[i], "coord value must match array shape"); }
         let mut index = 0;
@@ -20,7 +20,7 @@ impl <N: Numeric> ArrayIndexing<N> for Array<N> {
     }
 
     fn at(&self, coords: &[usize]) -> N {
-        self.elements[self.index(coords)]
+        self.elements[self.index_at(coords)]
     }
 
     fn slice(&self, range: std::ops::Range<usize>) -> Self {

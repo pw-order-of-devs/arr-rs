@@ -5,7 +5,10 @@ pub use crate::traits::{
     manipulate::ArrayManipulate,
     math::ArrayMath,
     meta::ArrayMeta,
-    types::Numeric,
+    types::{
+        Numeric,
+        SignedNumeric,
+    },
 };
 
 // implementations

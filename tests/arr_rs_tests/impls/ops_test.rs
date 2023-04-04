@@ -1,6 +1,68 @@
 use rstest::rstest;
 use arr_rs::prelude::*;
 
+// ==== Indexing
+
+#[rstest(
+array, index, expected,
+case(Array::new(vec![1, 2, 3, 4], vec![4]), 0, 1),
+case(Array::new(vec![1, 2, 3, 4], vec![4]), 2, 3),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), 1, 2),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), 3, 4),
+#[should_panic(expected = "index out of bounds: the len is 4 but the index is 8")]
+case(Array::new(vec![1, 2, 3, 4], vec![4]), 8, 0),
+)] fn test_index(array: Array<i32>, index: usize, expected: i32) {
+    assert_eq!(expected, array[index]);
+}
+
+#[rstest(
+array, index, expected,
+case(Array::new(vec![1, 2, 3, 4], vec![4]), &[0], 1),
+case(Array::new(vec![1, 2, 3, 4], vec![4]), &[3], 4),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[0, 0], 1),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[1, 1], 4),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), &[1, 1], 5),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), &[2, 0], 5),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[0, 0, 1], 2),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[1, 1, 1], 8),
+#[should_panic(expected = "coords length must match array dimension")]
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[2, 3, 4], 0),
+#[should_panic(expected = "coord value must match array shape")]
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], 0),
+)] fn test_index_coord(array: Array<i32>, index: &[usize], expected: i32) {
+    assert_eq!(expected, array[index]);
+}
+
+#[rstest(
+array, index, expected,
+case(&mut Array::new(vec![1, 2, 3, 4], vec![4]), 0, 1),
+case(&mut Array::new(vec![1, 2, 3, 4], vec![4]), 2, 3),
+case(&mut Array::new(vec![1, 2, 3, 4], vec![2, 2]), 1, 2),
+case(&mut Array::new(vec![1, 2, 3, 4], vec![2, 2]), 3, 4),
+#[should_panic(expected = "index out of bounds: the len is 4 but the index is 8")]
+case(&mut Array::new(vec![1, 2, 3, 4], vec![4]), 8, 0),
+)] fn test_index_mut(array: &mut Array<i32>, index: usize, expected: i32) {
+    assert_eq!(expected, array[index]);
+}
+
+#[rstest(
+array, index, expected,
+case(&mut Array::new(vec![1, 2, 3, 4], vec![4]), &[0], 1),
+case(&mut Array::new(vec![1, 2, 3, 4], vec![4]), &[3], 4),
+case(&mut Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[0, 0], 1),
+case(&mut Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[1, 1], 4),
+case(&mut Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), &[1, 1], 5),
+case(&mut Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), &[2, 0], 5),
+case(&mut Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[0, 0, 1], 2),
+case(&mut Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[1, 1, 1], 8),
+#[should_panic(expected = "coords length must match array dimension")]
+case(&mut Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[2, 3, 4], 0),
+#[should_panic(expected = "coord value must match array shape")]
+case(&mut Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], 0),
+)] fn test_index_mut_coord(array: &mut Array<i32>, index: &[usize], expected: i32) {
+    assert_eq!(expected, array[index]);
+}
+
 // ==== Compare
 
 #[rstest(
@@ -297,4 +359,14 @@ case(array!([[1., 2.], [3., 4.]]), 2., array!([[1., 0.], [1., 0.]])),
     let mut arr = arr;
     arr %= scalar;
     assert_eq!(expected, arr);
+}
+
+// ==== Neg
+
+#[rstest(
+arr, expected,
+case(array!([1., 2., 3., 4.]), array!([-1., -2., -3., -4.])),
+case(array!([[1., 2.], [3., 4.]]), array!([[-1., -2.], [-3., -4.]])),
+)] fn test_neg(arr: Array<f64>, expected: Array<f64>) {
+    assert_eq!(expected, -arr);
 }
