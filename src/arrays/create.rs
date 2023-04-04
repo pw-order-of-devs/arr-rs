@@ -25,11 +25,38 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         Array::new(Vec::<N>::new(), vec![0])
     }
 
+    fn eye(n: usize, m: Option<usize>, k: Option<usize>) -> Self {
+        let m = m.unwrap_or(n);
+        let k = k.unwrap_or(0);
+
+        let elements = (0 .. n * m)
+            .map(|i| {
+                let (row, col) = (i / m, i % m);
+                if col >= k && col - k == row { N::ONE } else { N::ZERO }
+            })
+            .collect();
+
+        Array { elements, shape: vec![n, m] }
+    }
+
+    fn identity(n: usize) -> Self {
+        let elements = (0 .. n * n)
+            .map(|i|
+                if i % (n + 1) == 0 { N::ONE }
+                else { N::ZERO })
+            .collect();
+        Array { elements, shape: vec![n, n] }
+    }
+
     fn zeros(shape: Vec<usize>) -> Self {
         Array::new(vec![N::ZERO; shape.iter().product()], shape.clone())
     }
 
     fn ones(shape: Vec<usize>) -> Self {
         Array::new(vec![N::ONE; shape.iter().product()], shape.clone())
+    }
+
+    fn full(shape: Vec<usize>, fill_value: N) -> Self {
+        Array::new(vec![fill_value; shape.iter().product()], shape.clone())
     }
 }

@@ -64,8 +64,44 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::empty();
-    /// assert_eq!("[]", format!("{arr}"));
+    /// assert!(arr.is_empty());
     fn empty() -> Self;
+
+    /// Creates new 2d array with ones on the diagonal and zeros elsewhere
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - number of rows
+    /// * `m` - number of columns. optional, defaulted to n
+    /// * `k` - index of diagonal. optional, defaulted to 0
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = Array::eye(2, Some(3), Some(0));
+    /// assert_eq!(array!([[1, 0, 0], [0, 1, 0]]), arr);
+    /// let arr: Array<i32> = Array::eye(2, Some(3), Some(1));
+    /// assert_eq!(array!([[0, 1, 0], [0, 0, 1]]), arr);
+    fn eye(n: usize, m: Option<usize>, k: Option<usize>) -> Self;
+
+    /// Creates new identity 2d array
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - numbers of rows and columns of resulting array
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = Array::identity(2);
+    /// assert_eq!(array!([[1, 0], [0, 1]]), arr);
+    /// let arr: Array<i32> = Array::identity(3);
+    /// assert_eq!(array!([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), arr);
+    fn identity(dim: usize) -> Self;
 
     /// Creates new array of zeros
     ///
@@ -79,7 +115,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::zeros(vec![4]);
-    /// assert_eq!("[0, 0, 0, 0]", format!("{arr}"));
+    /// assert_eq!(array!([0, 0, 0, 0]), arr);
     fn zeros(shape: Vec<usize>) -> Self;
 
     /// Creates new array of ones
@@ -94,6 +130,22 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::ones(vec![4]);
-    /// assert_eq!("[1, 1, 1, 1]", format!("{arr}"));
+    /// assert_eq!(array!([1, 1, 1, 1]), arr);
     fn ones(shape: Vec<usize>) -> Self;
+
+    /// Creates new array of fill_value
+    ///
+    /// # Arguments
+    ///
+    /// * `shape` - vector representing array shape
+    /// * `fill_value` - value to fill the array with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<f64> = Array::full(vec![4], 2.);
+    /// assert_eq!(array!([2, 2, 2, 2]), arr);
+    fn full(shape: Vec<usize>, fill_value: N) -> Self;
 }
