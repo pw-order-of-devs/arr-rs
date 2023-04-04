@@ -3,7 +3,6 @@
 /// # Examples
 ///
 /// ```
-/// use arr_rs::array;
 /// use arr_rs::prelude::*;
 ///
 /// let arr: Array<i16> = array!(1, 2, 3, 4, 5, 6, 7, 8);
