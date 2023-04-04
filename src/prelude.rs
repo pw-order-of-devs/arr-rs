@@ -13,4 +13,10 @@ pub use crate::arrays::Array;
 
 // macros
 #[cfg(feature = "macros")]
-pub use crate::array;
+pub use crate::{
+    array,
+    array_rand,
+    array_flat,
+    array_zeros,
+    array_ones,
+};
