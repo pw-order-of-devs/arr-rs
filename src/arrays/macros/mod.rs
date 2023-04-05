@@ -1,6 +1,9 @@
 /// ArrayTrait - Array Create functions - new array macro
 pub mod create;
 
+/// ArrayTrait - Array Create functions - arange array macro
+pub mod arange;
+
 /// ArrayTrait - Array Create functions - rand array macro
 pub mod rand;
 

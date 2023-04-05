@@ -3,6 +3,19 @@ use crate::traits::types::NumericOps;
 /// ArrayTrait - Array Math functions
 pub trait ArrayMath<N: NumericOps> where Self: Sized + Clone {
 
+    /// Computes power of array elements
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::new(vec![1,2,3,4], vec![4]);
+    /// let multiplied = arr.power(2);
+    /// assert_eq!(Array::new(vec![1,4,9,16], vec![4]), multiplied);
+    /// ```
+    fn power(&self, value: N) -> Self;
+
     /// Multiplication of array elements
     ///
     /// # Examples

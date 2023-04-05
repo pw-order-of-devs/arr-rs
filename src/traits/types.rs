@@ -21,8 +21,24 @@ Copy + Clone + PartialEq + PartialOrd + std::fmt::Display {
     const ZERO: Self;
     /// One constant value
     const ONE: Self;
+
     /// Generate random value
     fn rand(range: RangeInclusive<Self>) -> Self;
+
+    /// Convert from any other numeric
+    fn from<U: Numeric>(value: U) -> Self {
+        Self::from_f64(value.to_f64())
+    }
+
+    /// Convert from usize
+    fn from_usize(value: usize) -> Self;
+    /// Convert from f64
+    fn from_f64(value: f64) -> Self;
+
+    /// Convert to usize
+    fn to_usize(&self) -> usize;
+    /// Convert to f64
+    fn to_f64(&self) -> f64;
 }
 
 macro_rules! impl_numeric {
@@ -36,16 +52,34 @@ macro_rules! impl_numeric {
                 let value = rng.sample(&Uniform::from(range));
                 value as $t
             }
+
+            fn from_usize(value: usize) -> $t {
+                value as $t
+            }
+
+            fn from_f64(value: f64) -> $t {
+                value as $t
+            }
+
+            fn to_usize(&self) -> usize {
+                *self as usize
+            }
+
+            fn to_f64(&self) -> f64 {
+                *self as f64
+            }
         }
     };
 }
 
 impl_numeric!(f32);
 impl_numeric!(f64);
+impl_numeric!(isize);
 impl_numeric!(i8);
 impl_numeric!(i16);
 impl_numeric!(i32);
 impl_numeric!(i64);
+impl_numeric!(usize);
 impl_numeric!(u8);
 impl_numeric!(u16);
 impl_numeric!(u32);
@@ -59,6 +93,22 @@ impl Numeric for bool {
         let mut rng = rand::thread_rng();
         rng.gen::<bool>()
     }
+
+    fn from_usize(value: usize) -> Self {
+        value == 1
+    }
+
+    fn from_f64(value: f64) -> Self {
+        value == 1.
+    }
+
+    fn to_usize(&self) -> usize {
+        *self as usize
+    }
+
+    fn to_f64(&self) -> f64 {
+        self.to_usize() as f64
+    }
 }
 
 /// Numeric Ops type for array
@@ -69,12 +119,18 @@ Mul<Self, Output=Self> + MulAssign<Self> +
 Div<Self, Output=Self> + DivAssign<Self> +
 Rem<Self, Output=Self> + RemAssign<Self> {}
 
-impl NumericOps for f32 {}
-impl NumericOps for f64 {}
-impl NumericOps for i8 {}
-impl NumericOps for i16 {}
-impl NumericOps for i32 {}
-impl NumericOps for i64 {}
+macro_rules! impl_numeric_ops {
+    ($t:ty) => {
+        impl NumericOps for $t {}
+    };
+}
+
+impl_numeric_ops!(f32);
+impl_numeric_ops!(f64);
+impl_numeric_ops!(i8);
+impl_numeric_ops!(i16);
+impl_numeric_ops!(i32);
+impl_numeric_ops!(i64);
 
 /// Signed Numeric type for array
 pub trait SignedNumeric: NumericOps + Neg<Output=Self> {}
