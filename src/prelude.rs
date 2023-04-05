@@ -20,6 +20,7 @@ pub use crate::arrays::Array;
 #[cfg(feature = "macros")]
 pub use crate::{
     array,
+    array_arange,
     array_rand,
     array_flat,
     array_eye,

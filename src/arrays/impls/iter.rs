@@ -6,10 +6,19 @@ use crate::traits::{
 
 impl <N: Numeric> IntoIterator for Array<N> {
     type Item = N;
-    type IntoIter = std::vec::IntoIter<Self::Item>;
+    type IntoIter = std::vec::IntoIter<N>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.elements.into_iter()
+    }
+}
+
+impl<'a, N: Numeric> IntoIterator for &'a Array<N> {
+    type Item = &'a N;
+    type IntoIter = std::slice::Iter<'a, N>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.elements.iter()
     }
 }
 

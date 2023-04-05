@@ -1,3 +1,5 @@
+mod common;
+
 mod create_test;
 mod indexing_test;
 mod manipulate_test;

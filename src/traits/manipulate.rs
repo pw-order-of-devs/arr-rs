@@ -18,6 +18,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!("[1, 2, 3, 4]", format!("{arr}"));
     /// let arr = arr.reshape(vec![2, 2]);
     /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
+    /// ```
     fn reshape(&self, shape: Vec<usize>) -> Self;
 
     /// Return a contiguous flattened array
