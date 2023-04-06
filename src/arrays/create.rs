@@ -230,6 +230,55 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     }
 
     fn diagflat(data: &Self, k: Option<isize>) -> Self {
-        Self::diag(&data.ravel(), k)
+        Array::diag(&data.ravel(), k)
+    }
+
+    fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Self {
+        let (m, k) = (m.unwrap_or(n), k.unwrap_or(0));
+
+        let elements = (0..n)
+            .flat_map(|i| (0..m).map(move |j|
+                if j as isize <= i as isize + k { N::ONE }
+                else { N::ZERO }
+            ))
+            .collect();
+
+        Array::new(elements, vec![n, m])
+    }
+
+    fn tril(&self, k: Option<isize>) -> Self {
+        let k = k.unwrap_or(0);
+        self.apply_triangular(k, |j, i, k| j > i + k)
+    }
+
+    fn triu(&self, k: Option<isize>) -> Self {
+        let k = k.unwrap_or(0);
+        self.apply_triangular(k, |j, i, k| j < i + k)
+    }
+}
+
+impl <N: Numeric> Array<N> {
+
+    fn apply_triangular<F>(&self, k: isize, compare: F) -> Self
+        where F: Fn(isize, isize, isize) -> bool {
+        let last_dim = self.shape.len() - 1;
+        let second_last_dim = self.shape.len() - 2;
+        let chunk_size = self.shape[last_dim] * self.shape[second_last_dim];
+
+        let elements = self.elements
+            .chunks(chunk_size)
+            .flat_map(|chunk| {
+                chunk
+                    .iter()
+                    .enumerate()
+                    .map(|(idx, &value)| {
+                        let i = (idx / self.shape[last_dim]) % self.shape[second_last_dim];
+                        let j = idx % self.shape[last_dim];
+                        if compare(j as isize, i as isize, k) { N::ZERO } else { value }
+                    })
+            })
+            .collect();
+
+        Array::new(elements, self.shape.clone())
     }
 }

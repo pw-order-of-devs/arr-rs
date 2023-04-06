@@ -362,7 +362,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// # Arguments
     ///
     /// * `data` - input array
-    /// * `k` - chosen diagonal
+    /// * `k` - chosen diagonal. optional, defaults to 0
     ///
     /// # Examples
     ///
@@ -388,7 +388,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// # Arguments
     ///
     /// * `data` - input array
-    /// * `k` - chosen diagonal
+    /// * `k` - chosen diagonal. optional, defaults to 0
     ///
     /// # Examples
     ///
@@ -404,4 +404,69 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr);
     /// ```
     fn diagflat(data: &Self, k: Option<isize>) -> Self;
+
+    /// Construct an array with ones at and below the given diagonal and zeros elsewhere
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - number of rows
+    /// * `m` - number of columns. optional, defaults to `n`
+    /// * `k` - chosen diagonal. optional, defaults to 0
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected: Array<i32> = array!([[1, 0], [1, 1]]);
+    /// assert_eq!(expected, Array::<i32>::tri(2, Some(2), None));
+    ///
+    /// let expected: Array<i32> = array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]]);
+    /// assert_eq!(expected, Array::<i32>::tri(3, Some(3), None));
+    /// ```
+    fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Self;
+
+    /// Return a copy of an array with elements above the k-th diagonal zeroed.
+    /// For arrays with ndim exceeding 2, tril will apply to the final two axes.
+    ///
+    /// # Arguments
+    ///
+    /// * `k` - chosen diagonal. optional, defaults to 0
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = array_arange!(1, 9).reshape(vec![2, 4]);
+    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [5, 6, 0, 0]]);
+    /// assert_eq!(expected, arr.tril(None));
+    ///
+    /// let arr: Array<i32> = array_arange!(1, 9).reshape(vec![2, 2, 2]);
+    /// let expected: Array<i32> = array!([[[1, 0], [3, 4]], [[5, 0], [7, 8]]]);
+    /// assert_eq!(expected, arr.tril(None));
+    /// ```
+    fn tril(&self, k: Option<isize>) -> Self;
+
+    /// Return a copy of an array with elements below the k-th diagonal zeroed.
+    /// For arrays with ndim exceeding 2, tril will apply to the final two axes.
+    ///
+    /// # Arguments
+    ///
+    /// * `k` - chosen diagonal. optional, defaults to 0
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = array_arange!(1, 9).reshape(vec![2, 4]);
+    /// let expected: Array<i32> = array!([[1, 2, 3, 4], [0, 6, 7, 8]]);
+    /// assert_eq!(expected, arr.triu(None));
+    ///
+    /// let arr: Array<i32> = array_arange!(1, 9).reshape(vec![2, 2, 2]);
+    /// let expected: Array<i32> = array!([[[1, 2], [0, 4]], [[5, 6], [0, 8]]]);
+    /// assert_eq!(expected, arr.triu(None));
+    /// ```
+    fn triu(&self, k: Option<isize>) -> Self;
 }
