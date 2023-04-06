@@ -8,6 +8,8 @@ use crate::traits::{
 
 impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
+    // ==== from data
+
     fn new(elements: Vec<N>, shape: Vec<usize>) -> Self {
         assert_eq!(elements.len(), shape.iter().product(), "Shape must match values length");
         Array { elements, shape, }
@@ -74,6 +76,8 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     fn full_like(other: &Self, fill_value: N) -> Self {
         Self::new(vec![fill_value; other.get_shape().iter().product()], other.get_shape())
     }
+
+    // ==== from range
 
     fn arange(start: N, stop: N, step: Option<N>) -> Self {
         let step = step.unwrap_or(N::ONE).to_f64();
@@ -176,5 +180,56 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         Array::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)
             .transpose()
+    }
+
+    // ==== matrices
+
+    fn diag(data: &Self, k: Option<isize>) -> Self {
+        assert!(vec![1, 2].contains(&data.ndim()), "`diag` is only defined for 1d and 2d input");
+
+        fn diag_1d<N: Numeric>(data: &Array<N>, k: isize) -> Array<N> {
+            let size = data.get_shape()[0];
+            let abs_k = k.abs() as usize;
+            let new_shape = vec![size + abs_k, size + abs_k];
+            let elements = (0..new_shape[0] * new_shape[1])
+                .map(|idx| {
+                    let (i, j) = (idx / new_shape[1], idx % new_shape[1]);
+                    if k >= 0 && j == i + k as usize {
+                        if i < size { data.get_elements()[i] }
+                        else { N::ZERO }
+                    } else if k < 0 && i == j + abs_k {
+                        if j < size { data.get_elements()[j] }
+                        else { N::ZERO }
+                    } else {
+                        N::ZERO
+                    }
+                })
+                .collect();
+
+            Array::new(elements, new_shape)
+        }
+
+        fn diag_2d<N: Numeric>(data: &Array<N>, k: isize) -> Array<N> {
+            let rows = data.get_shape()[0];
+            let cols = data.get_shape()[1];
+            let (start_row, start_col) =
+                if k >= 0 { (0, k as usize) }
+                else { ((-k) as usize, 0) };
+
+            let elements = (start_row..rows)
+                .zip(start_col..cols)
+                .map(|(i, j)| data.get_elements()[i * cols + j])
+                .collect::<Vec<N>>();
+
+            Array::new(elements.clone(), vec![elements.len()])
+        }
+
+        let k = k.unwrap_or(0);
+        if data.get_shape().len() == 1 { diag_1d(data, k) }
+        else { diag_2d(data, k) }
+    }
+
+    fn diagflat(data: &Self, k: Option<isize>) -> Self {
+        Self::diag(&data.ravel(), k)
     }
 }

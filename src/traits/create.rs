@@ -4,6 +4,8 @@ use crate::traits::types::Numeric;
 /// ArrayTrait - Array Create functions
 pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
 
+    // ==== from data
+
     /// Creates new array
     ///
     /// # Arguments
@@ -208,6 +210,8 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn full_like(other: &Self, fill_value: N) -> Self;
 
+    // ==== from range
+
     /// Creates new array from range
     ///
     /// # Arguments
@@ -350,4 +354,54 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(format!("{expected:.4}"), format!("{arr:.4}"));
     /// ```
     fn geomspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Self;
+
+    // ==== matrices
+
+    /// Extract a diagonal or construct a diagonal array
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - input array
+    /// * `k` - chosen diagonal
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]);
+    /// let arr: Array<i32> = Array::diag(&array![1, 2, 3, 4], None);
+    /// assert_eq!(expected, arr);
+    ///
+    /// let expected: Array<i32> = array!([1, 2, 3, 4]);
+    /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]), None);
+    /// assert_eq!(expected, arr);
+    ///
+    /// let expected: Array<i32> = array!([0, 0, 0]);
+    /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]), Some(1));
+    /// assert_eq!(expected, arr);
+    /// ```
+    fn diag(data: &Self, k: Option<isize>) -> Self;
+
+    /// Construct a diagonal array for flattened input
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - input array
+    /// * `k` - chosen diagonal
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]);
+    /// let arr: Array<i32> = Array::diagflat(&array![1, 2, 3, 4], None);
+    /// assert_eq!(expected, arr);
+    ///
+    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]);
+    /// let arr: Array<i32> = Array::diagflat(&array![[1, 2], [3, 4]], None);
+    /// assert_eq!(expected, arr);
+    /// ```
+    fn diagflat(data: &Self, k: Option<isize>) -> Self;
 }

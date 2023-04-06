@@ -1,6 +1,8 @@
 mod common;
 
-mod create_test;
+mod create_from_test;
+mod create_matrix_test;
+mod create_range_test;
 mod indexing_test;
 mod manipulate_test;
 mod math_test;
