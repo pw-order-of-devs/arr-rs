@@ -1,6 +1,7 @@
 use crate::arrays::Array;
 use crate::traits::{
     create::ArrayCreate,
+    manipulate::ArrayManipulate,
     meta::ArrayMeta,
     types::Numeric,
 };
@@ -51,27 +52,27 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     }
 
     fn zeros(shape: Vec<usize>) -> Self {
-        Array::new(vec![N::ZERO; shape.iter().product()], shape.clone())
+        Self::new(vec![N::ZERO; shape.iter().product()], shape.clone())
     }
 
     fn zeros_like(other: &Self) -> Self {
-        Array::new(vec![N::ZERO; other.get_shape().iter().product()], other.get_shape())
+        Self::new(vec![N::ZERO; other.get_shape().iter().product()], other.get_shape())
     }
 
     fn ones(shape: Vec<usize>) -> Self {
-        Array::new(vec![N::ONE; shape.iter().product()], shape.clone())
+        Self::new(vec![N::ONE; shape.iter().product()], shape.clone())
     }
 
     fn ones_like(other: &Self) -> Self {
-        Array::new(vec![N::ONE; other.get_shape().iter().product()], other.get_shape())
+        Self::new(vec![N::ONE; other.get_shape().iter().product()], other.get_shape())
     }
 
     fn full(shape: Vec<usize>, fill_value: N) -> Self {
-        Array::new(vec![fill_value; shape.iter().product()], shape.clone())
+        Self::new(vec![fill_value; shape.iter().product()], shape.clone())
     }
 
     fn full_like(other: &Self, fill_value: N) -> Self {
-        Array::new(vec![fill_value; other.get_shape().iter().product()], other.get_shape())
+        Self::new(vec![fill_value; other.get_shape().iter().product()], other.get_shape())
     }
 
     fn arange(start: N, stop: N, step: Option<N>) -> Self {
@@ -103,17 +104,14 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         assert_eq!(start.get_shape(), stop.get_shape());
         let mut new_shape = vec![num.unwrap_or(50)];
         new_shape.extend(start.get_shape().iter().copied());
+        new_shape.reverse();
 
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::linspace(a, b, num, endpoint).get_elements())
             .collect::<Vec<Vec<N>>>();
-        let output = (0 .. values[0].len())
-            .map(|i| (0 .. values.len())
-                .map(|j| values[j][i])
-                .collect::<Vec<_>>())
-            .collect::<Vec<Vec<_>>>()
-            .into_iter().flatten().collect();
-        Array::new(output, new_shape)
+        Array::flat(values.into_iter().flatten().collect())
+            .reshape(new_shape)
+            .transpose()
     }
 
     fn logspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>, base: Option<usize>) -> Self {
@@ -136,6 +134,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         assert_eq!(start.get_shape(), stop.get_shape());
         let mut new_shape = vec![num.unwrap_or(50)];
         new_shape.extend(start.get_shape().iter().copied());
+        new_shape.reverse();
 
         let base = base.unwrap_or(&Array::flat(vec![10])).clone();
         let base = if base.len() == 1 { Array::<usize>::full_like(&Array::rand(start.get_shape()), base[0]) } else { base };
@@ -144,13 +143,9 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         let values = start.into_iter().zip(stop).zip(base)
             .map(|((a, b), c)| Self::logspace(a, b, num, endpoint, Some(c)).get_elements())
             .collect::<Vec<Vec<N>>>();
-        let output = (0 .. values[0].len())
-            .map(|i| (0 .. values.len())
-                .map(|j| values[j][i])
-                .collect::<Vec<_>>())
-            .collect::<Vec<Vec<_>>>()
-            .into_iter().flatten().collect();
-        Array::new(output, new_shape)
+        Array::flat(values.into_iter().flatten().collect())
+            .reshape(new_shape)
+            .transpose()
     }
 
     fn geomspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Self {
@@ -173,16 +168,13 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         assert_eq!(start.get_shape(), stop.get_shape());
         let mut new_shape = vec![num.unwrap_or(50)];
         new_shape.extend(start.get_shape().iter().copied());
+        new_shape.reverse();
 
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::geomspace(a, b, num, endpoint).get_elements())
             .collect::<Vec<Vec<N>>>();
-        let output = (0 .. values[0].len())
-            .map(|i| (0 .. values.len())
-                .map(|j| values[j][i])
-                .collect::<Vec<_>>())
-            .collect::<Vec<Vec<_>>>()
-            .into_iter().flatten().collect();
-        Array::new(output, new_shape)
+        Array::flat(values.into_iter().flatten().collect())
+            .reshape(new_shape)
+            .transpose()
     }
 }
