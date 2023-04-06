@@ -26,6 +26,16 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), vec![8]),
 }
 
 #[rstest(
+start, stop, shape, expected,
+case(1, 5, vec![4], array!([1, 2, 3, 4])),
+case(1, 7, vec![2, 3], array!([[1, 4], [2, 5], [3, 6]])),
+case(1, 9, vec![2, 2, 2], array!([[[1, 5], [3, 7]], [[2, 6], [4, 8]]])),
+case(1, 17, vec![2, 2, 2, 2], array!([[[[1, 9], [5, 13]], [[3, 11], [7, 15]]], [[[2, 10], [6, 14]], [[4, 12], [8, 16]]]])),
+)] fn test_transpose(start: i32, stop: i32, shape: Vec<usize>, expected: Array<i32>) {
+    assert_eq!(expected, Array::arange(start, stop, None).reshape(shape).transpose())
+}
+
+#[rstest(
 array, expected,
 case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 4, 6, 8]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![2, 4, 6, 8, 2, 4, 6, 8]),

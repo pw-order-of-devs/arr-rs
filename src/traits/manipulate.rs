@@ -15,9 +15,9 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]);
-    /// assert_eq!("[1, 2, 3, 4]", format!("{arr}"));
+    /// assert_eq!(array!([1, 2, 3, 4]), arr);
     /// let arr = arr.reshape(vec![2, 2]);
-    /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
+    /// assert_eq!(array!([[1, 2], [3, 4]]), arr);
     /// ```
     fn reshape(&self, shape: Vec<usize>) -> Self;
 
@@ -40,6 +40,21 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr_3.ravel().get_shape());
     /// ```
     fn ravel(&self) -> Self;
+
+    /// Returns an array with axes transposed
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]);
+    /// assert_eq!(array!([[1, 5], [2, 6], [3, 7], [4, 8]]), arr.transpose());
+    ///
+    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]);
+    /// assert_eq!(array!([[1, 3, 5, 7], [2, 4, 6, 8]]), arr.transpose());
+    /// ```
+    fn transpose(&self) -> Self;
 
     /// Loop over array elements
     ///
