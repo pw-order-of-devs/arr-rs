@@ -66,3 +66,15 @@ case(array_arange!(1, 9).reshape(vec![2, 2, 2]), Some(-1), array!([[[1, 2], [3, 
 )] fn test_triu(array: Array<i32>, k: Option<isize>, expected: Array<i32>) {
     assert_eq!(expected, array.triu(k))
 }
+
+#[rstest(
+array, n, increment, expected,
+case(array!([1, 2, 3, 4]), Some(3), None, array!([[1, 1, 1], [4, 2, 1], [9, 3, 1], [16, 4, 1]])),
+case(array!([1, 2, 3, 4]), None, None, array!([[1, 1, 1, 1], [8, 4, 2, 1], [27, 9, 3, 1], [64, 16, 4, 1]])),
+case(array!([1, 2, 3, 4]), None, Some(false), array!([[1, 1, 1, 1], [8, 4, 2, 1], [27, 9, 3, 1], [64, 16, 4, 1]])),
+case(array!([1, 2, 3, 4]), None, Some(true), array!([[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]])),
+case(array!([1, 2, 3, 4]), Some(5), Some(false), array!([[1, 1, 1, 1, 1], [16, 8, 4, 2, 1], [81, 27, 9, 3, 1], [256, 64, 16, 4, 1]])),
+case(array!([1, 2, 3, 4]), Some(5), Some(true), array!([[1, 1, 1, 1, 1], [1, 2, 4, 8, 16], [1, 3, 9, 27, 81], [1, 4, 16, 64, 256]])),
+)] fn test_vander(array: Array<i32>, n: Option<usize>, increment: Option<bool>, expected: Array<i32>) {
+    assert_eq!(expected, array.vander(n, increment))
+}

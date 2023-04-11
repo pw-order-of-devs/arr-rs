@@ -184,12 +184,12 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
     // ==== matrices
 
-    fn diag(data: &Self, k: Option<isize>) -> Self {
-        assert!(vec![1, 2].contains(&data.ndim()), "`diag` is only defined for 1d and 2d input");
+    fn diag(&self, k: Option<isize>) -> Self {
+        assert!(vec![1, 2].contains(&self.ndim()), "`diag` is only defined for 1d and 2d input");
 
         fn diag_1d<N: Numeric>(data: &Array<N>, k: isize) -> Array<N> {
             let size = data.get_shape()[0];
-            let abs_k = k.abs() as usize;
+            let abs_k = k.unsigned_abs();
             let new_shape = vec![size + abs_k, size + abs_k];
             let elements = (0..new_shape[0] * new_shape[1])
                 .map(|idx| {
@@ -225,12 +225,12 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         }
 
         let k = k.unwrap_or(0);
-        if data.get_shape().len() == 1 { diag_1d(data, k) }
-        else { diag_2d(data, k) }
+        if self.ndim() == 1 { diag_1d(self, k) }
+        else { diag_2d(self, k) }
     }
 
-    fn diagflat(data: &Self, k: Option<isize>) -> Self {
-        Array::diag(&data.ravel(), k)
+    fn diagflat(&self, k: Option<isize>) -> Self {
+        self.ravel().diag(k)
     }
 
     fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Self {
@@ -254,6 +254,24 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     fn triu(&self, k: Option<isize>) -> Self {
         let k = k.unwrap_or(0);
         self.apply_triangular(k, |j, i, k| j < i + k)
+    }
+
+    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Self {
+        assert_eq!(1, self.ndim(), "`vander` is only defined for 1d input");
+
+        let size = self.shape[0];
+        let increasing = increasing.unwrap_or(false);
+        let n_columns = n.unwrap_or(size);
+        let mut elements = Vec::with_capacity(size * n_columns);
+
+        for item in self.into_iter() {
+            for i in 0..n_columns {
+                let power = if increasing { i } else { n_columns - i - 1 } as f64;
+                elements.push(N::from(item.to_f64().powf(power)));
+            }
+        }
+
+        Array::new(elements, vec![size, n_columns])
     }
 }
 

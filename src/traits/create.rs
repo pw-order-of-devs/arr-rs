@@ -361,7 +361,6 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     ///
     /// # Arguments
     ///
-    /// * `data` - input array
     /// * `k` - chosen diagonal. optional, defaults to 0
     ///
     /// # Examples
@@ -381,7 +380,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]), Some(1));
     /// assert_eq!(expected, arr);
     /// ```
-    fn diag(data: &Self, k: Option<isize>) -> Self;
+    fn diag(&self, k: Option<isize>) -> Self;
 
     /// Construct a diagonal array for flattened input
     ///
@@ -403,7 +402,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// let arr: Array<i32> = Array::diagflat(&array![[1, 2], [3, 4]], None);
     /// assert_eq!(expected, arr);
     /// ```
-    fn diagflat(data: &Self, k: Option<isize>) -> Self;
+    fn diagflat(&self, k: Option<isize>) -> Self;
 
     /// Construct an array with ones at and below the given diagonal and zeros elsewhere
     ///
@@ -449,7 +448,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     fn tril(&self, k: Option<isize>) -> Self;
 
     /// Return a copy of an array with elements below the k-th diagonal zeroed.
-    /// For arrays with ndim exceeding 2, tril will apply to the final two axes.
+    /// For arrays with ndim exceeding 2, triu will apply to the final two axes.
     ///
     /// # Arguments
     ///
@@ -469,4 +468,27 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr.triu(None));
     /// ```
     fn triu(&self, k: Option<isize>) -> Self;
+
+    /// Generate a Vandermonde matrix
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - number of columns in the output. optional, by default square array is returned
+    /// * `increasing` - order of the powers of the columns. optional, defaults to false
+    /// if true, the powers increase from left to right, if false, they are reversed.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = array!([1, 2, 3, 4]);
+    /// let expected: Array<i32> = array!([[1, 1, 1, 1], [8, 4, 2, 1], [27, 9, 3, 1], [64, 16, 4, 1]]);
+    /// assert_eq!(expected, arr.vander(None, Some(false)));
+    ///
+    /// let arr: Array<i32> = array!([1, 2, 3, 4]);
+    /// let expected: Array<i32> = array!([[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]]);
+    /// assert_eq!(expected, arr.vander(None, Some(true)));
+    /// ```
+    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Self;
 }
