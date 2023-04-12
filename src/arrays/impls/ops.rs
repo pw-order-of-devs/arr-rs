@@ -19,10 +19,10 @@ use crate::traits::{
     manipulate::ArrayManipulate,
     meta::ArrayMeta,
     types::{
-        Numeric,
-        NumericOps,
-        SignedNumeric,
-        BoolNumeric,
+        numeric::Numeric,
+        numeric_ops::NumericOps,
+        signed_numeric::SignedNumeric,
+        bool_numeric::BoolNumeric,
     },
 };
 

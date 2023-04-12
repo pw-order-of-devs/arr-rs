@@ -1,7 +1,7 @@
 use crate::arrays::Array;
 use crate::traits::{
     create::ArrayCreate,
-    types::Numeric,
+    types::numeric::Numeric,
 };
 
 impl <N: Numeric> IntoIterator for Array<N> {

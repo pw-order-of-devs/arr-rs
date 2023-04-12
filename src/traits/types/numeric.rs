@@ -1,22 +1,13 @@
-use std::ops::{
-    Add, AddAssign,
-    BitAnd, BitAndAssign,
-    BitOr, BitOrAssign,
-    BitXor, BitXorAssign,
-    Div, DivAssign,
-    Mul, MulAssign,
-    Neg, Not,
-    RangeInclusive,
-    Rem, RemAssign,
-    Sub, SubAssign,
-};
+use std::fmt::Display;
+use std::ops::RangeInclusive;
+use std::str::FromStr;
 
 use rand::Rng;
 use rand::distributions::Uniform;
 
 /// Numeric type for array
 pub trait Numeric:
-Copy + Clone + PartialEq + PartialOrd + std::fmt::Display {
+Copy + Clone + PartialEq + PartialOrd + Display + FromStr {
     /// Zero constant value
     const ZERO: Self;
     /// One constant value
@@ -110,48 +101,3 @@ impl Numeric for bool {
         self.to_usize() as f64
     }
 }
-
-/// Numeric Ops type for array
-pub trait NumericOps: Numeric +
-Add<Self, Output=Self> + AddAssign<Self> +
-Sub<Self, Output=Self> + SubAssign<Self> +
-Mul<Self, Output=Self> + MulAssign<Self> +
-Div<Self, Output=Self> + DivAssign<Self> +
-Rem<Self, Output=Self> + RemAssign<Self> {}
-
-macro_rules! impl_numeric_ops {
-    ($t:ty) => {
-        impl NumericOps for $t {}
-    };
-}
-
-impl_numeric_ops!(f32);
-impl_numeric_ops!(f64);
-impl_numeric_ops!(i8);
-impl_numeric_ops!(i16);
-impl_numeric_ops!(i32);
-impl_numeric_ops!(i64);
-
-/// Signed Numeric type for array
-pub trait SignedNumeric: NumericOps + Neg<Output=Self> {}
-
-macro_rules! impl_signed_numeric {
-    ($t:ty) => {
-        impl SignedNumeric for $t {}
-    };
-}
-
-impl_signed_numeric!(f32);
-impl_signed_numeric!(f64);
-impl_signed_numeric!(i8);
-impl_signed_numeric!(i16);
-impl_signed_numeric!(i32);
-impl_signed_numeric!(i64);
-
-/// Signed Numeric type for array
-pub trait BoolNumeric: Numeric + Not +
-BitAnd + BitAndAssign +
-BitOr + BitOrAssign +
-BitXor + BitXorAssign {}
-
-impl BoolNumeric for bool {}

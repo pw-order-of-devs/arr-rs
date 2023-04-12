@@ -1,15 +1,17 @@
 // traits traits
 pub use crate::traits::{
+    broadcast::ArrayBroadcast,
     create::ArrayCreate,
     indexing::ArrayIndexing,
     manipulate::ArrayManipulate,
     math::ArrayMath,
     meta::ArrayMeta,
     types::{
-        Numeric,
-        NumericOps,
-        SignedNumeric,
-        BoolNumeric,
+        numeric::Numeric,
+        numeric_ops::NumericOps,
+        signed_numeric::SignedNumeric,
+        bool_numeric::BoolNumeric,
+        tuple_numeric::{Tuple2, TupleNumeric},
     },
 };
 

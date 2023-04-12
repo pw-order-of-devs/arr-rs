@@ -2,7 +2,7 @@ use crate::arrays::Array;
 use crate::traits::{
     create::ArrayCreate,
     indexing::ArrayIndexing,
-    types::Numeric,
+    types::numeric::Numeric,
 };
 
 impl <N: Numeric> ArrayIndexing<N> for Array<N> {

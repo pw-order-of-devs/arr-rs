@@ -1,5 +1,5 @@
 use crate::arrays::Array;
-use crate::traits::types::Numeric;
+use crate::traits::types::numeric::Numeric;
 
 /// ArrayTrait - Array Create functions
 pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {

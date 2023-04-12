@@ -1,3 +1,5 @@
+/// Array Broadcast functions
+pub mod broadcast;
 /// Array Create functions
 pub mod create;
 /// Array Indexing and Slicing functions
@@ -9,5 +11,5 @@ pub mod math;
 /// Array Metadata functions
 pub mod meta;
 
-/// Numeric type for which array is implemented
+/// Numeric types for which array is implemented
 pub mod types;

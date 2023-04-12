@@ -1,4 +1,4 @@
-use crate::traits::types::Numeric;
+use crate::traits::types::numeric::Numeric;
 
 /// ArrayTrait - Array Metadata functions
 pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
