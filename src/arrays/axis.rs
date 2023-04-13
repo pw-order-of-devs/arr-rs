@@ -1,0 +1,109 @@
+use std::collections::HashSet;
+use itertools::Itertools;
+use crate::arrays::Array;
+use crate::prelude::ArrayMeta;
+use crate::traits::{
+    axis::ArrayAxis,
+    create::ArrayCreate,
+    types::numeric::Numeric,
+};
+
+
+impl <N: Numeric> ArrayAxis<N> for Array<N> {
+
+    fn transpose(&self, axes: Option<Vec<isize>>) -> Self {
+        let axes =
+            if let Some(axes) = axes { Some(axes.iter().map(|i| self.normalize_axis(*i)).collect::<Vec<usize>>()) }
+            else { None };
+        let mut new_elements = vec![N::ZERO; self.elements.len()];
+        let new_shape: Vec<usize> = match axes.clone() {
+            Some(axes) => axes.into_iter().map(|ax| self.shape[ax]).collect(),
+            None => self.shape.clone().into_iter().rev().collect(),
+        };
+
+        Self::transpose_recursive(
+            &self.elements, &self.shape,
+            &mut new_elements, &new_shape,
+            &mut vec![0; self.shape.len()], 0,
+            &axes
+        );
+
+        Self::new(new_elements, new_shape)
+    }
+
+    fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Self {
+        assert_eq!(source.len(), destination.len(), "`source` and `destination` should have the same length");
+        let source = source.iter().map(|i| self.normalize_axis(*i)).collect::<Vec<usize>>();
+        let destination = destination.iter().map(|i| self.normalize_axis(*i)).collect::<Vec<usize>>();
+        assert_eq!(HashSet::<usize>::from_iter(source.iter().cloned()).len(), source.len(), "`source axes` should be unique");
+        assert_eq!(HashSet::<usize>::from_iter(destination.iter().cloned()).len(), destination.len(), "`destination` axes should be unique");
+
+        let mut order = (0 .. self.get_shape().len())
+            .filter(|f| !source.contains(f))
+            .collect::<Vec<usize>>();
+
+        destination.into_iter()
+            .zip(source.into_iter())
+            .sorted()
+            .for_each(|(d, s)| order.insert(d.min(order.len()), s));
+
+        let order = order.iter().map(|i| *i as isize).collect();
+        self.transpose(Some(order))
+    }
+
+    fn rollaxis(&self, axis: isize, start: Option<isize>) -> Self {
+        let axis = self.normalize_axis(axis);
+        let start = if let Some(start) = start { self.normalize_axis(start) } else { 0 };
+
+        let mut new_axes = (0 .. self.get_shape().len()).collect::<Vec<usize>>();
+        let axis_to_move = new_axes.remove(axis);
+        new_axes.insert(start, axis_to_move);
+
+        self.transpose(Some(new_axes.iter().map(|&i| i as isize).collect()))
+    }
+
+    fn swapaxes(&self, axis_1: isize, axis_2: isize) -> Self {
+        let axis_1 = self.normalize_axis(axis_1);
+        let axis_2 = self.normalize_axis(axis_2);
+
+        let mut new_axes = (0 .. self.get_shape().len()).collect::<Vec<usize>>();
+        new_axes.swap(axis_1, axis_2);
+
+        self.transpose(Some(new_axes.iter().map(|&i| i as isize).collect()))
+    }
+}
+
+impl <N: Numeric> Array<N> {
+
+    fn normalize_axis(&self, axis: isize) -> usize {
+        if axis < 0 { (axis + self.get_shape().len() as isize) as usize } else { axis as usize }
+    }
+
+    fn transpose_recursive(
+        input: &[N], input_shape: &[usize],
+        output: &mut [N], output_shape: &[usize],
+        current_indices: &mut [usize], current_dim: usize,
+        axes: &Option<Vec<usize>>) {
+        if current_dim < input_shape.len() - 1 {
+            for i in 0..input_shape[current_dim] {
+                current_indices[current_dim] = i;
+                Self::transpose_recursive(input, input_shape, output, output_shape, current_indices, current_dim + 1, axes);
+            }
+        } else {
+            for i in 0..input_shape[current_dim] {
+                current_indices[current_dim] = i;
+                let input_index = input_shape.iter().enumerate().fold(0, |acc, (dim, size)| {
+                    acc * size + current_indices[dim]
+                });
+                let output_indices = match axes {
+                    Some(ref axes) => axes.iter().map(|&ax| current_indices[ax]).collect::<Vec<usize>>(),
+                    None => current_indices.iter().rev().cloned().collect::<Vec<usize>>(),
+                };
+                let output_index = output_shape.iter().enumerate().fold(0, |acc, (dim, size)| {
+                    acc * size + output_indices[dim]
+                });
+                output[output_index] = input[input_index];
+            }
+        }
+    }
+}

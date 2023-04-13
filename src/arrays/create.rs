@@ -1,5 +1,6 @@
 use crate::arrays::Array;
 use crate::traits::{
+    axis::ArrayAxis,
     create::ArrayCreate,
     manipulate::ArrayManipulate,
     meta::ArrayMeta,
@@ -115,7 +116,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             .collect::<Vec<Vec<N>>>();
         Array::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)
-            .transpose()
+            .transpose(None)
     }
 
     fn logspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>, base: Option<usize>) -> Self {
@@ -149,7 +150,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             .collect::<Vec<Vec<N>>>();
         Array::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)
-            .transpose()
+            .transpose(None)
     }
 
     fn geomspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Self {
@@ -179,7 +180,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             .collect::<Vec<Vec<N>>>();
         Array::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)
-            .transpose()
+            .transpose(None)
     }
 
     // ==== matrices

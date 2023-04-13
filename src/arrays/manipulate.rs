@@ -17,51 +17,6 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         Array::new(self.elements.clone(), vec![self.len()])
     }
 
-    fn transpose(&self) -> Self {
-        let mut new_elements = vec![N::ZERO; self.elements.len()];
-        let mut new_shape = self.shape.clone();
-        new_shape.reverse();
-
-        fn transpose_recursive<N: Numeric>(
-            input: &[N],
-            input_shape: &[usize],
-            output: &mut [N],
-            output_shape: &[usize],
-            current_indices: &mut [usize],
-            current_dim: usize,
-        ) {
-            if current_dim < input_shape.len() - 1 {
-                for i in 0..input_shape[current_dim] {
-                    current_indices[current_dim] = i;
-                    transpose_recursive(input, input_shape, output, output_shape, current_indices, current_dim + 1);
-                }
-            } else {
-                for i in 0..input_shape[current_dim] {
-                    current_indices[current_dim] = i;
-                    let input_index = input_shape.iter().enumerate().fold(0, |acc, (dim, size)| {
-                        acc * size + current_indices[dim]
-                    });
-                    let output_indices = current_indices.iter().rev().cloned().collect::<Vec<usize>>();
-                    let output_index = output_shape.iter().enumerate().fold(0, |acc, (dim, size)| {
-                        acc * size + output_indices[dim]
-                    });
-                    output[output_index] = input[input_index];
-                }
-            }
-        }
-
-        transpose_recursive(
-            &self.elements,
-            &self.shape,
-            &mut new_elements,
-            &new_shape,
-            &mut vec![0; self.shape.len()],
-            0,
-        );
-
-        Self::new(new_elements, new_shape)
-    }
-
     fn atleast(&self, n: usize) -> Self {
         assert!(n > 0, "dimension cannot be zero");
         if self.ndim() >= n { return self.clone() }

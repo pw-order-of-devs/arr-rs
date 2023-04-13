@@ -1,6 +1,6 @@
 use crate::arrays::Array;
-use crate::prelude::ArrayManipulate;
 use crate::traits::{
+    manipulate::ArrayManipulate,
     math::ArrayMath,
     types::numeric_ops::NumericOps,
 };

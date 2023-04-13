@@ -1,5 +1,6 @@
 // traits traits
 pub use crate::traits::{
+    axis::ArrayAxis,
     broadcast::ArrayBroadcast,
     create::ArrayCreate,
     indexing::ArrayIndexing,
