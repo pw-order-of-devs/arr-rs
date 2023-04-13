@@ -36,6 +36,19 @@ case(1, 17, vec![2, 2, 2, 2], array!([[[[1, 9], [5, 13]], [[3, 11], [7, 15]]], [
 }
 
 #[rstest(
+arr, dim, expected,
+case(array!([1]), 1, array!([1])),
+case(array!([1, 2]), 2, array!([[1, 2]])),
+case(array!([1, 2]), 3, array!([[[1, 2]]])),
+case(array!([[[1], [2]]]), 3, array!([[[1], [2]]])),
+case(array!([[[2, 2], [2, 2]], [[2, 2], [2, 2]]]), 4, array!([[[[2, 2], [2, 2]], [[2, 2], [2, 2]]]])),
+#[should_panic(expected = "dimension cannot be zero")]
+case(array!([1]), 0, array!([1])),
+)] fn test_atleast(arr: Array<i32>, dim: usize, expected: Array<i32>) {
+    assert_eq!(expected, arr.atleast(dim))
+}
+
+#[rstest(
 array, expected,
 case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 4, 6, 8]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![2, 4, 6, 8, 2, 4, 6, 8]),
@@ -51,7 +64,7 @@ array, expected,
 case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![(0, 2), (1, 4), (2, 6), (3, 8)]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), vec![(0, 2), (1, 4), (2, 6), (3, 8), (4, 2), (5, 4), (6, 6), (7, 8)]),
 case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), vec![(0, 2), (1, 4), (2, 6), (3, 8), (4, 2), (5, 4), (6, 6), (7, 8)]),
-)] fn test_for_each_enumerated(array: Array<i32>, expected: Vec<(usize, i32)>) {
+)] fn test_for_each_e(array: Array<i32>, expected: Vec<(usize, i32)>) {
     let mut items = vec![];
     array.for_each_e(|idx, item| items.push((idx, *item * 2)));
     assert_eq!(expected, items);

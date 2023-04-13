@@ -56,6 +56,23 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn transpose(&self) -> Self;
 
+    /// Convert array to at least n dimension
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - desired dimension
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::new(vec![1], vec![1]);
+    /// assert_eq!(array!([[1]]), arr.atleast(2));
+    /// assert_eq!(array!([[[1]]]), arr.atleast(3));
+    /// ```
+    fn atleast(&self, n: usize) -> Self;
+
     /// Loop over array elements
     ///
     /// # Arguments
