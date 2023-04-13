@@ -1,5 +1,5 @@
 use crate::arrays::Array;
-use crate::prelude::ArrayMeta;
+use crate::prelude::{ArrayManipulate, ArrayMeta};
 use crate::traits::{
     broadcast::ArrayBroadcast,
     create::ArrayCreate,
@@ -20,11 +20,22 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
 
         let output_elements = inner_arrays_self.iter().cycle()
             .zip(inner_arrays_other.iter().cycle())
-            .flat_map(|(inner_self, inner_other)| {
-                inner_self.iter().cycle()
+            .flat_map(|(inner_self, inner_other)| match (inner_self.len(), inner_other.len()) {
+                (1, _) => inner_self.iter().cycle()
+                    .zip(inner_other.iter())
+                    .take(final_shape[final_shape.len() - 1])
+                    .map(|(&a, &b)| Tuple2(a, b))
+                    .collect::<Vec<_>>(),
+                (_, 1) => inner_self.iter()
                     .zip(inner_other.iter().cycle())
                     .take(final_shape[final_shape.len() - 1])
                     .map(|(&a, &b)| Tuple2(a, b))
+                    .collect::<Vec<_>>(),
+                _ => inner_self.iter().cycle()
+                    .zip(inner_other.iter().cycle())
+                    .take(final_shape[final_shape.len() - 1])
+                    .map(|(&a, &b)| Tuple2(a, b))
+                    .collect::<Vec<_>>(),
             })
             .take(final_shape.iter().product())
             .collect::<Vec<_>>();
@@ -34,6 +45,9 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
 
     fn broadcast_to(&self, shape: Vec<usize>) -> Array<N> {
         self.validate_shapes(shape.clone());
+        if self.get_shape().iter().product::<usize>() == shape.iter().product() {
+            return self.reshape(shape);
+        }
 
         let output_elements: Vec<N> = self.elements
             .chunks_exact(self.shape[self.shape.len() - 1])
@@ -53,13 +67,13 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
     }
 
     fn broadcast_arrays(arrays: Vec<Self>) -> Vec<Self> {
-        let mut max_shape = arrays[0].get_shape();
-        arrays[1..].iter().for_each(|array|
-            max_shape = array.broadcast_shape(max_shape.clone())
-        );
+        let shapes = arrays.iter()
+            .map(|array| array.get_shape())
+            .collect::<Vec<_>>();
+        let common_shape = Self::common_broadcast_shape(&shapes);
 
         arrays.iter()
-            .map(|array| array.broadcast_to(max_shape.clone()))
+            .map(|array| array.broadcast_to(common_shape.clone()))
             .collect::<Vec<Array<N>>>()
     }
 }
@@ -93,6 +107,39 @@ impl <N: Numeric> Array<N> {
                 else { panic!("incompatible shapes for broadcasting"); }
             })
             .collect()
+    }
+
+    fn common_broadcast_shape(shapes: &[Vec<usize>]) -> Vec<usize> {
+        let max_dim = shapes.iter()
+            .map(|shape| shape.len())
+            .max().unwrap_or(0);
+
+        let shapes_padded: Vec<_> = shapes
+            .iter()
+            .map(|shape| shape.iter().rev().copied()
+                .chain(std::iter::repeat(1))
+                .take(max_dim)
+                .collect::<Vec<_>>()
+            )
+            .collect();
+
+        let common_shape: Vec<usize> = (0..max_dim)
+            .map(|dim_idx| shapes_padded.iter()
+                .map(|shape| shape[dim_idx])
+                .max().unwrap_or(1)
+            )
+            .collect();
+
+        let is_compatible = shapes_padded.iter()
+            .all(|shape| common_shape.iter().enumerate()
+                .all(|(dim_idx, &common_dim)| {
+                    let dim = shape[dim_idx];
+                    dim == common_dim || dim == 1 || common_dim == 1
+                })
+            );
+
+        if is_compatible { common_shape.into_iter().rev().collect() }
+        else { panic!("incompatible shapes for broadcasting"); }
     }
 
     fn extract_inner_arrays(&self) -> Vec<Vec<N>> {

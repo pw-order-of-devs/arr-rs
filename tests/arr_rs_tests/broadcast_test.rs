@@ -3,6 +3,9 @@ use arr_rs::prelude::*;
 
 #[rstest(
 arr1, arr2, expected, expected_shape,
+case(array!([[1, 2], [3, 4]]), array!([10, 20]), vec![(1, 10), (2, 20), (3, 10), (4, 20)], vec![2, 2]),
+case(array!([[1], [2], [3]]), array!([[4], [5], [6]]), vec![(1, 4), (2, 5), (3, 6)], vec![1, 3]),
+case(array!([1, 2, 3]), array!([[4], [5], [6]]), vec![(1, 4), (2, 4), (3, 4), (1, 5), (2, 5), (3, 5), (1, 6), (2, 6), (3, 6)], vec![3, 3]),
 case(array!([[1], [2], [3]]), array!([[4, 5, 6]]), vec![(1, 4), (1, 5), (1, 6), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 6)], vec![3, 3]),
 case(array!([1, 2]), array!([[2, 4], [5, 6]]), vec![(1, 2), (2, 4), (1, 5), (2, 6)], vec![2, 2]),
 #[should_panic(expected = "incompatible shapes for broadcasting")]
@@ -17,6 +20,9 @@ case(array!([[1, 2, 3], [1, 2, 3]]), array!([[1, 2, 3, 4], [1, 2, 3, 4]]), vec![
 arr, shape, expected,
 case(array!([[1], [2], [3]]), vec![3, 3], array!([[1, 1, 1], [2, 2, 2], [3, 3, 3]])),
 case(array!([1, 2]), vec![2, 2], array!([[1, 2], [1, 2]])),
+case(array!([1, 2]), vec![1, 2, 2], array!([[[1, 2], [1, 2]]])),
+case(array!([1, 2]), vec![1, 1, 1, 2], array!([[[[1, 2]]]])),
+case(array!([1, 2]), vec![1, 1, 2, 1], array!([[[[1], [2]]]])),
 #[should_panic(expected = "incompatible shapes for broadcasting")]
 case(array!([[1, 2, 3], [1, 2, 3]]), vec![2, 4], array![1]),
 )] fn test_broadcast_to(arr: Array<i32>, shape: Vec<usize>, expected: Array<i32>) {
@@ -27,6 +33,8 @@ case(array!([[1, 2, 3], [1, 2, 3]]), vec![2, 4], array![1]),
 arrays, expected,
 case(vec![array!([[1], [2], [3]]), array!([4, 5, 6])], vec![array!([[1, 1, 1], [2, 2, 2], [3, 3, 3]]), array!([[4, 5, 6], [4, 5, 6], [4, 5, 6]])]),
 case(vec![array!([[1], [2], [3]]), array!([4, 5, 6]), array!([[1, 2, 3], [4, 5, 6], [7, 8, 9]])], vec![array!([[1, 1, 1], [2, 2, 2], [3, 3, 3]]), array!([[4, 5, 6], [4, 5, 6], [4, 5, 6]]), array!([[1, 2, 3], [4, 5, 6], [7, 8, 9]])]),
+case(vec![array!([1, 2, 3]), array!([4]), array!([5, 6, 7])], vec![array!([1, 2, 3]), array!([4, 4, 4]), array!([5, 6, 7])]),
+case(vec![array!([[1, 2, 3], [4, 5, 6]]), array!([1]), array!([[1], [2]])], vec![array!([[1, 2, 3], [4, 5, 6]]), array!([[1, 1, 1], [1, 1, 1]]), array!([[1, 1, 1], [2, 2, 2]])]),
 #[should_panic(expected = "incompatible shapes for broadcasting")]
 case(vec![array!([[1], [2], [3]]), array!([4, 5, 6]), array!([[1, 2, 3], [4, 5, 6]])], vec![]),
 )] fn test_broadcast_arrays(arrays: Vec<Array<i32>>, expected: Vec<Array<i32>>) {
