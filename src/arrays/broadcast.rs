@@ -1,8 +1,9 @@
 use crate::arrays::Array;
-use crate::prelude::{ArrayManipulate, ArrayMeta};
 use crate::traits::{
     broadcast::ArrayBroadcast,
     create::ArrayCreate,
+    manipulate::ArrayManipulate,
+    meta::ArrayMeta,
     types::{
         numeric::Numeric,
         tuple_numeric::Tuple2,
