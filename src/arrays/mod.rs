@@ -1,3 +1,5 @@
+/// broadcast array functions implementation
+pub mod broadcast;
 /// create array functions implementation
 pub mod create;
 /// indexing and slicing array functions implementation
@@ -16,7 +18,7 @@ pub mod impls;
 #[cfg(feature = "macros")]
 pub mod macros;
 
-use crate::traits::types::Numeric;
+use crate::traits::types::numeric::Numeric;
 
 /// Array structure definition
 #[derive(Clone, Debug)]

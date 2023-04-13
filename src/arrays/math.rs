@@ -2,7 +2,7 @@ use crate::arrays::Array;
 use crate::prelude::ArrayManipulate;
 use crate::traits::{
     math::ArrayMath,
-    types::NumericOps,
+    types::numeric_ops::NumericOps,
 };
 
 impl <N: NumericOps> ArrayMath<N> for Array<N> {

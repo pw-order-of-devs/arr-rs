@@ -1,4 +1,4 @@
-use crate::traits::types::Numeric;
+use crate::traits::types::numeric::Numeric;
 
 /// ArrayTrait - Array Indexing functions
 pub trait ArrayIndexing<N: Numeric> where Self: Sized + Clone {

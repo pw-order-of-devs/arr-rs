@@ -3,7 +3,7 @@ use crate::traits::{
     create::ArrayCreate,
     manipulate::ArrayManipulate,
     meta::ArrayMeta,
-    types::Numeric,
+    types::numeric::Numeric,
 };
 
 impl <N: Numeric> ArrayManipulate<N> for Array<N> {

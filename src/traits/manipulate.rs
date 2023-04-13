@@ -1,4 +1,4 @@
-use crate::traits::types::Numeric;
+use crate::traits::types::numeric::Numeric;
 
 /// ArrayTrait - Array Manipulate functions
 pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {

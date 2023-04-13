@@ -1,4 +1,4 @@
-use crate::traits::types::NumericOps;
+use crate::traits::types::numeric_ops::NumericOps;
 
 /// ArrayTrait - Array Math functions
 pub trait ArrayMath<N: NumericOps> where Self: Sized + Clone {

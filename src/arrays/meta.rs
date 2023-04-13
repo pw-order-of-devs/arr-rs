@@ -1,7 +1,7 @@
 use crate::arrays::Array;
 use crate::traits::{
     meta::ArrayMeta,
-    types::Numeric,
+    types::numeric::Numeric,
 };
 
 impl <N: Numeric> ArrayMeta<N> for Array<N> {
