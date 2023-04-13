@@ -62,6 +62,14 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         Self::new(new_elements, new_shape)
     }
 
+    fn atleast(&self, n: usize) -> Self {
+        assert!(n > 0, "dimension cannot be zero");
+        if self.ndim() >= n { return self.clone() }
+        let mut new_shape = self.get_shape();
+        (0 .. n - self.ndim()).for_each(|_| new_shape.insert(0, 1));
+        self.reshape(new_shape)
+    }
+
     fn for_each<F: FnMut(&N)>(&self, f: F) {
         self.elements.iter()
             .for_each(f)
