@@ -1,7 +1,3 @@
-/// axis array functions implementation
-pub mod axis;
-/// broadcast array functions implementation
-pub mod broadcast;
 /// create array functions implementation
 pub mod create;
 /// indexing and slicing array functions implementation

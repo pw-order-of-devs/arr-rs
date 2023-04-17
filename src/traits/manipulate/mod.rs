@@ -1,3 +1,8 @@
+/// Array Axis functions
+pub mod axis;
+/// Array Broadcast functions
+pub mod broadcast;
+
 use crate::traits::types::numeric::Numeric;
 
 /// ArrayTrait - Array Manipulate functions
