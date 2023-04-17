@@ -78,4 +78,39 @@ pub trait ArrayAxis<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(vec![3, 5, 4], arr.swapaxes(2, 1).get_shape());
     /// ```
     fn swapaxes(&self, axis: isize, start: isize) -> Self;
+
+    /// Expand the shape of an array
+    ///
+    /// # Arguments
+    ///
+    /// * `axes` - position in the expanded axes where the new axis (or axes) is placed
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
+    /// assert_eq!(vec![1, 3, 4, 5], arr.expand_dims(vec![0]).get_shape());
+    /// assert_eq!(vec![3, 1, 4, 1, 5], arr.expand_dims(vec![1, 3]).get_shape());
+    /// ```
+    fn expand_dims(&self, axes: Vec<isize>) -> Self;
+
+    /// Remove axes of length one from array
+    ///
+    /// # Arguments
+    ///
+    /// * `axes` - position of the 10-sized axes to remove. if None, all such axes will be removed
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::<i32>::zeros(vec![1, 3, 1, 4, 5]);
+    /// assert_eq!(vec![3, 4, 5], arr.squeeze(None).get_shape());
+    /// assert_eq!(vec![3, 1, 4, 5], arr.squeeze(Some(vec![0])).get_shape());
+    /// assert_eq!(vec![1, 3, 4, 5], arr.squeeze(Some(vec![2])).get_shape());
+    /// ```
+    fn squeeze(&self, axes: Option<Vec<isize>>) -> Self;
 }
