@@ -45,13 +45,46 @@ case(array_arange!(0, 120).reshape(vec![2, 3, 4, 5]), -1, Some(-1), vec![2, 3, 4
 }
 
 #[rstest(
-arr, axis_1, axis_2, expected_shape,
+arr, axis_1, axis_2, expected,
 case(array_arange!(0, 24).reshape(vec![2, 3, 4]), 0, 2, vec![4, 3, 2]),
 case(array_arange!(0, 24).reshape(vec![2, 3, 4]), 2, 1, vec![2, 4, 3]),
 case(array_arange!(0, 24).reshape(vec![2, 3, 4]), -1, -2, vec![2, 4, 3]),
 case(array_arange!(0, 120).reshape(vec![2, 3, 4, 5]), 0, 2, vec![4, 3, 2, 5]),
 case(array_arange!(0, 120).reshape(vec![2, 3, 4, 5]), 1, 3, vec![2, 5, 4, 3]),
 case(array_arange!(0, 120).reshape(vec![2, 3, 4, 5]), -3, -2, vec![2, 4, 3, 5]),
-)] fn test_swapaxes(arr: Array<i32>, axis_1: isize, axis_2: isize, expected_shape: Vec<usize>) {
-    assert_eq!(expected_shape, arr.swapaxes(axis_1, axis_2).get_shape());
+)] fn test_swapaxes(arr: Array<i32>, axis_1: isize, axis_2: isize, expected: Vec<usize>) {
+    assert_eq!(expected, arr.swapaxes(axis_1, axis_2).get_shape());
+}
+
+#[rstest(
+arr, axis, expected,
+case(array_arange!(0, 4).reshape(vec![2, 2]), vec![0], vec![1, 2, 2]),
+case(array_arange!(0, 4).reshape(vec![2, 2]), vec![1], vec![2, 1, 2]),
+case(array_arange!(0, 4).reshape(vec![2, 2]), vec![2], vec![2, 2, 1]),
+case(array_arange!(0, 4).reshape(vec![2, 2]), vec![0, 2], vec![1, 2, 1, 2]),
+case(array_arange!(0, 4).reshape(vec![2, 2]), vec![0, 1, 2], vec![1, 1, 1, 2, 2]),
+case(array_arange!(0, 4).reshape(vec![2, 2]), vec![-3], vec![1, 2, 2]),
+case(array_arange!(0, 4).reshape(vec![2, 2]), vec![-2], vec![2, 1, 2]),
+case(array_arange!(0, 8).reshape(vec![2, 2, 2]), vec![3], vec![2, 2, 2, 1]),
+case(array_arange!(0, 8).reshape(vec![2, 2, 2]), vec![-3, 3], vec![2, 2, 1, 1, 2]),
+case(array_arange!(0, 8).reshape(vec![2, 2, 2]), vec![], vec![2, 2, 2]),
+)] fn test_expand_dims(arr: Array<i32>, axis: Vec<isize>, expected: Vec<usize>) {
+    assert_eq!(expected, arr.expand_dims(axis).get_shape());
+}
+
+#[rstest(
+arr, axis, expected,
+case(array_arange!(0, 4).reshape(vec![1, 2, 2]), None, vec![2, 2]),
+case(array_arange!(0, 4).reshape(vec![2, 1, 1, 1, 2]), None, vec![2, 2]),
+case(array_arange!(0, 4).reshape(vec![1, 2, 1, 2, 1]), None, vec![2, 2]),
+case(array_arange!(0, 4).reshape(vec![1, 2, 1, 2, 1]), Some(vec![0]), vec![2, 1, 2, 1]),
+case(array_arange!(0, 4).reshape(vec![1, 2, 1, 2, 1]), Some(vec![0, 2]), vec![2, 2, 1]),
+case(array_arange!(0, 8).reshape(vec![2, 2, 2, 1]), Some(vec![3]), vec![2, 2, 2]),
+case(array_arange!(0, 8).reshape(vec![2, 2, 1, 2, 1]), Some(vec![-3]), vec![2, 2, 2, 1]),
+#[should_panic(expected = "cannot select an axis to squeeze out which has size not equal to one")]
+case(array_arange!(0, 8).reshape(vec![2, 2, 1, 2, 1]), Some(vec![1]), vec![2, 2, 2, 1]),
+#[should_panic(expected = "cannot select an axis to squeeze out which has size not equal to one")]
+case(array_arange!(0, 8).reshape(vec![2, 2, 1, 2, 1]), Some(vec![2, 3, 4]), vec![2, 2, 2, 1]),
+)] fn test_squeeze(arr: Array<i32>, axis: Option<Vec<isize>>, expected: Vec<usize>) {
+    assert_eq!(expected, arr.squeeze(axis).get_shape());
 }
