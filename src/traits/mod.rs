@@ -1,7 +1,3 @@
-/// Array Axis functions
-pub mod axis;
-/// Array Broadcast functions
-pub mod broadcast;
 /// Array Create functions
 pub mod create;
 /// Array Indexing and Slicing functions

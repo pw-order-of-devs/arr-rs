@@ -3,7 +3,7 @@ use itertools::Itertools;
 use crate::arrays::Array;
 use crate::prelude::ArrayManipulate;
 use crate::traits::{
-    axis::ArrayAxis,
+    manipulate::axis::ArrayAxis,
     meta::ArrayMeta,
     create::ArrayCreate,
     types::numeric::Numeric,

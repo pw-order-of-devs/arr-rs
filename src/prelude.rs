@@ -1,10 +1,12 @@
 // traits traits
 pub use crate::traits::{
-    axis::ArrayAxis,
-    broadcast::ArrayBroadcast,
     create::ArrayCreate,
     indexing::ArrayIndexing,
-    manipulate::ArrayManipulate,
+    manipulate::{
+        ArrayManipulate,
+        axis::ArrayAxis,
+        broadcast::ArrayBroadcast,
+    },
     math::ArrayMath,
     meta::ArrayMeta,
     types::{

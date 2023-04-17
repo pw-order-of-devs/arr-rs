@@ -1,3 +1,8 @@
+/// axis array functions implementation
+pub mod axis;
+/// broadcast array functions implementation
+pub mod broadcast;
+
 use crate::arrays::Array;
 use crate::traits::{
     create::ArrayCreate,

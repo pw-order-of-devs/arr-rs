@@ -1,8 +1,10 @@
 use crate::arrays::Array;
 use crate::traits::{
-    axis::ArrayAxis,
     create::ArrayCreate,
-    manipulate::ArrayManipulate,
+    manipulate::{
+        ArrayManipulate,
+        axis::ArrayAxis,
+    },
     meta::ArrayMeta,
     types::numeric::Numeric,
 };
