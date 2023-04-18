@@ -10,6 +10,28 @@ use crate::traits::types::numeric::Numeric;
 /// ArrayTrait - Array Manipulate functions
 pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
 
+    /// Insert values along the given axis before the given indices
+    ///
+    /// # Arguments
+    ///
+    /// * `index` - indices before which values is inserted
+    /// * `values` - vector representing values to insert into array
+    /// * `axis` - axis along which to insert values. if None, then array is flattened first
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]);
+    /// let arr = arr.insert(vec![1], &Array::single(1.), None);
+    /// assert_eq!(array!([1., 1., 2., 3., 4.]), arr);
+    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]);
+    /// let arr = arr.insert(vec![1, 3], &Array::single(1.), None);
+    /// assert_eq!(array!([1., 1., 2., 3., 1., 4.]), arr);
+    /// ```
+    fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Self;
+
     /// Reshapes an array
     ///
     /// # Arguments

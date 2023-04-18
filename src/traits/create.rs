@@ -27,6 +27,23 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn new(elements: Vec<N>, shape: Vec<usize>) -> Self;
 
+    /// Creates new array with single element
+    ///
+    /// # Arguments
+    ///
+    /// * `element` - array element
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::single(1);
+    /// assert_eq!(vec![1], arr.get_elements());
+    /// assert_eq!(vec![1], arr.get_shape());
+    /// ```
+    fn single(element: N) -> Self;
+
     /// Creates new flat array
     ///
     /// # Arguments

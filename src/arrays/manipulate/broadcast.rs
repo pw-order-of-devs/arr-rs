@@ -15,7 +15,7 @@ use crate::traits::{
 impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
 
     fn broadcast(&self, other: &Self) -> Array<Tuple2<N>> {
-        self.validate_shapes(other.get_shape());
+        self.broadcast_validate_shapes(&other.get_shape());
         let final_shape = self.broadcast_shape(other.get_shape());
 
         let inner_arrays_self = self.extract_inner_arrays();
@@ -47,7 +47,7 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
     }
 
     fn broadcast_to(&self, shape: Vec<usize>) -> Array<N> {
-        self.validate_shapes(shape.clone());
+        self.broadcast_validate_shapes(&shape);
         if self.get_shape().iter().product::<usize>() == shape.iter().product() {
             return self.reshape(shape);
         }
@@ -83,7 +83,7 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
 
 impl <N: Numeric> Array<N> {
 
-    fn validate_shapes(&self, shape: Vec<usize>) {
+    fn broadcast_validate_shapes(&self, shape: &Vec<usize>) {
         if self.shape.iter()
             .zip(shape.iter())
             .take(self.shape.len().max(shape.len()))

@@ -25,6 +25,8 @@ case(array!([1, 2]), vec![1, 1, 1, 2], array!([[[[1, 2]]]])),
 case(array!([1, 2]), vec![1, 1, 2, 1], array!([[[[1], [2]]]])),
 #[should_panic(expected = "incompatible shapes for broadcasting")]
 case(array!([[1, 2, 3], [1, 2, 3]]), vec![2, 4], array![1]),
+#[should_panic(expected = "incompatible shapes for broadcasting")]
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![2, 3], array![1]),
 )] fn test_broadcast_to(arr: Array<i32>, shape: Vec<usize>, expected: Array<i32>) {
     assert_eq!(expected, arr.broadcast_to(shape))
 }
