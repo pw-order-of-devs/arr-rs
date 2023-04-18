@@ -7,6 +7,7 @@ pub mod split;
 
 use itertools::Itertools;
 use crate::arrays::Array;
+use crate::prelude::ArrayAxis;
 use crate::traits::{
     create::ArrayCreate,
     manipulate::{
@@ -31,6 +32,32 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         let new_elements = self.get_insert_new_elements(&indices, &values);
 
         Self::new(new_elements, new_shape)
+    }
+
+    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Self {
+        if let Some(axis) = axis {
+            let mut shape = self.shape.clone();
+            assert!(axis < self.shape.len(), "invalid axis for array");
+            let mut tmp = shape.clone();
+            shape[axis] -= indices.len();
+            tmp.remove(axis);
+            let chunk_size = tmp.iter().product::<usize>();
+            let indices = indices.clone().into_iter().cycle()
+                .take(indices.len() * chunk_size)
+                .map(|i| i * chunk_size)
+                .collect::<Vec<usize>>();
+
+            let mut new_elements = self.rollaxis(axis as isize, None).elements;
+            indices.iter().sorted().rev().for_each(|&i| { new_elements.remove(i); });
+
+            Array::new(new_elements, shape)
+        } else {
+            let mut new_elements = self.get_elements();
+            assert!(indices.iter().all(|&i| i < new_elements.len()), "delete index out of the bounds of array");
+            indices.iter().rev().for_each(|&i| { new_elements.remove(i); });
+
+            Array::flat(new_elements)
+        }
     }
 
     fn reshape(&self, shape: Vec<usize>) -> Self {
@@ -105,6 +132,8 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         self.elements.iter().fold(init, |a, b| f(&a, b))
     }
 }
+
+// ==== insert helpers
 
 struct InsertParameters {
     subarrays: usize,

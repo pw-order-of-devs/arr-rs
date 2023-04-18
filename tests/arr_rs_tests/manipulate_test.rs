@@ -30,6 +30,22 @@ case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], array!([[4, 5, 3], [
 }
 
 #[rstest(
+array, indices, axis, expected,
+case(array!([1, 2, 3]), vec![1], None, array!([1, 3])),
+case(array!([1, 2, 3]), vec![0, 2], None, array!([2])),
+case(array!([[1, 2], [3, 4]]), vec![1], None, array!([1, 3, 4])),
+#[should_panic(expected = "delete index out of the bounds of array")]
+case(array!([[1, 2], [3, 4]]), vec![4], None, array!([1, 3, 4])),
+case(array!([[1, 2], [3, 4]]), vec![1], Some(0), array!([[1, 2]])),
+case(array!([[1, 2], [3, 4]]), vec![1], Some(1), array!([[1], [3]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(0), array!([[[1, 2], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(1), array!([[[1, 2]], [[1, 2]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(2), array!([[[1], [3]], [[1], [3]]])),
+)] fn test_delete(array: Array<i32>, indices: Vec<usize>, axis: Option<usize>, expected: Array<i32>) {
+    assert_eq!(expected, array.delete(indices, axis))
+}
+
+#[rstest(
 array, new_shape, expected,
 case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 2], array!([[1, 2], [3, 4]])),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), vec![4], array!([1, 2, 3, 4])),
