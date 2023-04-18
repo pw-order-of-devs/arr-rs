@@ -18,6 +18,10 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         Array { elements, shape, }
     }
 
+    fn single(element: N) -> Self {
+        Array { elements: vec![element], shape: vec![1], }
+    }
+
     fn flat(elements: Vec<N>) -> Self {
         Array { elements: elements.clone(), shape: vec![elements.len()], }
     }

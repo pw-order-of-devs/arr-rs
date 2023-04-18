@@ -13,6 +13,14 @@ case(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![10], array!([1])),
 }
 
 #[rstest(
+element, expected,
+case(2, array!([2])),
+case(4, array!([4])),
+)] fn test_single(element: i32, expected: Array<i32>) {
+    assert_eq!(expected, Array::single(element))
+}
+
+#[rstest(
 elements, expected,
 case(vec![1, 2, 3, 4], array!([1, 2, 3, 4])),
 case(vec![1, 2, 3, 4, 1, 2, 3, 4], array!([1, 2, 3, 4, 1, 2, 3, 4])),

@@ -2,6 +2,34 @@ use rstest::rstest;
 use arr_rs::prelude::*;
 
 #[rstest(
+array, indices, values, axis, expected,
+case(array!([1, 2, 3]), vec![1], array!([4]), None, array!([1, 4, 2, 3])),
+case(array!([1, 2, 3]), vec![1, 3], array!([4, 5]), None, array!([1, 4, 2, 3, 5])),
+case(array!([[1, 2], [3, 4]]), vec![1], array!([4, 5]), None, array!([1, 4, 5, 2, 3, 4])),
+case(array!([[1, 2], [3, 4]]), vec![0, 1], array!([4]), None, array!([4, 1, 4, 2, 3, 4])),
+case(array!([[1, 2], [3, 4]]), vec![0, 1], array!([4, 5]), None, array!([4, 1, 5, 2, 3, 4])),
+#[should_panic(expected = "incompatible shapes for broadcasting")]
+case(array!([1, 2, 3]), vec![1, 3], array!([4, 5, 6]), None, array!([1, 4, 2, 3, 5, 6])),
+#[should_panic(expected = "values and indices don't match for insert")]
+case(array!([1, 2, 3]), vec![1, 3], array!([[4, 5], [4, 5]]), None, array!([1, 4, 2, 3, 5])),
+case(array!([[1, 2], [3, 4]]), vec![1], array!([4, 5]), Some(0), array!([[1, 2], [4, 5], [3, 4]])),
+case(array!([[1, 2], [3, 4]]), vec![1], array!([[4, 5], [6, 7]]), Some(0), array!([[1, 2], [4, 5], [6, 7], [3, 4]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], array!([[4, 5], [6, 7]]), Some(0), array!([[[1, 2], [3, 4]], [[4, 5], [6, 7]], [[1, 2], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], array!([[4, 5], [6, 7]]), Some(1), array!([[[1, 2], [4, 5], [3, 4]], [[1, 2], [6, 7], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], array!([[4, 5], [6, 7]]), Some(2), array!([[[1, 4, 2], [3, 5, 4]], [[1, 6, 2], [3, 7, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], array!([4]), Some(0), array!([[[4, 4], [4, 4]], [[1, 2], [3, 4]], [[4, 4], [4, 4]], [[1, 2], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], array!([4]), Some(1), array!([[[4, 4], [1, 2], [4, 4], [3, 4]], [[4, 4], [1, 2], [4, 4], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], array!([4]), Some(2), array!([[[4, 1, 4, 2], [4, 3, 4, 4]], [[4, 1, 4, 2], [4, 3, 4, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], array!([[4, 5], [6, 7]]), Some(0), array!([[[4, 5], [6, 7]], [[1, 2], [3, 4]], [[4, 5], [6, 7]], [[1, 2], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], array!([[4, 5], [6, 7]]), Some(1), array!([[[4, 5], [1, 2], [6, 7], [3, 4]], [[4, 5], [1, 2], [6, 7], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], array!([[4, 5], [6, 7]]), Some(2), array!([[[4, 1, 5, 2], [6, 3, 7, 4]], [[4, 1, 5, 2], [6, 3, 7, 4]]])),
+#[should_panic(expected = "incompatible shapes for broadcasting")]
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], array!([[4, 5, 3], [6, 7, 3]]), Some(1), array!([1])),
+)] fn test_insert(array: Array<i32>, indices: Vec<usize>, values: Array<i32>, axis: Option<usize>, expected: Array<i32>) {
+    assert_eq!(expected, array.insert(indices, &values, axis))
+}
+
+#[rstest(
 array, new_shape, expected,
 case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 2], array!([[1, 2], [3, 4]])),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), vec![4], array!([1, 2, 3, 4])),
