@@ -92,6 +92,28 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn reshape(&self, shape: Vec<usize>) -> Self;
 
+    /// Resizes an array, 
+    ///
+    /// # Arguments
+    ///
+    /// * `shape` - vector representing new array shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]);
+    /// assert_eq!(array!([1, 2, 3, 4]), arr);
+    /// let arr = arr.resize(vec![2, 2]);
+    /// assert_eq!(array!([[1, 2], [3, 4]]), arr);
+    /// let arr = arr.resize(vec![4]);
+    /// assert_eq!(array!([1, 2, 3, 4]), arr);
+    /// let arr = arr.resize(vec![8]);
+    /// assert_eq!(array!([1, 2, 3, 4, 1, 2, 3, 4]), arr);
+    /// ```
+    fn resize(&self, shape: Vec<usize>) -> Self;
+
     /// Return a contiguous flattened array
     ///
     /// # Examples
