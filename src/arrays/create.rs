@@ -15,26 +15,26 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
     fn new(elements: Vec<N>, shape: Vec<usize>) -> Self {
         assert_eq!(elements.len(), shape.iter().product(), "Shape must match values length");
-        Array { elements, shape, }
+        Self { elements, shape, }
     }
 
     fn single(element: N) -> Self {
-        Array { elements: vec![element], shape: vec![1], }
+        Self { elements: vec![element], shape: vec![1], }
     }
 
     fn flat(elements: Vec<N>) -> Self {
-        Array { elements: elements.clone(), shape: vec![elements.len()], }
+        Self { elements: elements.clone(), shape: vec![elements.len()], }
     }
 
     fn rand(shape: Vec<usize>) -> Self {
         let size = shape.iter().product();
         let mut elements: Vec<N> = Vec::with_capacity(size);
         (0..size).for_each(|_| elements.push(N::rand(N::ZERO..=N::ONE)));
-        Array { elements, shape }
+        Self { elements, shape }
     }
 
     fn empty() -> Self {
-        Array::new(Vec::<N>::new(), vec![0])
+        Self::new(Vec::<N>::new(), vec![0])
     }
 
     fn eye(n: usize, m: Option<usize>, k: Option<usize>) -> Self {
@@ -48,7 +48,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             })
             .collect();
 
-        Array { elements, shape: vec![n, m] }
+        Self { elements, shape: vec![n, m] }
     }
 
     fn identity(n: usize) -> Self {
@@ -57,7 +57,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
                 if i % (n + 1) == 0 { N::ONE }
                 else { N::ZERO })
             .collect();
-        Array { elements, shape: vec![n, n] }
+        Self { elements, shape: vec![n, n] }
     }
 
     fn zeros(shape: Vec<usize>) -> Self {
@@ -95,7 +95,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             elements.push(value);
             value += step;
         }
-        Array::new(elements.into_iter().map(N::from).collect(), vec![size])
+        Self::new(elements.into_iter().map(N::from).collect(), vec![size])
     }
 
     fn linspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Self {
@@ -110,8 +110,8 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     }
 
     fn linspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Self {
-        let start = if start.len() == 1 { Array::full_like(stop, start[0]) } else { start.clone() };
-        let stop = if stop.len() == 1 { Array::full_like(&start, stop[0]) } else { stop.clone() };
+        let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
+        let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
         assert_eq!(start.get_shape(), stop.get_shape());
         let mut new_shape = vec![num.unwrap_or(50)];
         new_shape.extend(start.get_shape().iter().copied());
@@ -120,7 +120,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::linspace(a, b, num, endpoint).get_elements())
             .collect::<Vec<Vec<N>>>();
-        Array::flat(values.into_iter().flatten().collect())
+        Self::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)
             .transpose(None)
     }
@@ -140,8 +140,8 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     }
 
     fn logspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>, base: Option<&Array<usize>>) -> Self {
-        let start = if start.len() == 1 { Array::full_like(stop, start[0]) } else { start.clone() };
-        let stop = if stop.len() == 1 { Array::full_like(&start, stop[0]) } else { stop.clone() };
+        let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
+        let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
         assert_eq!(start.get_shape(), stop.get_shape());
         let mut new_shape = vec![num.unwrap_or(50)];
         new_shape.extend(start.get_shape().iter().copied());
@@ -154,7 +154,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         let values = start.into_iter().zip(stop).zip(base)
             .map(|((a, b), c)| Self::logspace(a, b, num, endpoint, Some(c)).get_elements())
             .collect::<Vec<Vec<N>>>();
-        Array::flat(values.into_iter().flatten().collect())
+        Self::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)
             .transpose(None)
     }
@@ -174,8 +174,8 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     }
 
     fn geomspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Self {
-        let start = if start.len() == 1 { Array::full_like(stop, start[0]) } else { start.clone() };
-        let stop = if stop.len() == 1 { Array::full_like(&start, stop[0]) } else { stop.clone() };
+        let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
+        let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
         assert_eq!(start.get_shape(), stop.get_shape());
         let mut new_shape = vec![num.unwrap_or(50)];
         new_shape.extend(start.get_shape().iter().copied());
@@ -184,7 +184,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::geomspace(a, b, num, endpoint).get_elements())
             .collect::<Vec<Vec<N>>>();
-        Array::flat(values.into_iter().flatten().collect())
+        Self::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)
             .transpose(None)
     }
@@ -250,7 +250,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             ))
             .collect();
 
-        Array::new(elements, vec![n, m])
+        Self::new(elements, vec![n, m])
     }
 
     fn tril(&self, k: Option<isize>) -> Self {
@@ -278,7 +278,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             }
         }
 
-        Array::new(elements, vec![size, n_columns])
+        Self::new(elements, vec![size, n_columns])
     }
 }
 
@@ -304,6 +304,6 @@ impl <N: Numeric> Array<N> {
             })
             .collect();
 
-        Array::new(elements, self.shape.clone())
+        Self::new(elements, self.shape.clone())
     }
 }
