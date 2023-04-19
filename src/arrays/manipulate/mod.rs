@@ -112,6 +112,19 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         self.reshape(new_shape)
     }
 
+    fn trim_zeros(&self) -> Self {
+        assert_eq!(1, self.ndim(), "trim_zeros is defined only for 1d arrays");
+        let new_elements = self.get_elements()
+            .into_iter().rev()
+            .skip_while(|&e| e == N::ZERO)
+            .collect::<Vec<_>>()
+            .into_iter().rev()
+            .skip_while(|&e| e == N::ZERO)
+            .collect::<Vec<_>>();
+
+        Self::flat(new_elements)
+    }
+
     fn for_each<F: FnMut(&N)>(&self, f: F) {
         self.elements.iter()
             .for_each(f)

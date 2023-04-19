@@ -119,6 +119,19 @@ case(array!([1]), 0, array!([1])),
 }
 
 #[rstest(
+arr, expected,
+case(array!([1, 2, 3, 4]), array!([1, 2, 3, 4])),
+case(array!([0, 0, 1, 2, 3, 4]), array!([1, 2, 3, 4])),
+case(array!([0, 0, 1, 2, 3, 4]), array!([1, 2, 3, 4])),
+case(array!([0, 0, 1, 2, 3, 4, 0, 0]), array!([1, 2, 3, 4])),
+case(array!([0, 0, 0, 0]), Array::empty()),
+#[should_panic(expected = "trim_zeros is defined only for 1d arrays")]
+case(array!([[1, 2]]), array!([1])),
+)] fn test_trim_zeros(arr: Array<i32>, expected: Array<i32>) {
+    assert_eq!(expected, arr.trim_zeros())
+}
+
+#[rstest(
 array, expected,
 case(array!([1, 2, 3, 4]), vec![2, 4, 6, 8]),
 case(array!([[1, 2, 3, 4], [1, 2, 3, 4]]), vec![2, 4, 6, 8, 2, 4, 6, 8]),
