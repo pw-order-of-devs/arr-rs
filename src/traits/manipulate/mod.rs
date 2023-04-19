@@ -92,7 +92,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn reshape(&self, shape: Vec<usize>) -> Self;
 
-    /// Resizes an array, 
+    /// Resizes an array,
     ///
     /// # Arguments
     ///
@@ -150,6 +150,18 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(array!([[[1]]]), arr.atleast(3));
     /// ```
     fn atleast(&self, n: usize) -> Self;
+
+    /// Trim the leading and/or trailing zeros from a 1D array
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![0, 0, 1, 2, 3, 4, 0, 0]);
+    /// assert_eq!(array!([1, 2, 3, 4]), arr.trim_zeros());
+    /// ```
+    fn trim_zeros(&self) -> Self;
 
     /// Loop over array elements
     ///
