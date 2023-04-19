@@ -93,6 +93,13 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         Self::new(self.elements.clone(), shape)
     }
 
+    fn resize(&self, shape: Vec<usize>) -> Self {
+        self.get_elements().into_iter().cycle()
+            .take(shape.iter().product::<usize>())
+            .collect::<Self>()
+            .reshape(shape)
+    }
+
     fn ravel(&self) -> Self {
         Self::new(self.elements.clone(), vec![self.len()])
     }
