@@ -46,6 +46,30 @@ case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(2), array!([[[1
 }
 
 #[rstest(
+array, values, axis, expected,
+case(array!([1, 2, 3]), array!([1]), None, array!([1, 2, 3, 1])),
+case(array!([1, 2, 3]), array!([0, 2]), None, array!([1, 2, 3, 0, 2])),
+case(array!([[1, 2], [3, 4]]), array!([1]), None, array!([1, 2, 3, 4, 1])),
+#[should_panic(expected = "input array should have the same dimension as the original one")]
+case(array!([[1, 2], [3, 4]]), array!([4]), Some(0), array!([1, 3, 4])),
+case(array!([[1, 2], [3, 4]]), array!([[1, 1]]), Some(0), array!([[1, 2], [3, 4], [1, 1]])),
+case(array!([[1, 2], [3, 4]]), array!([[1], [1]]), Some(1), array!([[1, 2, 1], [3, 4, 1]])),
+#[should_panic(expected = "input array dimensions for the concatenation axis must match exactly")]
+case(array!([[1, 2], [3, 4]]), array!([[1, 1]]), Some(1), array!([[1, 2], [3, 4], [1, 1]])),
+case(array!([[1, 2], [3, 4]]), array!([[1, 1], [1, 1]]), Some(0), array!([[1, 2], [3, 4], [1, 1], [1, 1]])),
+case(array!([[1, 2], [3, 4]]), array!([[1, 1], [1, 1]]), Some(1), array!([[1, 2, 1, 1], [3, 4, 1, 1]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 1], [1, 1]]]), Some(0), array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]], [[1, 1], [1, 1]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 1], [1, 1]], [[1, 1], [1, 1]]]), Some(1), array!([[[1, 2], [3, 4], [1, 1], [1, 1]], [[1, 2], [3, 4], [1, 1], [1, 1]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 1], [1, 1]], [[1, 1], [1, 1]]]), Some(2), array!([[[1, 2, 1, 1], [3, 4, 1, 1]], [[1, 2, 1, 1], [3, 4, 1, 1]]])),
+#[should_panic(expected = "input array should have the same dimension as the original one")]
+case(array!([[1, 2], [3, 4]]), array!([[[1, 1], [1, 1]], [[1, 1], [1, 1]]]), Some(0), array!([1, 3, 4])),
+#[should_panic(expected = "input array dimensions for the concatenation axis must match exactly")]
+case(array!([[[1, 2], [3, 4]], [[4, 5], [6, 7]]]), array!([[[7, 8]]]), Some(0), array!([1, 3, 4])),
+)] fn test_append(array: Array<i32>, values: Array<i32>, axis: Option<usize>, expected: Array<i32>) {
+    assert_eq!(expected, array.append(&values, axis))
+}
+
+#[rstest(
 array, new_shape, expected,
 case(Array::new(vec![1, 2, 3, 4], vec![4]), vec![2, 2], array!([[1, 2], [3, 4]])),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), vec![4], array!([1, 2, 3, 4])),

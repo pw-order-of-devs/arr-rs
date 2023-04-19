@@ -5,6 +5,7 @@ use crate::traits::{
 };
 
 impl <N: Numeric> std::fmt::Display for Array<N> {
+
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", build_string(self, f.precision(), f.alternate()))
     }
@@ -12,21 +13,22 @@ impl <N: Numeric> std::fmt::Display for Array<N> {
 
 fn build_string<N: Numeric>(arr: &Array<N>, precision: Option<usize>, alternate: bool) -> String {
     if arr.is_empty() {
-        return "[]".to_string();
+        "[]".to_string()
     } else if arr.len() == 1 {
-        return format!("[{}]", arr.get_elements()[0]);
+        format!("[{}]", arr.get_elements()[0])
+    } else {
+        let mut shape = arr.get_shape();
+        shape.reverse();
+        let multiply = shape.iter().enumerate()
+            .map(|(idx, _)| shape[0..=idx].iter().product())
+            .collect::<Vec<usize>>();
+        let mut str = vec!["[".repeat(multiply.len())];
+        arr.get_elements().iter().enumerate().for_each(|(idx, &elem)|
+            str.push(print_subarray(&shape, idx, elem, multiply.clone(), precision, alternate))
+        );
+        multiply.iter().for_each(|_| str.push("]".to_string()));
+        str.join("")
     }
-    let mut shape = arr.get_shape();
-    shape.reverse();
-    let multiply = shape.iter().enumerate()
-        .map(|(idx, _)| shape[0..=idx].iter().product())
-        .collect::<Vec<usize>>();
-    let mut str = vec!["[".repeat(multiply.len())];
-    arr.get_elements().iter().enumerate().for_each(|(idx, &elem)|
-        str.push(print_subarray(&shape, idx, elem, multiply.clone(), precision, alternate))
-    );
-    multiply.iter().for_each(|_| str.push("]".to_string()));
-    str.join("")
 }
 
 fn print_subarray<N: Numeric>(shape: &[usize], idx: usize, elem: N, m: Vec<usize>, p: Option<usize>, a: bool) -> String {

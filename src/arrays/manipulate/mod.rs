@@ -7,11 +7,12 @@ pub mod split;
 
 use itertools::Itertools;
 use crate::arrays::Array;
-use crate::prelude::ArrayAxis;
+use crate::ext::vec_ext::VecRemoveAt;
 use crate::traits::{
     create::ArrayCreate,
     manipulate::{
         ArrayManipulate,
+        axis::ArrayAxis,
         broadcast::ArrayBroadcast,
     },
     meta::ArrayMeta,
@@ -36,12 +37,10 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
     fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Self {
         if let Some(axis) = axis {
-            let mut shape = self.shape.clone();
-            assert!(axis < self.shape.len(), "invalid axis for array");
-            let mut tmp = shape.clone();
-            shape[axis] -= indices.len();
-            tmp.remove(axis);
-            let chunk_size = tmp.iter().product::<usize>();
+            assert!(axis < self.ndim(), "axis is out of bounds for array");
+            let mut new_shape = self.shape.clone();
+            new_shape[axis] -= indices.len();
+            let chunk_size = self.get_shape().remove_at(axis).iter().product::<usize>();
             let indices = indices.clone().into_iter().cycle()
                 .take(indices.len() * chunk_size)
                 .map(|i| i * chunk_size)
@@ -50,23 +49,52 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
             let mut new_elements = self.rollaxis(axis as isize, None).elements;
             indices.iter().sorted().rev().for_each(|&i| { new_elements.remove(i); });
 
-            Array::new(new_elements, shape)
+            Self::new(new_elements, new_shape)
         } else {
             let mut new_elements = self.get_elements();
             assert!(indices.iter().all(|&i| i < new_elements.len()), "delete index out of the bounds of array");
             indices.iter().rev().for_each(|&i| { new_elements.remove(i); });
 
-            Array::flat(new_elements)
+            Self::flat(new_elements)
+        }
+    }
+
+    fn append(&self, values: &Self, axis: Option<usize>) -> Self {
+        if let Some(axis) = axis {
+            assert!(axis < self.ndim(), "axis is out of bounds for array");
+            assert_eq!(self.ndim(), values.ndim(), "input array should have the same dimension as the original one");
+            assert_eq!(self.get_shape().remove_at(axis), values.get_shape().remove_at(axis), "input array dimensions for the concatenation axis must match exactly");
+
+            let subarrays = if axis == 0 { 1 } else { self.get_shape()[..axis].iter().product::<usize>() };
+            let subarray_len = self.get_shape().iter().product::<usize>() / subarrays;
+            let indices = (0 .. subarrays).flat_map(|i| vec![subarray_len].iter().cycle()
+                .take(values.len() / subarrays)
+                .map(|e| e + i * subarray_len)
+                .collect::<Vec<usize>>()
+            ).collect::<Vec<usize>>();
+
+            let mut new_shape = self.get_shape();
+            new_shape[axis] += values.get_shape()[axis];
+            let mut new_elements = self.get_elements();
+
+            indices.iter().rev()
+                .zip(&values.get_elements())
+                .for_each(|(&i, &e)| new_elements.insert(i, e));
+            Self::new(new_elements, new_shape)
+        } else {
+            let mut elements = self.get_elements();
+            elements.append(&mut values.get_elements());
+            Self::flat(elements)
         }
     }
 
     fn reshape(&self, shape: Vec<usize>) -> Self {
         assert_eq!(self.elements.len(), shape.iter().product(), "Shape must match values length");
-        Array::new(self.elements.clone(), shape)
+        Self::new(self.elements.clone(), shape)
     }
 
     fn ravel(&self) -> Self {
-        Array::new(self.elements.clone(), vec![self.len()])
+        Self::new(self.elements.clone(), vec![self.len()])
     }
 
     fn atleast(&self, n: usize) -> Self {
@@ -145,7 +173,10 @@ impl <N: Numeric> Array<N> {
 
     fn insert_validate_shapes(&self, indices: &Vec<usize>, values: &Self, axis: Option<usize>) -> Self {
         if indices.len() > 1 { let _ = values.broadcast_to(vec![indices.len()]); }
-        if axis.is_some() { let _ = values.broadcast_to(self.get_shape()); }
+        if axis.is_some() {
+            assert!(axis.unwrap() < self.ndim(), "axis is out of bounds for array");
+            let _ = values.broadcast_to(self.get_shape());
+        }
         if axis.unwrap_or(0) > 0 { values.ravel() } else { values.clone() }
     }
 

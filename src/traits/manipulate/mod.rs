@@ -37,7 +37,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// # Arguments
     ///
     /// * `indices` - vector representing values to delete from array
-    /// * `axis` - axis along which to insert values. if None, then array is flattened first
+    /// * `axis` - axis along which to delete values. if None, then array is flattened first
     ///
     /// # Examples
     ///
@@ -52,6 +52,27 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(array!([1., 2.]), arr);
     /// ```
     fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Self;
+
+    /// Append values to the end of an array
+    ///
+    /// # Arguments
+    ///
+    /// * `values` - vector representing values to append to array
+    /// * `axis` - axis along which to append values. if None, then array is flattened first
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]);
+    /// let arr = arr.append(&Array::single(1.), None);
+    /// assert_eq!(array!([1., 2., 3., 4., 1.]), arr);
+    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]);
+    /// let arr = arr.append(&Array::flat(vec![1., 3.]), None);
+    /// assert_eq!(array!([1., 2., 3., 4., 1., 3.]), arr);
+    /// ```
+    fn append(&self, values: &Self, axis: Option<usize>) -> Self;
 
     /// Reshapes an array
     ///

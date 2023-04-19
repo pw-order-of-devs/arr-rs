@@ -49,24 +49,24 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
     fn broadcast_to(&self, shape: Vec<usize>) -> Array<N> {
         self.broadcast_validate_shapes(&shape);
         if self.get_shape().iter().product::<usize>() == shape.iter().product() {
-            return self.reshape(shape);
+            self.reshape(shape)
+        } else {
+            let output_elements: Vec<N> = self.elements
+                .chunks_exact(self.shape[self.shape.len() - 1])
+                .flat_map(|inner| {
+                    let extended_inner = inner.iter()
+                        .cycle()
+                        .take(shape[shape.len() - 1])
+                        .copied()
+                        .collect::<Vec<N>>();
+                    extended_inner.into_iter()
+                })
+                .cycle()
+                .take(shape.iter().product())
+                .collect();
+
+            Array::new(output_elements, shape)
         }
-
-        let output_elements: Vec<N> = self.elements
-            .chunks_exact(self.shape[self.shape.len() - 1])
-            .flat_map(|inner| {
-                let extended_inner = inner.iter()
-                    .cycle()
-                    .take(shape[shape.len() - 1])
-                    .copied()
-                    .collect::<Vec<N>>();
-                extended_inner.into_iter()
-            })
-            .cycle()
-            .take(shape.iter().product())
-            .collect();
-
-        Array::new(output_elements, shape)
     }
 
     fn broadcast_arrays(arrays: Vec<Self>) -> Vec<Self> {
