@@ -38,7 +38,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
     fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Self {
         if let Some(axis) = axis {
             assert!(axis < self.ndim(), "axis is out of bounds for array");
-            let mut sorted_indices = indices.clone();
+            let mut sorted_indices = indices;
             sorted_indices.sort();
             sorted_indices.dedup();
 
@@ -51,7 +51,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
                 .enumerate()
                 .filter_map(|(idx, elem)| {
                     let current_coords = self.index_to_coord(idx);
-                    if !sorted_indices.iter().any(|&i| i == current_coords[axis]) { Some(elem.clone()) }
+                    if !sorted_indices.iter().any(|&i| i == current_coords[axis]) { Some(*elem) }
                     else { None }
                 }).collect::<Vec<N>>();
 
