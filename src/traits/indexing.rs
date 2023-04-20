@@ -27,6 +27,30 @@ pub trait ArrayIndexing<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn index_at(&self, coords: &[usize]) -> usize;
 
+    /// Return coordinates at the given index of element
+    ///
+    /// # Arguments
+    ///
+    /// * `index` - index of element in flattened array
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 2, 2]);
+    ///
+    /// let coord_1 = arr.index_to_coord(0);
+    /// assert_eq!(vec![0, 0, 0], coord_1);
+    ///
+    /// let coord_2 = arr.index_to_coord(5);
+    /// assert_eq!(vec![1, 0, 1], coord_2);
+    ///
+    /// let coord_3 = arr.index_to_coord(7);
+    /// assert_eq!(vec![1, 1, 1], coord_3);
+    /// ```
+    fn index_to_coord(&self, idx: usize) -> Vec<usize>;
+
     /// Return an index of element at the given coordinates
     ///
     /// # Arguments

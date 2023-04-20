@@ -15,8 +15,22 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[1, 1, 1], 7),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[2, 3, 4], 0),
 #[should_panic(expected = "coord value must match array shape")]
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], 0),
-)] fn test_index(array: Array<i32>, coords: &[usize], expected: usize) {
+)] fn test_index_at(array: Array<i32>, coords: &[usize], expected: usize) {
     assert_eq!(expected, array.index_at(coords))
+}
+
+#[rstest(
+array, idx, expected,
+case(Array::new(vec![1, 2, 3, 4], vec![4]), 0, &[0]),
+case(Array::new(vec![1, 2, 3, 4], vec![4]), 3, &[3]),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), 0, &[0, 0]),
+case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), 3, &[1, 1]),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![2, 3]), 4, &[1, 1]),
+case(Array::new(vec![1, 2, 3, 4, 5, 6], vec![3, 2]), 4, &[2, 0]),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 1, &[0, 0, 1]),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 7, &[1, 1, 1]),
+)] fn test_index_to_coord(array: Array<i32>, idx: usize, expected: &[usize]) {
+    assert_eq!(expected, array.index_to_coord(idx))
 }
 
 #[rstest(

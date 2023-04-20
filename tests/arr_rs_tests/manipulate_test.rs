@@ -38,9 +38,14 @@ case(array!([[1, 2], [3, 4]]), vec![1], None, array!([1, 3, 4])),
 case(array!([[1, 2], [3, 4]]), vec![4], None, array!([1, 3, 4])),
 case(array!([[1, 2], [3, 4]]), vec![1], Some(0), array!([[1, 2]])),
 case(array!([[1, 2], [3, 4]]), vec![1], Some(1), array!([[1], [3]])),
+case(array!([[1, 2, 3, 4], [3, 4, 5, 6]]), vec![1], Some(0), array!([[1, 2, 3, 4]])),
+case(array!([[1, 2, 3, 4], [3, 4, 5, 6]]), vec![1], Some(1), array!([[1, 3, 4], [3, 5, 6]])),
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(0), array!([[[1, 2], [3, 4]]])),
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(1), array!([[[1, 2]], [[1, 2]]])),
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(2), array!([[[1], [3]], [[1], [3]]])),
+case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![1], Some(0), array!([[[1, 2, 3, 4], [3, 4, 5, 6]]])),
+case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![1], Some(1), array!([[[1, 2, 3, 4]], [[2, 3, 4, 5]]])),
+case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![1], Some(2), array!([[[1, 3, 4], [3, 5, 6]], [[2, 4, 5], [5, 7, 8]]])),
 )] fn test_delete(array: Array<i32>, indices: Vec<usize>, axis: Option<usize>, expected: Array<i32>) {
     assert_eq!(expected, array.delete(indices, axis))
 }

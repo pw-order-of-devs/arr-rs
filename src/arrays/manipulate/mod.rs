@@ -8,11 +8,11 @@ pub mod split;
 use itertools::Itertools;
 use crate::arrays::Array;
 use crate::ext::vec_ext::VecRemoveAt;
+use crate::prelude::ArrayIndexing;
 use crate::traits::{
     create::ArrayCreate,
     manipulate::{
         ArrayManipulate,
-        axis::ArrayAxis,
         broadcast::ArrayBroadcast,
     },
     meta::ArrayMeta,
@@ -38,21 +38,27 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
     fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Self {
         if let Some(axis) = axis {
             assert!(axis < self.ndim(), "axis is out of bounds for array");
-            let mut new_shape = self.shape.clone();
-            new_shape[axis] -= indices.len();
-            let chunk_size = self.get_shape().remove_at(axis).iter().product::<usize>();
-            let indices = indices.clone().into_iter().cycle()
-                .take(indices.len() * chunk_size)
-                .map(|i| i * chunk_size)
+            let mut sorted_indices = indices.clone();
+            sorted_indices.sort();
+            sorted_indices.dedup();
+
+            let new_shape = self.shape.iter()
+                .enumerate()
+                .map(|(i, &dim)| if i == axis { dim.saturating_sub(sorted_indices.len()) } else { dim })
                 .collect::<Vec<usize>>();
 
-            let mut new_elements = self.rollaxis(axis as isize, None).elements;
-            indices.iter().sorted().rev().for_each(|&i| { new_elements.remove(i); });
+            let new_elements = self.elements.iter()
+                .enumerate()
+                .filter_map(|(idx, elem)| {
+                    let current_coords = self.index_to_coord(idx);
+                    if !sorted_indices.iter().any(|&i| i == current_coords[axis]) { Some(elem.clone()) }
+                    else { None }
+                }).collect::<Vec<N>>();
 
             Self::new(new_elements, new_shape)
         } else {
+            assert!(indices.iter().all(|&i| i < self.get_elements().len()), "delete index out of the bounds of array");
             let mut new_elements = self.get_elements();
-            assert!(indices.iter().all(|&i| i < new_elements.len()), "delete index out of the bounds of array");
             indices.iter().rev().for_each(|&i| { new_elements.remove(i); });
 
             Self::flat(new_elements)
