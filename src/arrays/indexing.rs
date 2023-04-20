@@ -9,16 +9,20 @@ impl <N: Numeric> ArrayIndexing<N> for Array<N> {
 
     fn index_at(&self, coords: &[usize]) -> usize {
         assert_eq!(self.shape.len(), coords.len(), "coords length must match array dimension");
-        for (i, _) in coords.iter().enumerate() {
-            assert!(coords[i] < self.shape[i], "coord value must match array shape");
-        }
-        let mut index = 0;
-        let mut stride = 1;
-        (0..self.shape.len()).rev().for_each(|i| {
+        coords.iter().enumerate().for_each(|(i, _)| assert!(coords[i] < self.shape[i], "coord value must match array shape"));
+
+        self.shape.iter().enumerate().rev().fold((0, 1), |(mut index, mut stride), (i, &dim)| {
             index += coords[i] * stride;
-            stride *= self.shape[i];
-        });
-        index
+            stride *= dim;
+            (index, stride)
+        }).0
+    }
+
+    fn index_to_coord(&self, idx: usize) -> Vec<usize> {
+        self.shape.iter().rev().fold((idx, Vec::new()), |(ri, mut coords), &dim| {
+            coords.push(ri % dim);
+            (ri / dim, coords)
+        }).1.into_iter().rev().collect()
     }
 
     fn at(&self, coords: &[usize]) -> N {
