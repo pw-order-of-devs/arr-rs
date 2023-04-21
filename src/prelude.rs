@@ -6,6 +6,7 @@ pub use crate::traits::{
         ArrayManipulate,
         axis::ArrayAxis,
         broadcast::ArrayBroadcast,
+        split::ArraySplit,
     },
     math::ArrayMath,
     meta::ArrayMeta,

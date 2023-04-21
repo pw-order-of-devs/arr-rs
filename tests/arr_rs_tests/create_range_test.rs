@@ -5,9 +5,9 @@ use crate::arr_rs_tests::common::test_runner;
 
 #[rstest(
 start, stop, step, expected,
-case(0, 5, None, array!([0, 1, 2, 3, 4])),
-case(0, 5, Some(1), array!([0, 1, 2, 3, 4])),
-case(0, 8, Some(2), array!([0, 2, 4, 6])),
+case(0, 4, None, array!([0, 1, 2, 3, 4])),
+case(0, 4, Some(1), array!([0, 1, 2, 3, 4])),
+case(0, 7, Some(2), array!([0, 2, 4, 6])),
 )] fn test_arange(start: i32, stop: i32, step: Option<i32>, expected: Array<i32>) {
     assert_eq!(expected, Array::arange(start, stop, step))
 }

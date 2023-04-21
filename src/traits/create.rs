@@ -225,7 +225,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::arange(0., 5., None);
+    /// let arr: Array<f64> = Array::arange(0., 4., None);
     /// assert_eq!(array!([0., 1., 2., 3., 4.]), arr);
     /// ```
     fn arange(start: N, stop: N, step: Option<N>) -> Self;
@@ -437,11 +437,11 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array_arange!(1, 9).reshape(vec![2, 4]);
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 4]);
     /// let expected: Array<i32> = array!([[1, 0, 0, 0], [5, 6, 0, 0]]);
     /// assert_eq!(expected, arr.tril(None));
     ///
-    /// let arr: Array<i32> = array_arange!(1, 9).reshape(vec![2, 2, 2]);
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 2, 2]);
     /// let expected: Array<i32> = array!([[[1, 0], [3, 4]], [[5, 0], [7, 8]]]);
     /// assert_eq!(expected, arr.tril(None));
     /// ```
@@ -459,11 +459,11 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array_arange!(1, 9).reshape(vec![2, 4]);
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 4]);
     /// let expected: Array<i32> = array!([[1, 2, 3, 4], [0, 6, 7, 8]]);
     /// assert_eq!(expected, arr.triu(None));
     ///
-    /// let arr: Array<i32> = array_arange!(1, 9).reshape(vec![2, 2, 2]);
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 2, 2]);
     /// let expected: Array<i32> = array!([[[1, 2], [0, 4]], [[5, 6], [0, 8]]]);
     /// assert_eq!(expected, arr.triu(None));
     /// ```
