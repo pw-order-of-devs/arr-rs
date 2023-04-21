@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::fmt::{Debug, Display};
 use std::ops::RangeInclusive;
 use std::str::FromStr;
 
@@ -7,7 +7,7 @@ use rand::distributions::Uniform;
 
 /// Numeric type for array
 pub trait Numeric:
-Copy + Clone + PartialEq + PartialOrd + Display + FromStr {
+Copy + Clone + PartialEq + PartialOrd + Debug + Display + FromStr {
     /// Zero constant value
     const ZERO: Self;
     /// One constant value
