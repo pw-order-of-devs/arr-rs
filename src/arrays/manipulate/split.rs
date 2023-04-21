@@ -44,4 +44,15 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
             })
             .collect()
     }
+
+    fn split(&self, parts: usize, axis: Option<usize>) -> Vec<Self> {
+        assert!(parts > 0, "number of sections must be larger than 0");
+        if let Some(axis) = axis { assert!(axis < self.ndim(), "axis out of bounds"); }
+
+        if self.is_empty() { return vec![self.clone()] }
+        let n_total = self.shape[axis.unwrap_or(0)];
+
+        assert_eq!(0, n_total % parts, "array split does not result in an equal division");
+        self.array_split(parts, axis)
+    }
 }
