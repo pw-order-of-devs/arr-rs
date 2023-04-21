@@ -2,6 +2,8 @@
 pub mod axis;
 /// broadcast array functions implementation
 pub mod broadcast;
+/// split array functions implementation
+pub mod split;
 
 use crate::arrays::Array;
 use crate::traits::{

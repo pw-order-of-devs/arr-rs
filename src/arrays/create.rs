@@ -84,7 +84,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
     fn arange(start: N, stop: N, step: Option<N>) -> Self {
         let step = step.unwrap_or(N::ONE).to_f64();
-        let size = ((stop.to_f64() - start.to_f64()) / step).to_usize();
+        let size = ((stop.to_f64() + 1. - start.to_f64()) / step).to_usize();
         let mut elements = Vec::with_capacity(size);
         let mut value = start.to_f64();
         for _ in 0..size {

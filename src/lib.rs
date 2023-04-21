@@ -43,3 +43,6 @@ pub mod prelude;
 pub mod traits;
 /// implementation modules - array implementation
 pub mod arrays;
+
+/// extension functions for library
+pub(crate) mod ext;
