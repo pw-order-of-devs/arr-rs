@@ -5,15 +5,18 @@ pub mod broadcast;
 /// split array functions implementation
 pub mod split;
 
+use std::cmp::Ordering;
 use itertools::Itertools;
 use crate::arrays::Array;
-use crate::ext::vec_ext::VecRemoveAt;
-use crate::prelude::ArrayIndexing;
+use crate::ext::vec_ext::{VecInsertAt, VecRemoveAt};
+use crate::prelude::ArrayAxis;
 use crate::traits::{
     create::ArrayCreate,
+    indexing::ArrayIndexing,
     manipulate::{
         ArrayManipulate,
         broadcast::ArrayBroadcast,
+        split::ArraySplit,
     },
     meta::ArrayMeta,
     types::numeric::Numeric,
@@ -104,6 +107,31 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
             .take(shape.iter().product::<usize>())
             .collect::<Self>()
             .reshape(shape)
+    }
+
+    fn unique(&self, axis: Option<usize>) -> Self {
+        if let Some(axis) = axis {
+            let mut parts = self.split(self.shape[axis], Some(axis)).into_iter()
+                .sorted_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+                .collect::<Vec<Self>>();
+            parts.dedup();
+            let flat_parts = parts.clone().into_iter().flatten().collect::<Vec<N>>();
+            if flat_parts.len() == self.len() { self.clone() }
+            else {
+                let new_shape = self.get_shape()
+                    .remove_at(axis)
+                    .insert_at(axis, parts.len());
+                let result = Array::new(flat_parts, new_shape);
+                if !(axis > 0 && axis < self.ndim() - 1) { result }
+                else { result.rollaxis(axis as isize, None) }
+            }
+        } else {
+            let mut new_elements = self.get_elements().into_iter()
+                .sorted_by(|&a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
+                .collect::<Vec<N>>();
+            new_elements.dedup();
+            Array::flat(new_elements)
+        }
     }
 
     fn ravel(&self) -> Self {
