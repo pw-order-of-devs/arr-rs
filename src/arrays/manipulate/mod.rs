@@ -9,12 +9,12 @@ use std::cmp::Ordering;
 use itertools::Itertools;
 use crate::arrays::Array;
 use crate::ext::vec_ext::{VecInsertAt, VecRemoveAt};
-use crate::prelude::ArrayAxis;
 use crate::traits::{
     create::ArrayCreate,
     indexing::ArrayIndexing,
     manipulate::{
         ArrayManipulate,
+        axis::ArrayAxis,
         broadcast::ArrayBroadcast,
         split::ArraySplit,
     },
@@ -25,15 +25,55 @@ use crate::traits::{
 impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
     fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Self {
-        let values = self.insert_validate_shapes(&indices, values, axis);
-        let params = self.get_insert_parameters(axis);
+        if let Some(axis) = axis { assert!(axis < self.ndim(), "axis is out of bounds for array") }
+        if indices.len() > 1 { let _ = values.broadcast_to(vec![indices.len()]); }
+        if axis.is_some() { let _ = values.broadcast_to(self.get_shape()); }
 
-        let new_shape = self.get_insert_new_shape(&indices, &values, axis);
-        Self::insert_validate_indices_values(&indices, &values, &params, axis);
+        let values = if axis.unwrap_or(0) > 0 { values.ravel() } else { values.clone() };
+        let (subarrays, chunk_size, subarray_len) =
+            if let Some(axis) = axis {
+                let subarrays = if axis == 0 { 1 } else { self.get_shape()[..axis].iter().product::<usize>() };
+                let chunk_size = self.get_shape()[axis + 1..].iter().product::<usize>();
+                (subarrays, chunk_size, self.len() / subarrays)
+            } else { (1, 1, self.len()) };
 
-        let indices = self.get_insert_indices(&indices, &values, &params, axis);
-        let values = self.get_insert_values(&indices, &values, axis);
-        let new_elements = self.get_insert_new_elements(&indices, &values);
+        let mut new_shape = self.shape.clone();
+        if let Some(axis) = axis {
+            if self.ndim() > values.ndim() { new_shape[axis] += indices.len(); }
+            else { new_shape[axis] += values.shape[axis % values.ndim()]; }
+        } else {
+            new_shape = vec![self.elements.len() + std::cmp::max(values.len(), indices.len())];
+        }
+
+        let axis_some_cond = axis.is_some() && !(indices.len() == 1 || values.len() == 1 || values.len() == chunk_size * subarrays);
+        let axis_none_cond = axis.is_none() && !(indices.len() == 1 || values.len() == 1 || indices.len() == values.len());
+        if axis_none_cond || axis_some_cond { panic!("values and indices don't match for insert") }
+
+        let indices =
+            if let Some(axis) = axis {
+                let mut chunk = self.get_shape();
+                chunk.remove(axis);
+                let repeat_count =
+                    if values.ndim() > 1 && axis != 0 { values.get_shape()[0] }
+                    else if values.len() == 1 { 1 }
+                    else { values.len() / chunk.iter().product::<usize>() };
+                (0 .. subarrays).flat_map(|i| indices.iter()
+                    .flat_map(|&x| std::iter::repeat(x).take(chunk_size * repeat_count))
+                    .map(move |j| j * chunk_size + subarray_len * i)
+                ).collect::<Vec<usize>>()
+            }
+            else if indices.len() == 1 { vec![indices[0]; values.len()] }
+            else { indices };
+
+        let values =
+            if axis.is_some() { values.clone().into_iter().cycle().take(values.len() * indices.len()).collect() }
+            else if values.len() == 1 { values.broadcast_to(vec![indices.len()]) }
+            else { values };
+
+        let mut new_elements = self.elements.clone();
+        indices.iter().sorted().rev()
+            .zip(&values.get_elements().iter().copied().rev().collect::<Vec<N>>())
+            .for_each(|(&i, &e)| new_elements.insert(i, e));
 
         Self::new(new_elements, new_shape)
     }
@@ -212,87 +252,5 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
     fn fold<F: FnMut(&N, &N) -> N>(&self, init: N, mut f: F) -> N {
         self.elements.iter().fold(init, |a, b| f(&a, b))
-    }
-}
-
-// ==== insert helpers
-
-struct InsertParameters {
-    subarrays: usize,
-    chunk_size: usize,
-    subarray_len: usize,
-}
-
-impl <N: Numeric> Array<N> {
-
-    fn insert_validate_shapes(&self, indices: &Vec<usize>, values: &Self, axis: Option<usize>) -> Self {
-        if indices.len() > 1 { let _ = values.broadcast_to(vec![indices.len()]); }
-        if axis.is_some() {
-            assert!(axis.unwrap() < self.ndim(), "axis is out of bounds for array");
-            let _ = values.broadcast_to(self.get_shape());
-        }
-        if axis.unwrap_or(0) > 0 { values.ravel() } else { values.clone() }
-    }
-
-    fn insert_validate_indices_values(indices: &Vec<usize>, values: &Self, params: &InsertParameters, axis: Option<usize>) {
-        if axis.is_some() {
-            if !(indices.len() == 1 || values.len() == 1 || values.len() == params.chunk_size * params.subarrays) {
-                panic!("values and indices don't match for insert")
-            }
-        } else if !(indices.len() == 1 || values.len() == 1 || indices.len() == values.len()) {
-            panic!("values and indices don't match for insert")
-        }
-    }
-
-    fn get_insert_parameters(&self, axis: Option<usize>) -> InsertParameters {
-        if let Some(axis) = axis {
-            let subarrays = if axis == 0 { 1 } else { self.get_shape()[..axis].iter().product::<usize>() };
-            let chunk_size = self.get_shape()[axis + 1..].iter().product::<usize>();
-            InsertParameters { subarrays, chunk_size, subarray_len: self.len() / subarrays }
-        } else {
-            InsertParameters { subarrays: 1, chunk_size: 1, subarray_len: self.len() }
-        }
-    }
-
-    fn get_insert_new_shape(&self, indices: &Vec<usize>, values: &Self, axis: Option<usize>) -> Vec<usize> {
-        let mut new_shape = self.shape.clone();
-        if let Some(axis) = axis {
-            if self.ndim() > values.ndim() { new_shape[axis] += indices.len(); }
-            else { new_shape[axis] += values.shape[axis % values.ndim()]; }
-        } else {
-            new_shape = vec![self.elements.len() + std::cmp::max(values.len(), indices.len())];
-        }
-        new_shape
-    }
-
-    fn get_insert_indices(&self, indices: &Vec<usize>, values: &Self, params: &InsertParameters, axis: Option<usize>) -> Vec<usize> {
-        if let Some(axis) = axis {
-            let mut chunk = self.get_shape();
-            chunk.remove(axis);
-            let repeat_count =
-                if values.ndim() > 1 && axis != 0 { values.get_shape()[0] }
-                else if values.len() == 1 { 1 }
-                else { values.len() / chunk.iter().product::<usize>() };
-            (0 .. params.subarrays).flat_map(|i| indices.iter()
-                .flat_map(|&x| std::iter::repeat(x).take(params.chunk_size * repeat_count))
-                .map(move |j| j * params.chunk_size + params.subarray_len * i)
-            ).collect::<Vec<usize>>()
-        }
-        else if indices.len() == 1 { vec![indices[0]; values.len()] }
-        else { indices.clone() }
-    }
-
-    fn get_insert_values(&self, indices: &[usize], values: &Self, axis: Option<usize>) -> Self {
-        if axis.is_some() { values.clone().into_iter().cycle().take(values.len() * indices.len()).collect() }
-        else if values.len() == 1 { values.broadcast_to(vec![indices.len()]) }
-        else { values.clone() }
-    }
-
-    fn get_insert_new_elements(&self, indices: &[usize], values: &Self) -> Vec<N> {
-        let mut new_elements = self.elements.clone();
-        indices.iter().sorted().rev()
-            .zip(&values.into_iter().copied().rev().collect::<Vec<N>>())
-            .for_each(|(&i, &e)| new_elements.insert(i, e));
-        new_elements
     }
 }
