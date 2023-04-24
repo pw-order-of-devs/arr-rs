@@ -37,7 +37,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// # Arguments
     ///
     /// * `indices` - vector representing values to delete from array
-    /// * `axis` - axis along which to delete values. if None, then array is flattened first
+    /// * `axis` - axis along which to find unique values. if None, then array is flattened first
     ///
     /// # Examples
     ///
@@ -113,6 +113,25 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(array!([1, 2, 3, 4, 1, 2, 3, 4]), arr);
     /// ```
     fn resize(&self, shape: Vec<usize>) -> Self;
+
+
+    /// Find the unique elements of an array,
+    ///
+    /// # Arguments
+    ///
+    /// * `shape` - vector representing new array shape
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = Array::new(vec![1, 1, 2, 3, 3, 4], vec![6]);
+    /// assert_eq!(array!([1, 2, 3, 4]), arr.unique(None));
+    /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 2, 1], vec![5]);
+    /// assert_eq!(array!([1, 2, 3]), arr.unique(None));
+    /// ```
+    fn unique(&self, axis: Option<usize>) -> Self;
 
     /// Return a contiguous flattened array
     ///
