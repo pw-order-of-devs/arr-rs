@@ -12,6 +12,31 @@ use crate::traits::{
 impl <N: Numeric> ArrayAxis<N> for Array<N> {
 
     fn transpose(&self, axes: Option<Vec<isize>>) -> Self {
+
+        fn transpose_recursive<N: Numeric>(
+            input: &[N], input_shape: &[usize],
+            output: &mut [N], output_shape: &[usize],
+            current_indices: &mut [usize], current_dim: usize,
+            axes: &Option<Vec<usize>>) {
+            if current_dim < input_shape.len() - 1 {
+                (0 .. input_shape[current_dim]).for_each(|i| {
+                    current_indices[current_dim] = i;
+                    transpose_recursive(input, input_shape, output, output_shape, current_indices, current_dim + 1, axes);
+                });
+            } else {
+                (0 .. input_shape[current_dim]).for_each(|i| {
+                    current_indices[current_dim] = i;
+                    let input_index = input_shape.iter().enumerate().fold(0, |acc, (dim, size)| { acc * size + current_indices[dim] });
+                    let output_indices = match axes {
+                        Some(ref axes) => axes.iter().map(|&ax| current_indices[ax]).collect::<Vec<usize>>(),
+                        None => current_indices.iter().rev().cloned().collect::<Vec<usize>>(),
+                    };
+                    let output_index = output_shape.iter().enumerate().fold(0, |acc, (dim, size)| { acc * size + output_indices[dim] });
+                    output[output_index] = input[input_index];
+                });
+            }
+        }
+
         let axes = axes.map(|axes| axes.iter()
             .map(|i| self.normalize_axis(*i, None))
             .collect::<Vec<usize>>());
@@ -21,7 +46,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
             None => self.shape.clone().into_iter().rev().collect(),
         };
 
-        Self::transpose_recursive(
+        transpose_recursive(
             &self.elements, &self.shape,
             &mut new_elements, &new_shape,
             &mut vec![0; self.shape.len()], 0,
@@ -107,33 +132,5 @@ impl <N: Numeric> Array<N> {
     fn normalize_axis(&self, axis: isize, ndim: Option<usize>) -> usize {
         if axis < 0 { (axis + ndim.unwrap_or(self.ndim()) as isize) as usize }
         else { axis as usize }
-    }
-
-    fn transpose_recursive(
-        input: &[N], input_shape: &[usize],
-        output: &mut [N], output_shape: &[usize],
-        current_indices: &mut [usize], current_dim: usize,
-        axes: &Option<Vec<usize>>) {
-        if current_dim < input_shape.len() - 1 {
-            for i in 0..input_shape[current_dim] {
-                current_indices[current_dim] = i;
-                Self::transpose_recursive(input, input_shape, output, output_shape, current_indices, current_dim + 1, axes);
-            }
-        } else {
-            for i in 0..input_shape[current_dim] {
-                current_indices[current_dim] = i;
-                let input_index = input_shape.iter().enumerate().fold(0, |acc, (dim, size)| {
-                    acc * size + current_indices[dim]
-                });
-                let output_indices = match axes {
-                    Some(ref axes) => axes.iter().map(|&ax| current_indices[ax]).collect::<Vec<usize>>(),
-                    None => current_indices.iter().rev().cloned().collect::<Vec<usize>>(),
-                };
-                let output_index = output_shape.iter().enumerate().fold(0, |acc, (dim, size)| {
-                    acc * size + output_indices[dim]
-                });
-                output[output_index] = input[input_index];
-            }
-        }
     }
 }

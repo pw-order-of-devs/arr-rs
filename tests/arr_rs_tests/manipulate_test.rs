@@ -57,15 +57,15 @@ case(array!([1, 2, 3]), array!([0, 2]), None, array!([1, 2, 3, 0, 2])),
 case(array!([[1, 2], [3, 4]]), array!([1]), None, array!([1, 2, 3, 4, 1])),
 #[should_panic(expected = "input array should have the same dimension as the original one")]
 case(array!([[1, 2], [3, 4]]), array!([4]), Some(0), array!([1, 3, 4])),
-case(array!([[1, 2], [3, 4]]), array!([[1, 1]]), Some(0), array!([[1, 2], [3, 4], [1, 1]])),
-case(array!([[1, 2], [3, 4]]), array!([[1], [1]]), Some(1), array!([[1, 2, 1], [3, 4, 1]])),
+case(array!([[1, 2], [3, 4]]), array!([[1, 2]]), Some(0), array!([[1, 2], [3, 4], [1, 2]])),
+case(array!([[1, 2], [3, 4]]), array!([[1], [2]]), Some(1), array!([[1, 2, 1], [3, 4, 2]])),
 #[should_panic(expected = "input array dimensions for the concatenation axis must match exactly")]
-case(array!([[1, 2], [3, 4]]), array!([[1, 1]]), Some(1), array!([[1, 2], [3, 4], [1, 1]])),
-case(array!([[1, 2], [3, 4]]), array!([[1, 1], [1, 1]]), Some(0), array!([[1, 2], [3, 4], [1, 1], [1, 1]])),
-case(array!([[1, 2], [3, 4]]), array!([[1, 1], [1, 1]]), Some(1), array!([[1, 2, 1, 1], [3, 4, 1, 1]])),
-case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 1], [1, 1]]]), Some(0), array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]], [[1, 1], [1, 1]]])),
-case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 1], [1, 1]], [[1, 1], [1, 1]]]), Some(1), array!([[[1, 2], [3, 4], [1, 1], [1, 1]], [[1, 2], [3, 4], [1, 1], [1, 1]]])),
-case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 1], [1, 1]], [[1, 1], [1, 1]]]), Some(2), array!([[[1, 2, 1, 1], [3, 4, 1, 1]], [[1, 2, 1, 1], [3, 4, 1, 1]]])),
+case(array!([[1, 2], [3, 4]]), array!([[1, 2]]), Some(1), array!([[1, 2], [3, 4], [1, 1]])),
+case(array!([[1, 2], [3, 4]]), array!([[1, 2], [3, 4]]), Some(0), array!([[1, 2], [3, 4], [1, 2], [3, 4]])),
+case(array!([[1, 2], [3, 4]]), array!([[1, 2], [3, 4]]), Some(1), array!([[1, 2, 1, 2], [3, 4, 3, 4]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 2], [3, 4]]]), Some(0), array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]], [[1, 2], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), Some(1), array!([[[1, 2], [3, 4], [1, 2], [3, 4]], [[1, 2], [3, 4], [1, 2], [3, 4]]])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), Some(2), array!([[[1, 2, 1, 2], [3, 4, 3, 4]], [[1, 2, 1, 2], [3, 4, 3, 4]]])),
 #[should_panic(expected = "input array should have the same dimension as the original one")]
 case(array!([[1, 2], [3, 4]]), array!([[[1, 1], [1, 1]], [[1, 1], [1, 1]]]), Some(0), array!([1, 3, 4])),
 #[should_panic(expected = "input array dimensions for the concatenation axis must match exactly")]

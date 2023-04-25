@@ -4,6 +4,8 @@ pub mod axis;
 pub mod broadcast;
 /// Array Split functions
 pub mod split;
+/// Array Stack functions
+pub mod stack;
 
 use crate::traits::types::numeric::Numeric;
 
