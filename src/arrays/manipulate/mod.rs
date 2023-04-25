@@ -4,6 +4,8 @@ pub mod axis;
 pub mod broadcast;
 /// split array functions implementation
 pub mod split;
+/// stack array functions implementation
+pub mod stack;
 
 use std::cmp::Ordering;
 use itertools::Itertools;
@@ -127,8 +129,8 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
             let mut new_elements = self.get_elements();
 
             indices.iter().rev()
-                .zip(&values.get_elements())
-                .for_each(|(&i, &e)| new_elements.insert(i, e));
+                .zip(&values.get_elements().iter().rev().collect::<Vec<&N>>())
+                .for_each(|(&i, &&e)| new_elements.insert(i, e));
             Self::new(new_elements, new_shape)
         } else {
             let mut elements = self.get_elements();

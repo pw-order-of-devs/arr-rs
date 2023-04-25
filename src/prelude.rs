@@ -7,6 +7,7 @@ pub use crate::traits::{
         axis::ArrayAxis,
         broadcast::ArrayBroadcast,
         split::ArraySplit,
+        stack::ArrayStack,
     },
     math::ArrayMath,
     meta::ArrayMeta,
