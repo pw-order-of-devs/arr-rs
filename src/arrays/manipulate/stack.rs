@@ -76,6 +76,38 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
             Self::concatenate(arrs, Some(2)).reshape(new_shape)
         }
     }
+
+    fn column_stack(arrs: Vec<Self>) -> Self {
+        if arrs.is_empty() { Self::empty() }
+        else {
+            let (num_rows, mut total_cols) = (arrs[0].shape[0], 0);
+            arrs.iter().for_each(|array| {
+                if array.ndim() > 2 { panic!("all input arrays must be 1-D or 2-D."); }
+                if array.shape[0] != num_rows { panic!("all input arrays must have the same first dimension."); }
+                if array.ndim() == 1 { total_cols += 1; }
+                else { total_cols += array.shape[1]; }
+            });
+
+            let (mut new_elements, mut new_col_idx) = (vec![N::ZERO; num_rows * total_cols], 0);
+            arrs.iter().for_each(|array| {
+                let array_cols = if array.ndim() == 1 { 1 } else { array.shape[1] };
+                (0 .. num_rows).for_each(|row| {
+                    (0..array_cols).for_each(|col| {
+                        let src_idx = row * array_cols + col;
+                        let dst_idx = row * total_cols + new_col_idx + col;
+                        new_elements[dst_idx] = array.elements[src_idx];
+                    })
+                });
+                new_col_idx += array_cols;
+            });
+
+            Self::new(new_elements, vec![num_rows, total_cols])
+        }
+    }
+
+    fn row_stack(arrs: Vec<Self>) -> Self {
+        Self::vstack(arrs)
+    }
 }
 
 impl <N: Numeric> Array<N> {

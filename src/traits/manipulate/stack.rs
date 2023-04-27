@@ -114,4 +114,44 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(expected, Array::<i32>::dstack(vec![arr, other]));
     /// ```
     fn dstack(arrs: Vec<Self>) -> Self;
+
+    /// Stack 1d or 2d arrays as columns into a 2d array
+    /// row_stack is an alias for vstack
+    ///
+    /// # Arguments
+    ///
+    /// * `arrs` - arrays to stack
+    ///
+    /// # Examples
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = array!([1, 2, 3]);
+    /// let other: Array<i32> = array!([4, 5, 6]);
+    /// let expected: Array<i32> = array!([[1, 4], [2, 5], [3, 6]]);
+    /// assert_eq!(expected, Array::<i32>::column_stack(vec![arr, other]));
+    /// ```
+    fn column_stack(arrs: Vec<Self>) -> Self;
+
+    /// Stack arrays in sequence vertically (row wise)
+    ///
+    /// # Arguments
+    ///
+    /// * `arrs` - arrays to stack
+    ///
+    /// # Examples
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = array!([1, 2, 3]);
+    /// let other: Array<i32> = array!([4, 5, 6]);
+    /// let expected: Array<i32> = array!([[1, 2, 3], [4, 5, 6]]);
+    /// assert_eq!(expected, Array::<i32>::row_stack(vec![arr, other]));
+    ///
+    /// let arr: Array<i32> = array!([[1], [2], [3]]);
+    /// let other: Array<i32> = array!([[4], [5], [6]]);
+    /// let expected: Array<i32> = array!([[1], [2], [3], [4], [5], [6]]);
+    /// assert_eq!(expected, Array::<i32>::row_stack(vec![arr, other]));
+    /// ```
+    fn row_stack(arrs: Vec<Self>) -> Self;
 }

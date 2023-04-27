@@ -63,7 +63,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         assert_eq!(HashSet::<usize>::from_iter(source.iter().cloned()).len(), source.len(), "`source` axes should be unique");
         assert_eq!(HashSet::<usize>::from_iter(destination.iter().cloned()).len(), destination.len(), "`destination` axes should be unique");
 
-        let mut order = (0 .. self.get_shape().len())
+        let mut order = (0 .. self.ndim())
             .filter(|f| !source.contains(f))
             .collect::<Vec<usize>>();
 
@@ -80,7 +80,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         let axis = self.normalize_axis(axis, None);
         let start = if let Some(start) = start { self.normalize_axis(start, None) } else { 0 };
 
-        let mut new_axes = (0 .. self.get_shape().len()).collect::<Vec<usize>>();
+        let mut new_axes = (0 .. self.ndim()).collect::<Vec<usize>>();
         let axis_to_move = new_axes.remove(axis);
         new_axes.insert(start, axis_to_move);
 
@@ -91,7 +91,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         let axis_1 = self.normalize_axis(axis_1, None);
         let axis_2 = self.normalize_axis(axis_2, None);
 
-        let mut new_axes = (0 .. self.get_shape().len()).collect::<Vec<usize>>();
+        let mut new_axes = (0 .. self.ndim()).collect::<Vec<usize>>();
         new_axes.swap(axis_1, axis_2);
 
         self.transpose(Some(new_axes.iter().map(|&i| i as isize).collect()))
