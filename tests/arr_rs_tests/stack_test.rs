@@ -72,3 +72,28 @@ case(vec![array!([1, 2, 3]), array!([4, 5, 6]), array!([7, 8])], Array::empty())
 )] fn test_dstack(arrs: Vec<Array<i32>>, expected: Array<i32>) {
     assert_eq!(expected, Array::dstack(arrs))
 }
+
+#[rstest(
+arrs, expected,
+case(vec![array!([1, 2, 3]), array!([4, 5, 6])], array!([[1, 4], [2, 5], [3, 6]])),
+case(vec![array!([1, 2, 3]), array!([4, 5, 6]), array!([7, 8, 9])], array!([[1, 4, 7], [2, 5, 8], [3, 6, 9]])),
+case(vec![array!([1, 2, 3]), array!([[4], [5], [6]])], array!([[1, 4], [2, 5], [3, 6]])),
+case(vec![array!([[1, 2], [3, 4]]), array!([5, 6])], array!([[1, 2, 5], [3, 4, 6]])),
+#[should_panic(expected = "all input arrays must have the same first dimension.")]
+case(vec![array!([1, 2, 3]), array!([4, 5])], Array::empty()),
+)] fn test_column_stack(arrs: Vec<Array<i32>>, expected: Array<i32>) {
+    assert_eq!(expected, Array::column_stack(arrs))
+}
+
+#[rstest(
+arrs, expected,
+case(vec![array!([1, 2, 3]), array!([4, 5, 6])], array!([[1, 2, 3], [4, 5, 6]])),
+case(vec![array!([[1, 2], [3, 4]]), array!([[5, 6], [7, 8], [9, 10]])], array!([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])),
+case(vec![array!([[1]]), array!([[2]]), array!([[3]])], array!([[1], [2], [3]])),
+#[should_panic(expected = "incompatible shapes for concatenate")]
+case(vec![array!([[1, 2, 3], [1, 2, 3]]), Array::empty()], Array::empty()),
+#[should_panic(expected = "incompatible shapes for concatenate")]
+case(vec![array!([[1, 2, 3], [1, 2, 3]]), array!([[5, 6]])], Array::empty()),
+)] fn test_row_stack(arrs: Vec<Array<i32>>, expected: Array<i32>) {
+    assert_eq!(expected, Array::row_stack(arrs))
+}

@@ -262,14 +262,14 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 impl <N: Numeric> Array<N> {
 
     fn atleast_1d(&self) -> Self {
-        if self.get_shape().len() >= 1 { self.clone() }
+        if !self.ndim() >= 1 { self.clone() }
         else { self.reshape(vec![1]) }
     }
 
     fn atleast_2d(&self) -> Self {
-        if self.get_shape().len() >= 2 { self.clone() }
+        if self.ndim() >= 2 { self.clone() }
         else {
-            match self.get_shape().len() {
+            match self.ndim() {
                 0 => self.reshape(vec![1, 1]),
                 1 => self.reshape(vec![1, self.get_shape()[0]]),
                 _ => self.reshape(vec![self.get_shape()[0], 1]),
@@ -278,9 +278,9 @@ impl <N: Numeric> Array<N> {
     }
 
     fn atleast_3d(&self) -> Self {
-        if self.get_shape().len() >= 3 { self.clone() }
+        if self.ndim() >= 3 { self.clone() }
         else {
-            match self.get_shape().len() {
+            match self.ndim() {
                 0 => self.reshape(vec![1, 1, 1]),
                 1 => self.reshape(vec![1, self.get_shape()[0], 1]),
                 2 => self.reshape(vec![self.get_shape()[0], self.get_shape()[1], 1]),
