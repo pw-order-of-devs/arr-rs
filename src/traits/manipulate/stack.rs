@@ -48,4 +48,70 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(expected, Array::<i32>::stack(vec![arr, other], Some(0)));
     /// ```
     fn stack(arrs: Vec<Self>, axis: Option<usize>) -> Self;
+
+    /// Stack arrays in sequence vertically (row wise)
+    ///
+    /// # Arguments
+    ///
+    /// * `arrs` - arrays to stack
+    ///
+    /// # Examples
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = array!([1, 2, 3]);
+    /// let other: Array<i32> = array!([4, 5, 6]);
+    /// let expected: Array<i32> = array!([[1, 2, 3], [4, 5, 6]]);
+    /// assert_eq!(expected, Array::<i32>::vstack(vec![arr, other]));
+    ///
+    /// let arr: Array<i32> = array!([[1], [2], [3]]);
+    /// let other: Array<i32> = array!([[4], [5], [6]]);
+    /// let expected: Array<i32> = array!([[1], [2], [3], [4], [5], [6]]);
+    /// assert_eq!(expected, Array::<i32>::vstack(vec![arr, other]));
+    /// ```
+    fn vstack(arrs: Vec<Self>) -> Self;
+
+    /// Stack arrays in sequence horizontally (column wise)
+    ///
+    /// # Arguments
+    ///
+    /// * `arrs` - arrays to stack
+    ///
+    /// # Examples
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = array!([1, 2, 3]);
+    /// let other: Array<i32> = array!([4, 5, 6]);
+    /// let expected: Array<i32> = array!([1, 2, 3, 4, 5, 6]);
+    /// assert_eq!(expected, Array::<i32>::hstack(vec![arr, other]));
+    ///
+    /// let arr: Array<i32> = array!([[1], [2], [3]]);
+    /// let other: Array<i32> = array!([[4], [5], [6]]);
+    /// let expected: Array<i32> = array!([[1, 4], [2, 5], [3, 6]]);
+    /// assert_eq!(expected, Array::<i32>::hstack(vec![arr, other]));
+    /// ```
+    fn hstack(arrs: Vec<Self>) -> Self;
+
+    /// Stack arrays in sequence depth wise (along third axis)
+    ///
+    /// # Arguments
+    ///
+    /// * `arrs` - arrays to stack
+    ///
+    /// # Examples
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr: Array<i32> = array!([1, 2, 3]);
+    /// let other: Array<i32> = array!([4, 5, 6]);
+    /// let expected: Array<i32> = array!([[[1, 4], [2, 5], [3, 6]]]);
+    /// assert_eq!(expected, Array::<i32>::dstack(vec![arr, other]));
+    ///
+    /// let arr: Array<i32> = array!([[1], [2], [3]]);
+    /// let other: Array<i32> = array!([[4], [5], [6]]);
+    /// let expected: Array<i32> = array!([[[1, 4]], [[2, 5]], [[3, 6]]]);
+    /// assert_eq!(expected, Array::<i32>::dstack(vec![arr, other]));
+    /// ```
+    fn dstack(arrs: Vec<Self>) -> Self;
 }

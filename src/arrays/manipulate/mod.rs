@@ -181,11 +181,13 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
     }
 
     fn atleast(&self, n: usize) -> Self {
-        assert!(n > 0, "dimension cannot be zero");
-        if self.ndim() >= n { return self.clone() }
-        let mut new_shape = self.get_shape();
-        (0 .. n - self.ndim()).for_each(|_| new_shape.insert(0, 1));
-        self.reshape(new_shape)
+        match n {
+            0 => self.clone(),
+            1 => Self::atleast_1d(self),
+            2 => Self::atleast_2d(self),
+            3 => Self::atleast_3d(self),
+            _ => panic!("supported dimensions are [1, 2, 3]"),
+        }
     }
 
     fn trim_zeros(&self) -> Self {
@@ -254,5 +256,36 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
     fn fold<F: FnMut(&N, &N) -> N>(&self, init: N, mut f: F) -> N {
         self.elements.iter().fold(init, |a, b| f(&a, b))
+    }
+}
+
+impl <N: Numeric> Array<N> {
+
+    fn atleast_1d(&self) -> Self {
+        if self.get_shape().len() >= 1 { self.clone() }
+        else { self.reshape(vec![1]) }
+    }
+
+    fn atleast_2d(&self) -> Self {
+        if self.get_shape().len() >= 2 { self.clone() }
+        else {
+            match self.get_shape().len() {
+                0 => self.reshape(vec![1, 1]),
+                1 => self.reshape(vec![1, self.get_shape()[0]]),
+                _ => self.reshape(vec![self.get_shape()[0], 1]),
+            }
+        }
+    }
+
+    fn atleast_3d(&self) -> Self {
+        if self.get_shape().len() >= 3 { self.clone() }
+        else {
+            match self.get_shape().len() {
+                0 => self.reshape(vec![1, 1, 1]),
+                1 => self.reshape(vec![1, self.get_shape()[0], 1]),
+                2 => self.reshape(vec![self.get_shape()[0], self.get_shape()[1], 1]),
+                _ => self.clone(),
+            }
+        }
     }
 }

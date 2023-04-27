@@ -131,13 +131,13 @@ case(array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), vec![8]),
 
 #[rstest(
 arr, dim, expected,
+case(array!([1]), 0, array!([1])),
 case(array!([1]), 1, array!([1])),
 case(array!([1, 2]), 2, array!([[1, 2]])),
-case(array!([1, 2]), 3, array!([[[1, 2]]])),
+case(array!([1, 2]), 3, array!([[[1], [2]]])),
 case(array!([[[1], [2]]]), 3, array!([[[1], [2]]])),
+#[should_panic(expected = "supported dimensions are [1, 2, 3]")]
 case(array!([[[2, 2], [2, 2]], [[2, 2], [2, 2]]]), 4, array!([[[[2, 2], [2, 2]], [[2, 2], [2, 2]]]])),
-#[should_panic(expected = "dimension cannot be zero")]
-case(array!([1]), 0, array!([1])),
 )] fn test_atleast(arr: Array<i32>, dim: usize, expected: Array<i32>) {
     assert_eq!(expected, arr.atleast(dim))
 }
