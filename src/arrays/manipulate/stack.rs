@@ -13,26 +13,30 @@ use crate::traits::{
 impl <N: Numeric> ArrayStack<N> for Array<N> {
 
     fn concatenate(arrs: Vec<Self>, axis: Option<usize>) -> Self {
-        if arrs.is_empty() { return Self::empty() }
-        if let Some(axis) = axis { Self::validate_stack_shapes(&arrs, axis, axis) }
+        if arrs.is_empty() { Self::empty() }
+        else {
+            if let Some(axis) = axis { Self::validate_stack_shapes(&arrs, axis, axis) }
 
-        let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
-        arrs.remove_at(0).into_iter()
-            .fold(initial, |a, b| a.append(&b, axis))
+            let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
+            arrs.remove_at(0).into_iter()
+                .fold(initial, |a, b| a.append(&b, axis))
+        }
     }
 
     fn stack(arrs: Vec<Self>, axis: Option<usize>) -> Self {
-        if arrs.is_empty() { return Self::empty() }
-        if let Some(axis) = axis { arrs.iter().for_each(|arr| assert!(axis < arr.ndim(), "axis out of bounds")); }
-        (0 .. arrs.len() - 1).for_each(|i| { assert_eq!(arrs[i].get_shape(), arrs[i + 1].get_shape(), "all input arrays must have the same shape") });
+        if arrs.is_empty() { Self::empty() }
+        else {
+            if let Some(axis) = axis { arrs.iter().for_each(|arr| assert!(axis < arr.ndim(), "axis out of bounds")); }
+            (0..arrs.len() - 1).for_each(|i| { assert_eq!(arrs[i].get_shape(), arrs[i + 1].get_shape(), "all input arrays must have the same shape") });
 
-        let axis = axis.unwrap_or(0);
-        let new_shape = arrs[0].get_shape().insert_at(axis, arrs.len());
+            let axis = axis.unwrap_or(0);
+            let new_shape = arrs[0].get_shape().insert_at(axis, arrs.len());
 
-        let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
-        arrs.remove_at(0).into_iter()
-            .fold(initial, |a, b| a.append(&b, Some(axis)))
-            .reshape(new_shape)
+            let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
+            arrs.remove_at(0).into_iter()
+                .fold(initial, |a, b| a.append(&b, Some(axis)))
+                .reshape(new_shape)
+        }
     }
 
     fn vstack(arrs: Vec<Self>) -> Self {
@@ -62,7 +66,7 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
     }
 
     fn dstack(arrs: Vec<Self>) -> Self {
-        if arrs.is_empty() { return Self::empty() }
+        if arrs.is_empty() { Self::empty() }
         else {
             let arrs = arrs.iter().map(|arr| arr.atleast(3)).collect::<Vec<Self>>();
             Self::validate_stack_shapes(&arrs, 2, 0);
