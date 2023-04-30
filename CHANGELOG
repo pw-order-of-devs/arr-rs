@@ -1,6 +1,23 @@
 # 📑 Changelog
 
-## [v0.1.1](https://github.com/pw-order-of-devs/arr-rs/compare/v0.1.0...v0.1.2)
+## [v0.2.0](https://github.com/pw-order-of-devs/arr-rs/compare/v0.1.2...v0.2.0)
+
+### 🚀 Enhancements
+
+- Basic element operations [\#84](https://github.com/pw-order-of-devs/arr-rs/issues/84)
+- Split operations [\#83](https://github.com/pw-order-of-devs/arr-rs/issues/83)
+- Stack operations [\#78](https://github.com/pw-order-of-devs/arr-rs/issues/78)
+- Axis operations [\#77](https://github.com/pw-order-of-devs/arr-rs/issues/77)
+- Atleast implementation [\#76](https://github.com/pw-order-of-devs/arr-rs/issues/76)
+- Broadcast implementation [\#75](https://github.com/pw-order-of-devs/arr-rs/issues/75)
+- Extend create array  - ranges & matrices [\#73](https://github.com/pw-order-of-devs/arr-rs/issues/73)
+- Extend Array Create trait [\#71](https://github.com/pw-order-of-devs/arr-rs/issues/71)
+- Extend Numeric trait [\#66](https://github.com/pw-order-of-devs/arr-rs/issues/66)
+- Extend macros [\#65](https://github.com/pw-order-of-devs/arr-rs/issues/65)
+- Clean up published crate [\#64](https://github.com/pw-order-of-devs/arr-rs/issues/64)
+- Rework modules in arr-rs [\#62](https://github.com/pw-order-of-devs/arr-rs/issues/62)
+
+## [v0.1.2](https://github.com/pw-order-of-devs/arr-rs/compare/v0.1.0...v0.1.2)
 
 - Minor cleaning up of the repository
 
@@ -8,7 +25,7 @@
 
 ### 🚀 Enhancements
 
-- Implement ops opertions for array [\#42](https://github.com/pw-order-of-devs/arr-rs/issues/42)
+- Implement ops operations for array [\#42](https://github.com/pw-order-of-devs/arr-rs/issues/42)
 - Benchmark Array creation [\#29](https://github.com/pw-order-of-devs/arr-rs/issues/29)
 - Fold implementation [\#26](https://github.com/pw-order-of-devs/arr-rs/issues/26)
 - Extend unit tests [\#23](https://github.com/pw-order-of-devs/arr-rs/issues/23)
