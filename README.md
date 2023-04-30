@@ -16,7 +16,7 @@ Documentation of the crate is available [here](https://docs.rs/arr-rs)
 
 ```toml
 [dependencies]
-arr-rs = "0.1.2"
+arr-rs = "0.2.0"
 ```
 
 ### Examples
