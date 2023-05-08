@@ -5,10 +5,10 @@
 /// ```
 /// use arr_rs::prelude::*;
 ///
-/// let arr: Array<i16> = array!(1, 2, 3, 4, 5, 6, 7, 8);
-/// let arr: Array<i16> = array!([1, 2, 3, 4, 5, 6, 7, 8]);
-/// let arr: Array<i32> = array!([[1, 2], [3, 4], [5, 6], [7, 8]]);
-/// let arr: Array<f64> = array!([[1, 2, 3, 4], [5, 6, 7, 8]]);
+/// let arr: Array<i16> = array!(1, 2, 3, 4, 5, 6, 7, 8).unwrap();
+/// let arr: Array<i16> = array!([1, 2, 3, 4, 5, 6, 7, 8]).unwrap();
+/// let arr: Array<i32> = array!([[1, 2], [3, 4], [5, 6], [7, 8]]).unwrap();
+/// let arr: Array<f64> = array!([[1, 2, 3, 4], [5, 6, 7, 8]]).unwrap();
 /// ```
 #[macro_export]
 macro_rules! array {

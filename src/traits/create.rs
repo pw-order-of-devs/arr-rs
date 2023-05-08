@@ -1,4 +1,5 @@
 use crate::arrays::Array;
+use crate::traits::errors::ArrayError;
 use crate::traits::types::numeric::Numeric;
 
 /// ArrayTrait - Array Create functions
@@ -18,14 +19,14 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::new(vec![1, 2, 3, 4], vec![4]);
+    /// let arr = Array::new(vec![1, 2, 3, 4], vec![4]).unwrap();
     /// assert_eq!("[1, 2, 3, 4]", format!("{arr}"));
     ///
-    /// let arr = Array::new(vec![1, 2, 3, 4], vec![2, 2]);
+    /// let arr = Array::new(vec![1, 2, 3, 4], vec![2, 2]).unwrap();
     /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
     /// assert_eq!("[[1, 2], \n [3, 4]]", format!("{arr:#}"));
     /// ```
-    fn new(elements: Vec<N>, shape: Vec<usize>) -> Self;
+    fn new(elements: Vec<N>, shape: Vec<usize>) -> Result<Self, ArrayError>;
 
     /// Creates new array with single element
     ///
@@ -56,7 +57,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![1, 2, 3, 4]);
-    /// assert_eq!(array!([1, 2, 3, 4]), arr);
+    /// assert_eq!(array!([1, 2, 3, 4]).unwrap(), arr);
     /// ```
     fn flat(elements: Vec<N>) -> Self;
 
@@ -105,9 +106,9 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<i32> = Array::eye(2, Some(3), Some(0));
-    /// assert_eq!(array!([[1, 0, 0], [0, 1, 0]]), arr);
+    /// assert_eq!(array!([[1, 0, 0], [0, 1, 0]]).unwrap(), arr);
     /// let arr: Array<i32> = Array::eye(2, Some(3), Some(1));
-    /// assert_eq!(array!([[0, 1, 0], [0, 0, 1]]), arr);
+    /// assert_eq!(array!([[0, 1, 0], [0, 0, 1]]).unwrap(), arr);
     /// ```
     fn eye(n: usize, m: Option<usize>, k: Option<usize>) -> Self;
 
@@ -123,9 +124,9 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<i32> = Array::identity(2);
-    /// assert_eq!(array!([[1, 0], [0, 1]]), arr);
+    /// assert_eq!(array!([[1, 0], [0, 1]]).unwrap(), arr);
     /// let arr: Array<i32> = Array::identity(3);
-    /// assert_eq!(array!([[1, 0, 0], [0, 1, 0], [0, 0, 1]]), arr);
+    /// assert_eq!(array!([[1, 0, 0], [0, 1, 0], [0, 0, 1]]).unwrap(), arr);
     /// ```
     fn identity(dim: usize) -> Self;
 
@@ -141,7 +142,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::zeros(vec![4]);
-    /// assert_eq!(array!([0, 0, 0, 0]), arr);
+    /// assert_eq!(array!([0, 0, 0, 0]).unwrap(), arr);
     /// ```
     fn zeros(shape: Vec<usize>) -> Self;
 
@@ -156,8 +157,8 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::zeros_like(&array![1, 2, 3, 4]);
-    /// assert_eq!(array!([0, 0, 0, 0]), arr);
+    /// let arr: Array<f64> = Array::zeros_like(&array![1, 2, 3, 4].unwrap());
+    /// assert_eq!(array!([0, 0, 0, 0]).unwrap(), arr);
     /// ```
     fn zeros_like(other: &Self) -> Self;
 
@@ -173,7 +174,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::ones(vec![4]);
-    /// assert_eq!(array!([1, 1, 1, 1]), arr);
+    /// assert_eq!(array!([1, 1, 1, 1]).unwrap(), arr);
     /// ```
     fn ones(shape: Vec<usize>) -> Self;
 
@@ -188,8 +189,8 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::ones_like(&array![1, 2, 3, 4]);
-    /// assert_eq!(array!([1, 1, 1, 1]), arr);
+    /// let arr: Array<f64> = Array::ones_like(&array![1, 2, 3, 4].unwrap());
+    /// assert_eq!(array!([1, 1, 1, 1]).unwrap(), arr);
     /// ```
     fn ones_like(other: &Self) -> Self;
 
@@ -206,7 +207,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::full(vec![4], 2.);
-    /// assert_eq!(array!([2, 2, 2, 2]), arr);
+    /// assert_eq!(array!([2, 2, 2, 2]).unwrap(), arr);
     /// ```
     fn full(shape: Vec<usize>, fill_value: N) -> Self;
 
@@ -222,8 +223,8 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::full_like(&array![1, 2, 3, 4], 2.);
-    /// assert_eq!(array!([2, 2, 2, 2]), arr);
+    /// let arr: Array<f64> = Array::full_like(&array![1, 2, 3, 4].unwrap(), 2.);
+    /// assert_eq!(array!([2, 2, 2, 2]).unwrap(), arr);
     /// ```
     fn full_like(other: &Self, fill_value: N) -> Self;
 
@@ -243,7 +244,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::arange(0., 4., None);
-    /// assert_eq!(array!([0., 1., 2., 3., 4.]), arr);
+    /// assert_eq!(array!([0., 1., 2., 3., 4.]).unwrap(), arr);
     /// ```
     fn arange(start: N, stop: N, step: Option<N>) -> Self;
 
@@ -262,7 +263,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::linspace(0., 5., Some(3), None);
-    /// assert_eq!(array!([0., 2.5, 5.]), arr);
+    /// assert_eq!(array!([0., 2.5, 5.]).unwrap(), arr);
     /// ```
     fn linspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Self;
 
@@ -280,12 +281,12 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::linspace_a(&array!([0., 2.]), &array!([4., 6.]), Some(3), None);
-    /// assert_eq!(array!([[0., 2.], [2., 4.], [4., 6.]]), arr);
-    /// let arr: Array<f64> = Array::linspace_a(&array!([[0., 2.], [2., 4.]]), &array!([[4., 6.], [6., 8.]]), Some(3), None);
-    /// assert_eq!(array!([[[0., 2.], [2., 4.]], [[2., 4.], [4., 6.]], [[4., 6.], [6., 8.]]]), arr);
+    /// let arr: Array<f64> = Array::linspace_a(&array!([0., 2.]).unwrap(), &array!([4., 6.]).unwrap(), Some(3), None).unwrap();
+    /// assert_eq!(array!([[0., 2.], [2., 4.], [4., 6.]]).unwrap(), arr);
+    /// let arr: Array<f64> = Array::linspace_a(&array!([[0., 2.], [2., 4.]]).unwrap(), &array!([[4., 6.], [6., 8.]]).unwrap(), Some(3), None).unwrap();
+    /// assert_eq!(array!([[[0., 2.], [2., 4.]], [[2., 4.], [4., 6.]], [[4., 6.], [6., 8.]]]).unwrap(), arr);
     /// ```
-    fn linspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Self;
+    fn linspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Self, ArrayError>;
 
     /// Creates new array of numbers evenly spaced on a log scale over a specified interval
     ///
@@ -303,7 +304,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::logspace(0., 5., Some(3), None, None);
-    /// assert_eq!(array!([1., 316.22776601683796, 100000.]), arr);
+    /// assert_eq!(array!([1., 316.22776601683796, 100000.]).unwrap(), arr);
     /// ```
     fn logspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>, base: Option<usize>) -> Self;
 
@@ -322,12 +323,12 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::logspace_a(&array!([0., 2.]), &array!([4., 6.]), Some(3), None, None);
-    /// assert_eq!(array!([[1., 100.], [100., 10000.], [10000., 1000000.]]), arr);
-    /// let arr: Array<f64> = Array::logspace_a(&array!([[0., 2.], [2., 4.]]), &array!([[4., 6.], [6., 8.]]), Some(3), None, None);
-    /// assert_eq!(array!([[[1., 100.], [100., 10000.]], [[100., 10000.], [10000., 1000000.]], [[10000., 1000000.], [1000000., 100000000.]]]), arr);
+    /// let arr: Array<f64> = Array::logspace_a(&array!([0., 2.]).unwrap(), &array!([4., 6.]).unwrap(), Some(3), None, None).unwrap();
+    /// assert_eq!(array!([[1., 100.], [100., 10000.], [10000., 1000000.]]).unwrap(), arr);
+    /// let arr: Array<f64> = Array::logspace_a(&array!([[0., 2.], [2., 4.]]).unwrap(), &array!([[4., 6.], [6., 8.]]).unwrap(), Some(3), None, None).unwrap();
+    /// assert_eq!(array!([[[1., 100.], [100., 10000.]], [[100., 10000.], [10000., 1000000.]], [[10000., 1000000.], [1000000., 100000000.]]]).unwrap(), arr);
     /// ```
-    fn logspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>, base: Option<&Array<usize>>) -> Self;
+    fn logspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>, base: Option<&Array<usize>>) -> Result<Self, ArrayError>;
 
     /// Creates new array of numbers evenly spaced on a log scale (a geometric progression) over a specified interval
     ///
@@ -343,11 +344,11 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Array<f64> = array!([1., 10., 100., 1000.]);
-    /// let arr: Array<f64> = Array::geomspace(1., 1000., Some(4), None);
+    /// let expected: Array<f64> = array!([1., 10., 100., 1000.]).unwrap();
+    /// let arr: Array<f64> = Array::geomspace(1., 1000., Some(4), None).unwrap();
     /// assert_eq!(format!("{expected:.4}"), format!("{arr:.4}"));
     /// ```
-    fn geomspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Self;
+    fn geomspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Result<Self, ArrayError>;
 
     /// Creates new array of numbers evenly spaced on a log scale (a geometric progression) over a specified interval
     ///
@@ -363,14 +364,14 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Array<f64> = array!([[1., 10.], [10., 100.], [100., 1000.], [1000., 10000.]]);
-    /// let arr: Array<f64> = Array::geomspace_a(&array!([1., 10.]), &array!([1000., 10000.]), Some(4), None);
+    /// let expected: Array<f64> = array!([[1., 10.], [10., 100.], [100., 1000.], [1000., 10000.]]).unwrap();
+    /// let arr: Array<f64> = Array::geomspace_a(&array!([1., 10.]).unwrap(), &array!([1000., 10000.]).unwrap(), Some(4), None).unwrap();
     /// assert_eq!(format!("{expected:.4}"), format!("{arr:.4}"));
-    /// let expected: Array<f64> = array!([[[1., 10.], [10., 100.]], [[10., 100.], [100., 1000.]], [[100., 1000.], [1000., 10000.]]]);
-    /// let arr: Array<f64> = Array::geomspace_a(&array!([[1., 10.], [10., 100.]]), &array!([[100., 1000.], [1000., 10000.]]), Some(3), None);
+    /// let expected: Array<f64> = array!([[[1., 10.], [10., 100.]], [[10., 100.], [100., 1000.]], [[100., 1000.], [1000., 10000.]]]).unwrap();
+    /// let arr: Array<f64> = Array::geomspace_a(&array!([[1., 10.], [10., 100.]]).unwrap(), &array!([[100., 1000.], [1000., 10000.]]).unwrap(), Some(3), None).unwrap();
     /// assert_eq!(format!("{expected:.4}"), format!("{arr:.4}"));
     /// ```
-    fn geomspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Self;
+    fn geomspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Self, ArrayError>;
 
     // ==== matrices
 
@@ -385,19 +386,19 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]);
-    /// let arr: Array<i32> = Array::diag(&array![1, 2, 3, 4], None);
+    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
+    /// let arr: Array<i32> = Array::diag(&array![1, 2, 3, 4].unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     ///
-    /// let expected: Array<i32> = array!([1, 2, 3, 4]);
-    /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]), None);
+    /// let expected: Array<i32> = array!([1, 2, 3, 4]).unwrap();
+    /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     ///
-    /// let expected: Array<i32> = array!([0, 0, 0]);
-    /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]), Some(1));
+    /// let expected: Array<i32> = array!([0, 0, 0]).unwrap();
+    /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap(), Some(1)).unwrap();
     /// assert_eq!(expected, arr);
     /// ```
-    fn diag(&self, k: Option<isize>) -> Self;
+    fn diag(&self, k: Option<isize>) -> Result<Self, ArrayError>;
 
     /// Construct a diagonal array for flattened input
     ///
@@ -411,15 +412,15 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]);
-    /// let arr: Array<i32> = Array::diagflat(&array![1, 2, 3, 4], None);
+    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
+    /// let arr: Array<i32> = Array::diagflat(&array![1, 2, 3, 4].unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     ///
-    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]);
-    /// let arr: Array<i32> = Array::diagflat(&array![[1, 2], [3, 4]], None);
+    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
+    /// let arr: Array<i32> = Array::diagflat(&array!([[1, 2], [3, 4]]).unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     /// ```
-    fn diagflat(&self, k: Option<isize>) -> Self;
+    fn diagflat(&self, k: Option<isize>) -> Result<Self, ArrayError>;
 
     /// Construct an array with ones at and below the given diagonal and zeros elsewhere
     ///
@@ -434,13 +435,13 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Array<i32> = array!([[1, 0], [1, 1]]);
-    /// assert_eq!(expected, Array::<i32>::tri(2, Some(2), None));
+    /// let expected: Array<i32> = array!([[1, 0], [1, 1]]).unwrap();
+    /// assert_eq!(expected, Array::<i32>::tri(2, Some(2), None).unwrap());
     ///
-    /// let expected: Array<i32> = array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]]);
-    /// assert_eq!(expected, Array::<i32>::tri(3, Some(3), None));
+    /// let expected: Array<i32> = array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]]).unwrap();
+    /// assert_eq!(expected, Array::<i32>::tri(3, Some(3), None).unwrap());
     /// ```
-    fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Self;
+    fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Result<Self, ArrayError>;
 
     /// Return a copy of an array with elements above the k-th diagonal zeroed.
     /// For arrays with ndim exceeding 2, tril will apply to the final two axes.
@@ -454,15 +455,15 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 4]);
-    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [5, 6, 0, 0]]);
-    /// assert_eq!(expected, arr.tril(None));
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 4]).unwrap();
+    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [5, 6, 0, 0]]).unwrap();
+    /// assert_eq!(expected, arr.tril(None).unwrap());
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 2, 2]);
-    /// let expected: Array<i32> = array!([[[1, 0], [3, 4]], [[5, 0], [7, 8]]]);
-    /// assert_eq!(expected, arr.tril(None));
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 2, 2]).unwrap();
+    /// let expected: Array<i32> = array!([[[1, 0], [3, 4]], [[5, 0], [7, 8]]]).unwrap();
+    /// assert_eq!(expected, arr.tril(None).unwrap());
     /// ```
-    fn tril(&self, k: Option<isize>) -> Self;
+    fn tril(&self, k: Option<isize>) -> Result<Self, ArrayError>;
 
     /// Return a copy of an array with elements below the k-th diagonal zeroed.
     /// For arrays with ndim exceeding 2, triu will apply to the final two axes.
@@ -476,15 +477,15 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 4]);
-    /// let expected: Array<i32> = array!([[1, 2, 3, 4], [0, 6, 7, 8]]);
-    /// assert_eq!(expected, arr.triu(None));
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 4]).unwrap();
+    /// let expected: Array<i32> = array!([[1, 2, 3, 4], [0, 6, 7, 8]]).unwrap();
+    /// assert_eq!(expected, arr.triu(None).unwrap());
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 2, 2]);
-    /// let expected: Array<i32> = array!([[[1, 2], [0, 4]], [[5, 6], [0, 8]]]);
-    /// assert_eq!(expected, arr.triu(None));
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 2, 2]).unwrap();
+    /// let expected: Array<i32> = array!([[[1, 2], [0, 4]], [[5, 6], [0, 8]]]).unwrap();
+    /// assert_eq!(expected, arr.triu(None).unwrap());
     /// ```
-    fn triu(&self, k: Option<isize>) -> Self;
+    fn triu(&self, k: Option<isize>) -> Result<Self, ArrayError>;
 
     /// Generate a Vandermonde matrix
     ///
@@ -499,13 +500,13 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3, 4]);
-    /// let expected: Array<i32> = array!([[1, 1, 1, 1], [8, 4, 2, 1], [27, 9, 3, 1], [64, 16, 4, 1]]);
-    /// assert_eq!(expected, arr.vander(None, Some(false)));
+    /// let arr: Array<i32> = array!([1, 2, 3, 4]).unwrap();
+    /// let expected: Array<i32> = array!([[1, 1, 1, 1], [8, 4, 2, 1], [27, 9, 3, 1], [64, 16, 4, 1]]).unwrap();
+    /// assert_eq!(expected, arr.vander(None, Some(false)).unwrap());
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3, 4]);
-    /// let expected: Array<i32> = array!([[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]]);
-    /// assert_eq!(expected, arr.vander(None, Some(true)));
+    /// let arr: Array<i32> = array!([1, 2, 3, 4]).unwrap();
+    /// let expected: Array<i32> = array!([[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]]).unwrap();
+    /// assert_eq!(expected, arr.vander(None, Some(true)).unwrap());
     /// ```
-    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Self;
+    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Self, ArrayError>;
 }

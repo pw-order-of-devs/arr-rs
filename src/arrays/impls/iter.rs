@@ -25,7 +25,6 @@ impl<'a, N: Numeric> IntoIterator for &'a Array<N> {
 impl <N: Numeric> FromIterator<N> for Array<N> {
 
     fn from_iter<T: IntoIterator<Item=N>>(iter: T) -> Self {
-        let elems: Vec<N> = iter.into_iter().collect();
-        Self::new(elems.clone(), vec![elems.len()])
+        Self::flat(iter.into_iter().collect())
     }
 }
