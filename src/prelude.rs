@@ -1,5 +1,6 @@
 // traits traits
 pub use crate::traits::{
+    errors::ArrayError,
     create::ArrayCreate,
     indexing::ArrayIndexing,
     manipulate::{

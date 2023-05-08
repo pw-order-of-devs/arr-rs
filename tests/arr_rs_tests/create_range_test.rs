@@ -1,15 +1,13 @@
 use rstest::rstest;
 use arr_rs::prelude::*;
 
-use crate::arr_rs_tests::common::test_runner;
-
 #[rstest(
 start, stop, step, expected,
 case(0, 4, None, array!([0, 1, 2, 3, 4])),
 case(0, 4, Some(1), array!([0, 1, 2, 3, 4])),
 case(0, 7, Some(2), array!([0, 2, 4, 6])),
-)] fn test_arange(start: i32, stop: i32, step: Option<i32>, expected: Array<i32>) {
-    assert_eq!(expected, Array::arange(start, stop, step))
+)] fn test_arange(start: i32, stop: i32, step: Option<i32>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected.unwrap(), Array::arange(start, stop, step))
 }
 
 #[rstest(
@@ -19,8 +17,8 @@ case(0., 5., Some(5), Some(true), array!([0., 1.25, 2.5, 3.75, 5.])),
 case(0., 5., Some(5), Some(false), array!([0., 1., 2., 3., 4.])),
 case(0., 10., Some(6), Some(true), array!([0., 2., 4., 6., 8., 10.])),
 case(-1., 1., Some(5), None, array!([-1., -0.5, 0.0, 0.5, 1.])),
-)] fn test_linspace(start: f64, stop: f64, num: Option<usize>, endpoint: Option<bool>, expected: Array<f64>) {
-    assert_eq!(expected, Array::linspace(start, stop, num, endpoint))
+)] fn test_linspace(start: f64, stop: f64, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected.unwrap(), Array::linspace(start, stop, num, endpoint))
 }
 
 #[rstest(
@@ -32,52 +30,50 @@ case(&array!([0., 0., 0.]), &array!([1.]), Some(5), Some(true), array!([[0., 0.,
 case(&array!([0., 0., 0.]), &array!([1., 1., 1.]), Some(5), Some(true), array!([[0., 0., 0.], [0.25, 0.25, 0.25], [0.5, 0.5, 0.5], [0.75, 0.75, 0.75], [1., 1., 1.]])),
 case(&array!([-1., -1., -1.]), &array!([1., 1., 1.]), Some(5), None, array!([[-1., -1., -1.], [-0.5, -0.5, -0.5], [0., 0., 0.], [0.5, 0.5, 0.5], [1., 1., 1.]])),
 case(&array!([[-1., -1.], [-1., -1.]]), &array!([[1., 1.], [1., 1.]]), Some(5), None, array!([[[-1., -1.], [-1., -1.]], [[-0.5, -0.5], [-0.5, -0.5]], [[0., 0.], [0., 0.]], [[0.5, 0.5], [0.5, 0.5]], [[1., 1.], [1., 1.]]])),
-)] fn test_linspace_a(start: &Array<f64>, stop: &Array<f64>, num: Option<usize>, endpoint: Option<bool>, expected: Array<f64>) {
-    assert_eq!(expected, Array::linspace_a(start, stop, num, endpoint))
+)] fn test_linspace_a(start: &Result<Array<f64>, ArrayError>, stop: &Result<Array<f64>, ArrayError>, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::linspace_a(start.as_ref().unwrap(), stop.as_ref().unwrap(), num, endpoint))
 }
 
 #[rstest(
 start, stop, num, endpoint, expected,
-case(0., 5., Some(5), None, array!([1., 17.7828, 316.2278, 5623.4133, 100000.])),
-case(0., 5., Some(5), Some(true), array!([1., 17.7828, 316.2278, 5623.4133, 100000.])),
-case(0., 5., Some(5), Some(false), array!([1., 10., 100., 1000., 10000.])),
-case(0., 10., Some(6), Some(true), array!([1., 100., 10000., 1000000., 100000000., 10000000000.])),
-case(-1., 1., Some(5), None, array!([0.1, 0.3162, 1., 3.1623, 10.])),
-)] fn test_logspace(start: f64, stop: f64, num: Option<usize>, endpoint: Option<bool>, expected: Array<f64>) {
-    test_runner(&expected, &Array::logspace(start, stop, num, endpoint, None))
+case(0., 5., Some(5), None, array!([1., 17.78279410038923, 316.22776601683796, 5623.413251903491, 100000.])),
+case(0., 5., Some(5), Some(true), array!([1., 17.78279410038923, 316.22776601683796, 5623.413251903491, 100000.])),
+case(0., 5., Some(5), Some(false), array!([1., 10.000000000000002, 100.00000000000004, 1000.0000000000006, 10000.000000000007])),
+case(0., 10., Some(6), Some(true), array!([1., 100.00000000000003, 10000.000000000005, 1000000.0000000008, 100000000.00000012, 10000000000.])),
+case(-1., 1., Some(5), None, array!([0.1, 0.316227766016838, 1.0000000000000002, 3.16227766016838, 10.])),
+)] fn test_logspace(start: f64, stop: f64, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(&expected.unwrap(), &Array::logspace(start, stop, num, endpoint, None))
 }
 
 #[rstest(
 start, stop, num, endpoint, expected,
-case(&array!([0., 2.]), &array!([2., 4.]), Some(5), None, array!([[1., 100.], [3.1623, 316.2278], [10., 1000.], [31.6228, 3162.2777], [100., 10000.]])),
-case(&array!([0.]), &array!([2., 4.]), Some(5), None, array!([[1., 1.], [3.1623, 10.], [10., 100.], [31.6228, 1000.], [100., 10000.]])),
-case(&array!([0.]), &array!([1., 1., 1.]), Some(5), Some(true), array!([[1., 1., 1.], [1.7783, 1.7783, 1.7783], [3.1623, 3.1623, 3.1623], [5.6234, 5.6234, 5.6234], [10., 10., 10.]])),
-case(&array!([0., 0., 0.]), &array!([1.]), Some(5), Some(true), array!([[1., 1., 1.], [1.7783, 1.7783, 1.7783], [3.1623, 3.1623, 3.1623], [5.6234, 5.6234, 5.6234], [10., 10., 10.]])),
-case(&array!([0., 0., 0.]), &array!([1., 1., 1.]), Some(5), Some(true), array!([[1., 1., 1.], [1.7783, 1.7783, 1.7783], [3.1623, 3.1623, 3.1623], [5.6234, 5.6234, 5.6234], [10., 10., 10.]])),
-case(&array!([-1., -1., -1.]), &array!([1., 1., 1.]), Some(5), None, array!([[0.1, 0.1, 0.1], [0.3162, 0.3162, 0.3162], [1., 1., 1.], [ 3.1623, 3.1623, 3.1623], [10., 10., 10.]])),
-)] fn test_logspace_a(start: &Array<f64>, stop: &Array<f64>, num: Option<usize>, endpoint: Option<bool>, expected: Array<f64>) {
-    test_runner(&expected, &Array::logspace_a(start, stop, num, endpoint, None))
+case(&array!([0., 2.]), &array!([2., 4.]), Some(5), None, array!([[1., 100.], [3.1622776601683795, 316.22776601683796], [10.000000000000002, 1000.0000000000002], [31.6227766016838, 3162.27766016838], [100., 10000.]])),
+case(&array!([0.]), &array!([2., 4.]), Some(5), None, array!([[1., 1.], [3.1622776601683795, 10.], [10.000000000000002, 100.], [31.6227766016838, 1000.], [100., 10000.]])),
+case(&array!([0.]), &array!([1., 1., 1.]), Some(5), Some(true), array!([[1., 1., 1.], [1.7782794100389228, 1.7782794100389228, 1.7782794100389228], [3.162277660168379, 3.162277660168379, 3.162277660168379], [5.62341325190349, 5.62341325190349, 5.62341325190349], [10., 10., 10.]])),
+case(&array!([0., 0., 0.]), &array!([1.]), Some(5), Some(true), array!([[1., 1., 1.], [1.7782794100389228, 1.7782794100389228, 1.7782794100389228], [3.162277660168379, 3.162277660168379, 3.162277660168379], [5.62341325190349, 5.62341325190349, 5.62341325190349], [10., 10., 10.]])),
+case(&array!([0., 0., 0.]), &array!([1., 1., 1.]), Some(5), Some(true), array!([[1., 1., 1.], [1.7782794100389228, 1.7782794100389228, 1.7782794100389228], [3.162277660168379, 3.162277660168379, 3.162277660168379], [5.62341325190349, 5.62341325190349, 5.62341325190349], [10., 10., 10.]])),
+case(&array!([-1., -1., -1.]), &array!([1., 1., 1.]), Some(5), None, array!([[0.1, 0.1, 0.1], [0.316227766016838, 0.316227766016838, 0.316227766016838], [1.0000000000000002, 1.0000000000000002, 1.0000000000000002], [ 3.16227766016838, 3.16227766016838, 3.16227766016838], [10., 10., 10.]])),
+)] fn test_logspace_a(start: &Result<Array<f64>, ArrayError>, stop: &Result<Array<f64>, ArrayError>, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(&expected, &Array::logspace_a(start.as_ref().unwrap(), stop.as_ref().unwrap(), num, endpoint, None))
 }
 
 #[rstest(
 start, stop, num, endpoint, expected,
-case(1., 5., Some(5), None, array!([1., 1.49534878, 2.23606798, 3.34370152, 5.])),
-case(1., 5., Some(5), Some(true), array!([1., 1.49534878, 2.23606798, 3.34370152, 5.])),
-case(1., 5., Some(5), Some(false), array!([1., 1.37972966, 1.90365394, 2.6265278, 3.62389832])),
-case(1., 10., Some(6), Some(true), array!([1., 1.58489319, 2.51188643, 3.98107171, 6.30957344, 10.])),
-#[should_panic(expected = "Geometric sequence cannot include zero")]
-case(0., 5., Some(5), None, array!([1., 1., 2., 3., 5.])),
-)] fn test_geomspace(start: f64, stop: f64, num: Option<usize>, endpoint: Option<bool>, expected: Array<f64>) {
-    test_runner(&expected, &Array::geomspace(start, stop, num, endpoint))
+case(1., 5., Some(5), None, array!([1., 1.4953487812212205, 2.2360679774997894, 3.34370152488211, 5.])),
+case(1., 5., Some(5), Some(true), array!([1., 1.4953487812212205, 2.2360679774997894, 3.34370152488211, 5.])),
+case(1., 5., Some(5), Some(false), array!([1., 1.379729661461215, 1.9036539387158786, 2.6265278044037674, 3.6238983183884783])),
+case(1., 10., Some(6), Some(true), array!([1., 1.5848931924611136, 2.5118864315095806, 3.981071705534973, 6.309573444801934, 10.])),
+case(0., 5., Some(5), None, Err(ArrayError::ParameterError { param: "start", message: "geometric sequence cannot include zero" })),
+)] fn test_geomspace(start: f64, stop: f64, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(&expected, &Array::geomspace(start, stop, num, endpoint))
 }
 
 #[rstest(
 start, stop, num, endpoint, expected,
-case(&array!([1., 2.]), &array!([5., 6.]), Some(5), None, array!([[1., 2.], [1.4953, 2.6321], [2.2361, 3.4641], [3.3437, 4.5590], [5., 6.]])),
-case(&array!([1., 2.]), &array!([5., 6.]), Some(5), Some(true), array!([[1., 2.], [1.4953, 2.6321], [2.2361, 3.4641], [3.3437, 4.5590], [5., 6.]])),
-case(&array!([1., 2.]), &array!([5., 6.]), Some(5), Some(false), array!([[1., 2.], [1.3797, 2.4915], [1.9037, 3.1037], [2.6265 , 3.8664], [3.6239, 4.8164]])),
-#[should_panic(expected = "Geometric sequence cannot include zero")]
-case(&array!([0., 2.]), &array!([0., 6.]), Some(5), Some(false), array!([[1., 2.], [1., 2.], [1., 3.], [2. , 3.], [3., 4.]])),
-)] fn test_geomspace_a(start: &Array<f64>, stop: &Array<f64>, num: Option<usize>, endpoint: Option<bool>, expected: Array<f64>) {
-    test_runner(&expected, &Array::geomspace_a(start, stop, num, endpoint))
+case(&array!([1., 2.]), &array!([5., 6.]), Some(5), None, array!([[1., 2.], [1.4953487812212205, 2.6321480259049848], [2.2360679774997894, 3.464101615137754], [3.34370152488211, 4.559014113909554], [5., 6.]])),
+case(&array!([1., 2.]), &array!([5., 6.]), Some(5), Some(true), array!([[1., 2.], [1.4953487812212205, 2.6321480259049848], [2.2360679774997894, 3.464101615137754], [3.34370152488211, 4.559014113909554], [5., 6.]])),
+case(&array!([1., 2.]), &array!([5., 6.]), Some(5), Some(false), array!([[1., 2.], [1.379729661461215, 2.491461879231035], [1.9036539387158786, 3.1036911478307196], [2.6265278044037674 , 3.8663640898635263], [3.6238983183884783, 4.816449370561386]])),
+case(&array!([0., 2.]), &array!([0., 6.]), Some(5), Some(false), Err(ArrayError::ParameterError { param: "start", message: "geometric sequence cannot include zero" })),
+)] fn test_geomspace_a(start: &Result<Array<f64>, ArrayError>, stop: &Result<Array<f64>, ArrayError>, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(&expected, &Array::geomspace_a(start.as_ref().unwrap(), stop.as_ref().unwrap(), num, endpoint))
 }

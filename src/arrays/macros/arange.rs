@@ -6,9 +6,9 @@
 /// use arr_rs::prelude::*;
 ///
 /// let arr: Array<i32> = array_arange!(0, 4);
-/// assert_eq!(array!([0, 1, 2, 3, 4]), arr);
+/// assert_eq!(array!([0, 1, 2, 3, 4]).unwrap(), arr);
 /// let arr: Array<i32> = array_arange!(0, 7, 2);
-/// assert_eq!(array!([0, 2, 4, 6]), arr);
+/// assert_eq!(array!([0, 2, 4, 6]).unwrap(), arr);
 /// ```
 #[macro_export]
 macro_rules! array_arange {

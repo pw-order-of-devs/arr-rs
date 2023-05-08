@@ -15,6 +15,7 @@ use std::ops::{
 use crate::arrays::Array;
 use crate::traits::{
     create::ArrayCreate,
+    errors::ArrayError,
     indexing::ArrayIndexing,
     manipulate::ArrayManipulate,
     meta::ArrayMeta,
@@ -40,7 +41,8 @@ impl <N: Numeric> Index<&[usize]> for Array<N> {
     type Output = N;
 
     fn index(&self, coords: &[usize]) -> &Self::Output {
-        &self.elements[self.index_at(coords)]
+        let index = self.index_at(coords).unwrap_or_else(|err| panic!("{err}"));
+        &self.elements[index]
     }
 }
 
@@ -54,7 +56,7 @@ impl <N: Numeric> IndexMut<usize> for Array<N> {
 impl <N: Numeric> IndexMut<&[usize]> for Array<N> {
 
     fn index_mut(&mut self, coords: &[usize]) -> &mut Self::Output {
-        let index = self.index_at(coords);
+        let index = self.index_at(coords).unwrap_or_else(|err| panic!("{err}"));
         &mut self.elements[index]
     }
 }
@@ -114,12 +116,12 @@ macro_rules! impl_op {
                     .map(|(a, b)| a.$op_func(b))
                     .collect();
 
-                Array::new(elements, self.shape)
+                Array::new(elements, self.shape).unwrap()
             }
         }
 
         impl<N: NumericOps> $op_trait<N> for Array<N> {
-            type Output = Array<N>;
+            type Output = Result<Array<N>, ArrayError>;
 
             fn $op_func(self, other: N) -> Self::Output {
                 self.map(|i| i.$op_func(other))
@@ -162,7 +164,7 @@ impl <N: SignedNumeric> Neg for Array<N> {
             .map(|a| -a)
             .collect();
 
-        Array::new(elements, self.shape)
+        Array::new(elements, self.shape).unwrap()
     }
 }
 
@@ -176,7 +178,7 @@ impl <N: BoolNumeric + From<<N as Not>::Output>> Not for Array<N> {
             .map(|x| (!x).into())
             .collect();
 
-        Array::new(elements, self.shape)
+        Array::new(elements, self.shape).unwrap()
     }
 }
 
