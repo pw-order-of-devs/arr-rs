@@ -13,6 +13,7 @@ use crate::arrays::Array;
 use crate::ext::vec_ext::{VecInsertAt, VecRemoveAt};
 use crate::traits::{
     create::ArrayCreate,
+    errors::ArrayError,
     indexing::ArrayIndexing,
     manipulate::{
         ArrayManipulate,
@@ -26,10 +27,17 @@ use crate::traits::{
 
 impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
-    fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Self {
-        if let Some(axis) = axis { assert!(axis < self.ndim(), "axis is out of bounds for array") }
-        if indices.len() > 1 { let _ = values.broadcast_to(vec![indices.len()]); }
-        if axis.is_some() { let _ = values.broadcast_to(self.get_shape()); }
+    fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Result<Self, ArrayError> {
+        if axis.is_some() && axis.unwrap() >= self.ndim() { return Err(ArrayError::AxisOutOfBounds) }
+
+        if indices.len() > 1 {
+            let validate_result = values.broadcast_to(vec![indices.len()]);
+            if validate_result.is_err() { return Err(validate_result.err().unwrap()) }
+        }
+        if axis.is_some() {
+            let validate_result = values.broadcast_to(self.get_shape());
+            if validate_result.is_err() { return Err(validate_result.err().unwrap()) }
+        }
 
         let values = if axis.unwrap_or(0) > 0 { values.ravel() } else { values.clone() };
         let (subarrays, chunk_size, subarray_len) =
@@ -49,7 +57,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
         let axis_some_cond = axis.is_some() && !(indices.len() == 1 || values.len() == 1 || values.len() == chunk_size * subarrays);
         let axis_none_cond = axis.is_none() && !(indices.len() == 1 || values.len() == 1 || indices.len() == values.len());
-        if axis_none_cond || axis_some_cond { panic!("values and indices don't match for insert") }
+        if axis_none_cond || axis_some_cond { return Err(ArrayError::ParameterError { param: "values|indices", message: "don't match for insert", }) }
 
         let indices =
             if let Some(axis) = axis {
@@ -68,21 +76,22 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
             else { indices };
 
         let values =
-            if axis.is_some() { values.clone().into_iter().cycle().take(values.len() * indices.len()).collect() }
+            if axis.is_some() { Ok(values.clone().into_iter().cycle().take(values.len() * indices.len()).collect()) }
             else if values.len() == 1 { values.broadcast_to(vec![indices.len()]) }
-            else { values };
+            else { Ok(values) };
+        if values.is_err() { return Err(values.err().unwrap()) }
 
         let mut new_elements = self.elements.clone();
         indices.iter().sorted().rev()
-            .zip(&values.get_elements().iter().copied().rev().collect::<Vec<N>>())
+            .zip(&values.unwrap().get_elements().iter().copied().rev().collect::<Vec<N>>())
             .for_each(|(&i, &e)| new_elements.insert(i, e));
 
         Self::new(new_elements, new_shape)
     }
 
-    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Self {
+    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Self, ArrayError> {
         if let Some(axis) = axis {
-            assert!(axis < self.ndim(), "axis is out of bounds for array");
+            if axis >= self.ndim() { return Err(ArrayError::AxisOutOfBounds) }
             let mut sorted_indices = indices;
             sorted_indices.sort();
             sorted_indices.dedup();
@@ -92,29 +101,39 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
                 .map(|(i, &dim)| if i == axis { dim.saturating_sub(sorted_indices.len()) } else { dim })
                 .collect::<Vec<usize>>();
 
+            if self.elements.iter()
+                .enumerate()
+                .any(|(idx, _)| self.index_to_coord(idx).is_err()) {
+                return Err(ArrayError::ParameterError { param: "idx", message: "index must be smaller than array length", });
+            }
+
             let new_elements = self.elements.iter()
                 .enumerate()
                 .filter_map(|(idx, elem)| {
-                    let current_coords = self.index_to_coord(idx);
+                    let current_coords = self.index_to_coord(idx).unwrap();
                     if !sorted_indices.iter().any(|&i| i == current_coords[axis]) { Some(*elem) }
                     else { None }
                 }).collect::<Vec<N>>();
 
             Self::new(new_elements, new_shape)
         } else {
-            assert!(indices.iter().all(|&i| i < self.get_elements().len()), "delete index out of the bounds of array");
+            if indices.iter().any(|&i| i >= self.get_elements().len()) { return Err(ArrayError::OutOfBounds { value: "index", }) }
             let mut new_elements = self.get_elements();
             indices.iter().rev().for_each(|&i| { new_elements.remove(i); });
 
-            Self::flat(new_elements)
+            Ok(Self::flat(new_elements))
         }
     }
 
-    fn append(&self, values: &Self, axis: Option<usize>) -> Self {
+    fn append(&self, values: &Self, axis: Option<usize>) -> Result<Self, ArrayError> {
         if let Some(axis) = axis {
-            assert!(axis < self.ndim(), "axis is out of bounds for array");
-            assert_eq!(self.ndim(), values.ndim(), "input array should have the same dimension as the original one");
-            assert_eq!(self.get_shape().remove_at(axis), values.get_shape().remove_at(axis), "input array dimensions for the concatenation axis must match exactly");
+            if axis >= self.ndim() {
+                return Err(ArrayError::AxisOutOfBounds)
+            } else if self.ndim() != values.ndim() {
+                return Err(ArrayError::ParameterError { param: "values", message: "input array should have the same dimension as the original one", })
+            } else if self.get_shape().remove_at(axis) != values.get_shape().remove_at(axis) {
+                return Err(ArrayError::ParameterError { param: "axis", message: "input array dimensions for the concatenation axis must match exactly", })
+            }
 
             let subarrays = if axis == 0 { 1 } else { self.get_shape()[..axis].iter().product::<usize>() };
             let subarray_len = self.get_shape().iter().product::<usize>() / subarrays;
@@ -135,63 +154,70 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         } else {
             let mut elements = self.get_elements();
             elements.append(&mut values.get_elements());
-            Self::flat(elements)
+            Ok(Self::flat(elements))
         }
     }
 
-    fn reshape(&self, shape: Vec<usize>) -> Self {
-        assert_eq!(self.elements.len(), shape.iter().product(), "Shape must match values length");
-        Self::new(self.elements.clone(), shape)
+    fn reshape(&self, shape: Vec<usize>) -> Result<Self, ArrayError> {
+        if self.elements.len() != shape.iter().product() {
+            Err(ArrayError::ShapeMustMatchValuesLength)
+        } else {
+            Self::new(self.elements.clone(), shape)
+        }
     }
 
-    fn resize(&self, shape: Vec<usize>) -> Self {
+    fn resize(&self, shape: Vec<usize>) -> Result<Self, ArrayError> {
         self.get_elements().into_iter().cycle()
             .take(shape.iter().product::<usize>())
             .collect::<Self>()
             .reshape(shape)
     }
 
-    fn unique(&self, axis: Option<usize>) -> Self {
+    fn unique(&self, axis: Option<usize>) -> Result<Self, ArrayError> {
         if let Some(axis) = axis {
-            let mut parts = self.split(self.shape[axis], Some(axis)).into_iter()
+            let split = self.split(self.shape[axis], Some(axis))?;
+            let mut parts = split.into_iter()
                 .sorted_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
                 .collect::<Vec<Self>>();
             parts.dedup();
             let flat_parts = parts.clone().into_iter().flatten().collect::<Vec<N>>();
-            if flat_parts.len() == self.len() { self.clone() }
+            if flat_parts.len() == self.len() { Ok(self.clone()) }
             else {
                 let new_shape = self.get_shape()
                     .remove_at(axis)
                     .insert_at(axis, parts.len());
                 let result = Array::new(flat_parts, new_shape);
                 if !(axis > 0 && axis < self.ndim() - 1) { result }
-                else { result.rollaxis(axis as isize, None) }
+                else { match result {
+                    Ok(res) => res.rollaxis(axis as isize, None),
+                    Err(e) => Err(e)
+                } }
             }
         } else {
             let mut new_elements = self.get_elements().into_iter()
                 .sorted_by(|&a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
                 .collect::<Vec<N>>();
             new_elements.dedup();
-            Array::flat(new_elements)
+            Ok(Array::flat(new_elements))
         }
     }
 
     fn ravel(&self) -> Self {
-        Self::new(self.elements.clone(), vec![self.len()])
+        Self::flat(self.elements.clone())
     }
 
-    fn atleast(&self, n: usize) -> Self {
+    fn atleast(&self, n: usize) -> Result<Self, ArrayError> {
         match n {
-            0 => self.clone(),
+            0 => Ok(self.clone()),
             1 => Self::atleast_1d(self),
             2 => Self::atleast_2d(self),
             3 => Self::atleast_3d(self),
-            _ => panic!("supported dimensions are [1, 2, 3]"),
+            _ => Err(ArrayError::UnsupportedDimension { fun: "atleast", supported: "[1D, 2D, 3D]", }),
         }
     }
 
-    fn trim_zeros(&self) -> Self {
-        assert_eq!(1, self.ndim(), "trim_zeros is defined only for 1d arrays");
+    fn trim_zeros(&self) -> Result<Self, ArrayError> {
+        if self.ndim() != 1 { return Err(ArrayError::UnsupportedDimension { fun: "trim_zeros", supported: "1D", }) }
         let new_elements = self.get_elements()
             .into_iter().rev()
             .skip_while(|&e| e == N::ZERO)
@@ -200,7 +226,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
             .skip_while(|&e| e == N::ZERO)
             .collect::<Vec<_>>();
 
-        Self::flat(new_elements)
+        Ok(Self::flat(new_elements))
     }
 
     fn for_each<F: FnMut(&N)>(&self, f: F) {
@@ -261,13 +287,13 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
 impl <N: Numeric> Array<N> {
 
-    fn atleast_1d(&self) -> Self {
-        if !self.ndim() >= 1 { self.clone() }
+    fn atleast_1d(&self) -> Result<Self, ArrayError> {
+        if !self.ndim() >= 1 { Ok(self.clone()) }
         else { self.reshape(vec![1]) }
     }
 
-    fn atleast_2d(&self) -> Self {
-        if self.ndim() >= 2 { self.clone() }
+    fn atleast_2d(&self) -> Result<Self, ArrayError> {
+        if self.ndim() >= 2 { Ok(self.clone()) }
         else {
             match self.ndim() {
                 0 => self.reshape(vec![1, 1]),
@@ -277,14 +303,14 @@ impl <N: Numeric> Array<N> {
         }
     }
 
-    fn atleast_3d(&self) -> Self {
-        if self.ndim() >= 3 { self.clone() }
+    fn atleast_3d(&self) -> Result<Self, ArrayError> {
+        if self.ndim() >= 3 { Ok(self.clone()) }
         else {
             match self.ndim() {
                 0 => self.reshape(vec![1, 1, 1]),
                 1 => self.reshape(vec![1, self.get_shape()[0], 1]),
                 2 => self.reshape(vec![self.get_shape()[0], self.get_shape()[1], 1]),
-                _ => self.clone(),
+                _ => Ok(self.clone()),
             }
         }
     }

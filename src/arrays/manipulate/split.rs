@@ -1,6 +1,7 @@
 use crate::arrays::Array;
 use crate::ext::vec_ext::{VecInsertAt, VecRemoveAt};
 use crate::traits::{
+    errors::ArrayError,
     manipulate::{
         ArrayManipulate,
         axis::ArrayAxis,
@@ -13,10 +14,10 @@ use crate::traits::{
 
 impl <N: Numeric> ArraySplit<N> for Array<N> {
 
-    fn array_split(&self, parts: usize, axis: Option<usize>) -> Vec<Self> {
-        assert!(parts > 0, "number of sections must be larger than 0");
-        if let Some(axis) = axis { assert!(axis < self.ndim(), "axis out of bounds"); }
-        if self.is_empty() { return vec![self.clone()] }
+    fn array_split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Self>, ArrayError> {
+        if parts == 0 { return Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", }) }
+        if let Some(axis) = axis { if axis >= self.ndim() { return Err(ArrayError::AxisOutOfBounds) } }
+        if self.is_empty() { return Ok(vec![self.clone()]) }
 
         let axis = axis.unwrap_or(0);
         let n_total = self.len();
@@ -33,55 +34,74 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
             .get_elements();
 
         let arr = self.rollaxis(axis as isize, None);
-        div_points
-            .windows(2)
-            .map(|w| arr.clone().into_iter()
-                .skip(w[0]).take(w[1] - w[0])
-                .collect::<Self>())
-            .map(|m| {
-                if self.ndim() == 1 { m }
-                else {
-                    let mut new_shape = self.get_shape();
-                    new_shape[axis] /= self.get_shape().remove_at(axis).iter().product::<usize>();
-                    if new_shape[axis] == 0 { new_shape[axis] = 1 }
-                    m.reshape(new_shape)
-                }
-            })
-            .collect()
-    }
-
-    fn split(&self, parts: usize, axis: Option<usize>) -> Vec<Self> {
-        assert!(parts > 0, "number of sections must be larger than 0");
-        if let Some(axis) = axis { assert!(axis < self.ndim(), "axis out of bounds"); }
-
-        if self.is_empty() { return vec![self.clone()] }
-        let n_total = self.shape[axis.unwrap_or(0)];
-
-        assert_eq!(0, n_total % parts, "array split does not result in an equal division");
-        self.array_split(parts, axis)
-    }
-
-    fn hsplit(&self, parts: usize) -> Vec<Self> {
-        assert!(self.ndim() > 0, "hsplit only works on arrays of 1 or more dimensions");
-        assert!(parts > 0, "number of sections must be larger than 0");
-
-        match self.ndim() {
-            1 => self.split(parts, Some(0)),
-            _ => self.split(parts, Some(1)),
+        if let Ok(arr) = arr {
+            let result = div_points
+                .windows(2)
+                .map(|w| arr.clone().into_iter()
+                    .skip(w[0]).take(w[1] - w[0])
+                    .collect::<Self>())
+                .map(|m| {
+                    if self.ndim() == 1 { Ok(m) }
+                    else {
+                        let mut new_shape = self.get_shape();
+                        new_shape[axis] /= self.get_shape().remove_at(axis).iter().product::<usize>();
+                        if new_shape[axis] == 0 { new_shape[axis] = 1 }
+                        m.reshape(new_shape)
+                    }
+                })
+                .collect::<Vec<Result<Self, _>>>();
+            let has_error = result.clone().into_iter().find(|a| a.is_err());
+            if let Some(error) = has_error { Err(error.err().unwrap()) }
+            else { Ok(result.into_iter().map(|a| a.unwrap()).collect()) }
+        } else {
+            Err(arr.err().unwrap())
         }
     }
 
-    fn vsplit(&self, parts: usize) -> Vec<Self> {
-        assert!(self.ndim() > 1, "vsplit only works on arrays of 2 or more dimensions");
-        assert!(parts > 0, "number of sections must be larger than 0");
+    fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Self>, ArrayError> {
+        if parts == 0 {
+            Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
+        } else if axis.is_some() && axis.unwrap() >= self.ndim() {
+            Err(ArrayError::AxisOutOfBounds)
+        } else {
+            if self.is_empty() { return Ok(vec![self.clone()]) }
+            let n_total = self.shape[axis.unwrap_or(0)];
 
-        self.split(parts, Some(0))
+            if n_total % parts != 0 { Err(ArrayError::ParameterError { param: "parts", message: "array split does not result in an equal division", }) }
+            else { self.array_split(parts, axis) }
+        }
     }
 
-    fn dsplit(&self, parts: usize) -> Vec<Self> {
-        assert!(self.ndim() > 2, "dsplit only works on arrays of 3 or more dimensions");
-        assert!(parts > 0, "number of sections must be larger than 0");
+    fn hsplit(&self, parts: usize) -> Result<Vec<Self>, ArrayError> {
+        if self.ndim() == 0 {
+            Err(ArrayError::UnsupportedDimension { fun: "hsplit", supported: "at least 1D", })
+        } else if parts == 0 {
+            Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
+        } else {
+            match self.ndim() {
+                1 => self.split(parts, Some(0)),
+                _ => self.split(parts, Some(1)),
+            }
+        }
+    }
 
-        self.split(parts, Some(2))
+    fn vsplit(&self, parts: usize) -> Result<Vec<Self>, ArrayError> {
+        if self.ndim() < 2 {
+            Err(ArrayError::UnsupportedDimension { fun: "vsplit", supported: "at least 2D", })
+        } else if parts == 0 {
+            Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
+        } else {
+            self.split(parts, Some(0))
+        }
+    }
+
+    fn dsplit(&self, parts: usize) -> Result<Vec<Self>, ArrayError> {
+        if self.ndim() < 3 {
+            Err(ArrayError::UnsupportedDimension { fun: "dsplit", supported: "at least 3D", })
+        } else if parts == 0 {
+            Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
+        } else {
+            self.split(parts, Some(2))
+        }
     }
 }

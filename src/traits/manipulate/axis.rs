@@ -1,4 +1,7 @@
-use crate::traits::types::numeric::Numeric;
+use crate::traits::{
+    errors::ArrayError,
+    types::numeric::Numeric,
+};
 
 /// ArrayTrait - Array Axis functions
 pub trait ArrayAxis<N: Numeric> where Self: Sized + Clone {
@@ -14,16 +17,16 @@ pub trait ArrayAxis<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]);
+    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
     /// assert_eq!(array!([[1, 5], [2, 6], [3, 7], [4, 8]]), arr.transpose(None));
     ///
-    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]);
+    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]).unwrap();
     /// assert_eq!(array!([[1, 3, 5, 7], [2, 4, 6, 8]]), arr.transpose(None));
     ///
-    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]);
+    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]).unwrap();
     /// assert_eq!(array!([[1, 3, 5, 7], [2, 4, 6, 8]]), arr.transpose(Some(vec![1, 0])));
     /// ```
-    fn transpose(&self, axes: Option<Vec<isize>>) -> Self;
+    fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Self, ArrayError>;
 
     /// Move axes of an array to new positions
     ///
@@ -38,10 +41,10 @@ pub trait ArrayAxis<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
-    /// assert_eq!(vec![4, 5, 3], arr.moveaxis(vec![0], vec![2]).get_shape());
-    /// assert_eq!(vec![5, 3, 4], arr.moveaxis(vec![2], vec![0]).get_shape());
+    /// assert_eq!(vec![4, 5, 3], arr.moveaxis(vec![0], vec![2]).unwrap().get_shape());
+    /// assert_eq!(vec![5, 3, 4], arr.moveaxis(vec![2], vec![0]).unwrap().get_shape());
     /// ```
-    fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Self;
+    fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Result<Self, ArrayError>;
 
     /// Roll the specified axis backwards, until it lies in a given position
     ///
@@ -56,10 +59,10 @@ pub trait ArrayAxis<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
-    /// assert_eq!(vec![4, 3, 5], arr.rollaxis(1, None).get_shape());
-    /// assert_eq!(vec![3, 5, 4], arr.rollaxis(2, Some(1)).get_shape());
+    /// assert_eq!(vec![4, 3, 5], arr.rollaxis(1, None).unwrap().get_shape());
+    /// assert_eq!(vec![3, 5, 4], arr.rollaxis(2, Some(1)).unwrap().get_shape());
     /// ```
-    fn rollaxis(&self, axis: isize, start: Option<isize>) -> Self;
+    fn rollaxis(&self, axis: isize, start: Option<isize>) -> Result<Self, ArrayError>;
 
     /// Interchange two axes of an array
     ///
@@ -74,10 +77,10 @@ pub trait ArrayAxis<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
-    /// assert_eq!(vec![5, 4, 3], arr.swapaxes(0, 2).get_shape());
-    /// assert_eq!(vec![3, 5, 4], arr.swapaxes(2, 1).get_shape());
+    /// assert_eq!(vec![5, 4, 3], arr.swapaxes(0, 2).unwrap().get_shape());
+    /// assert_eq!(vec![3, 5, 4], arr.swapaxes(2, 1).unwrap().get_shape());
     /// ```
-    fn swapaxes(&self, axis: isize, start: isize) -> Self;
+    fn swapaxes(&self, axis: isize, start: isize) -> Result<Self, ArrayError>;
 
     /// Expand the shape of an array
     ///
@@ -91,10 +94,10 @@ pub trait ArrayAxis<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
-    /// assert_eq!(vec![1, 3, 4, 5], arr.expand_dims(vec![0]).get_shape());
-    /// assert_eq!(vec![3, 1, 4, 1, 5], arr.expand_dims(vec![1, 3]).get_shape());
+    /// assert_eq!(vec![1, 3, 4, 5], arr.expand_dims(vec![0]).unwrap().get_shape());
+    /// assert_eq!(vec![3, 1, 4, 1, 5], arr.expand_dims(vec![1, 3]).unwrap().get_shape());
     /// ```
-    fn expand_dims(&self, axes: Vec<isize>) -> Self;
+    fn expand_dims(&self, axes: Vec<isize>) -> Result<Self, ArrayError>;
 
     /// Remove axes of length one from array
     ///
@@ -108,9 +111,9 @@ pub trait ArrayAxis<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![1, 3, 1, 4, 5]);
-    /// assert_eq!(vec![3, 4, 5], arr.squeeze(None).get_shape());
-    /// assert_eq!(vec![3, 1, 4, 5], arr.squeeze(Some(vec![0])).get_shape());
-    /// assert_eq!(vec![1, 3, 4, 5], arr.squeeze(Some(vec![2])).get_shape());
+    /// assert_eq!(vec![3, 4, 5], arr.squeeze(None).unwrap().get_shape());
+    /// assert_eq!(vec![3, 1, 4, 5], arr.squeeze(Some(vec![0])).unwrap().get_shape());
+    /// assert_eq!(vec![1, 3, 4, 5], arr.squeeze(Some(vec![2])).unwrap().get_shape());
     /// ```
-    fn squeeze(&self, axes: Option<Vec<isize>>) -> Self;
+    fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Self, ArrayError>;
 }

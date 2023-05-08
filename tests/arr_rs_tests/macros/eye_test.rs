@@ -8,6 +8,6 @@ case(array_eye!(2, 3), array!([[1., 0., 0.], [0., 1., 0.]])),
 case(array_eye!(3, 2, 1), array!([[0., 1.], [0., 0.], [0., 0.]])),
 case(array_eye!(4, 3, 0), array!([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.], [0., 0., 0.]])),
 case(array_eye!(4, 3, 1), array!([[0., 1., 0.], [0., 0., 1.], [0., 0., 0.], [0., 0., 0.]])),
-)] fn test_eye_array_macro(arr: Array<f64>, expected: Array<f64>) {
-    assert_eq!(expected, arr);
+)] fn test_eye_array_macro(arr: Array<f64>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected.unwrap(), arr);
 }

@@ -3,6 +3,7 @@ use itertools::Itertools;
 use crate::arrays::Array;
 use crate::prelude::ArrayManipulate;
 use crate::traits::{
+    errors::ArrayError,
     manipulate::axis::ArrayAxis,
     meta::ArrayMeta,
     create::ArrayCreate,
@@ -11,7 +12,7 @@ use crate::traits::{
 
 impl <N: Numeric> ArrayAxis<N> for Array<N> {
 
-    fn transpose(&self, axes: Option<Vec<isize>>) -> Self {
+    fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Self, ArrayError> {
 
         fn transpose_recursive<N: Numeric>(
             input: &[N], input_shape: &[usize],
@@ -56,7 +57,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         Self::new(new_elements, new_shape)
     }
 
-    fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Self {
+    fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Result<Self, ArrayError> {
         assert_eq!(source.len(), destination.len(), "`source` and `destination` should have the same length");
         let source = source.iter().map(|i| self.normalize_axis(*i, None)).collect::<Vec<usize>>();
         let destination = destination.iter().map(|i| self.normalize_axis(*i, None)).collect::<Vec<usize>>();
@@ -76,7 +77,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         self.transpose(Some(order))
     }
 
-    fn rollaxis(&self, axis: isize, start: Option<isize>) -> Self {
+    fn rollaxis(&self, axis: isize, start: Option<isize>) -> Result<Self, ArrayError> {
         let axis = self.normalize_axis(axis, None);
         let start = if let Some(start) = start { self.normalize_axis(start, None) } else { 0 };
 
@@ -87,7 +88,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         self.transpose(Some(new_axes.iter().map(|&i| i as isize).collect()))
     }
 
-    fn swapaxes(&self, axis_1: isize, axis_2: isize) -> Self {
+    fn swapaxes(&self, axis_1: isize, axis_2: isize) -> Result<Self, ArrayError> {
         let axis_1 = self.normalize_axis(axis_1, None);
         let axis_2 = self.normalize_axis(axis_2, None);
 
@@ -97,7 +98,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         self.transpose(Some(new_axes.iter().map(|&i| i as isize).collect()))
     }
 
-    fn expand_dims(&self, axes: Vec<isize>) -> Self {
+    fn expand_dims(&self, axes: Vec<isize>) -> Result<Self, ArrayError> {
         let axes = axes.iter()
             .map(|&i| self.normalize_axis(i, Some(self.ndim() + axes.len())))
             .sorted()
@@ -108,7 +109,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         self.reshape(new_shape)
     }
 
-    fn squeeze(&self, axes: Option<Vec<isize>>) -> Self {
+    fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Self, ArrayError> {
         if let Some(axes) = axes {
             let axes = axes.iter()
                 .map(|&i| self.normalize_axis(i, None))
@@ -117,10 +118,10 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
                 .collect::<Vec<usize>>();
             let mut new_shape = self.get_shape();
 
-            for item in axes {
-                assert_eq!(1, self.get_shape()[item], "cannot select an axis to squeeze out which has size not equal to one");
-                new_shape.remove(item);
+            if axes.iter().any(|a| self.get_shape()[*a] != 1) {
+                return Err(ArrayError::SqueezeShapeOfAxisMustBeOne)
             }
+            for item in axes { new_shape.remove(item); }
             self.reshape(new_shape)
         }
         else { self.reshape(self.get_shape().into_iter().filter(|&i| i != 1).collect()) }

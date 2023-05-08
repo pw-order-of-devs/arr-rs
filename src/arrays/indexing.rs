@@ -1,4 +1,5 @@
 use crate::arrays::Array;
+use crate::prelude::{ArrayError, ArrayMeta};
 use crate::traits::{
     create::ArrayCreate,
     indexing::ArrayIndexing,
@@ -7,34 +8,49 @@ use crate::traits::{
 
 impl <N: Numeric> ArrayIndexing<N> for Array<N> {
 
-    fn index_at(&self, coords: &[usize]) -> usize {
-        assert_eq!(self.shape.len(), coords.len(), "coords length must match array dimension");
-        coords.iter().enumerate().for_each(|(i, _)| assert!(coords[i] < self.shape[i], "coord value must match array shape"));
-
-        self.shape.iter().enumerate().rev().fold((0, 1), |(mut index, mut stride), (i, &dim)| {
-            index += coords[i] * stride;
-            stride *= dim;
-            (index, stride)
-        }).0
+    fn index_at(&self, coords: &[usize]) -> Result<usize, ArrayError> {
+        if self.shape.len() != coords.len() {
+            Err(ArrayError::ParameterError { param: "coords", message: "length must match array dimension", })
+        } else if coords.iter().enumerate().any(|(i, _)| coords[i] >= self.shape[i]) {
+            Err(ArrayError::ParameterError { param: "coords", message: "value must match array shape", })
+        } else {
+            let result = self.shape.iter().enumerate().rev().fold((0, 1), |(mut index, mut stride), (i, &dim)| {
+                index += coords[i] * stride;
+                stride *= dim;
+                (index, stride)
+            }).0;
+            Ok(result)
+        }
     }
 
-    fn index_to_coord(&self, idx: usize) -> Vec<usize> {
-        self.shape.iter().rev().fold((idx, Vec::new()), |(ri, mut coords), &dim| {
-            coords.push(ri % dim);
-            (ri / dim, coords)
-        }).1.into_iter().rev().collect()
+    fn index_to_coord(&self, idx: usize) -> Result<Vec<usize>, ArrayError> {
+        if idx >= self.len() {
+            Err(ArrayError::ParameterError { param: "idx", message: "index must be smaller than array length", })
+        } else {
+            let result = self.shape.iter().rev().fold((idx, Vec::new()), |(ri, mut coords), &dim| {
+                coords.push(ri % dim);
+                (ri / dim, coords)
+            }).1.into_iter().rev().collect();
+            Ok(result)
+        }
     }
 
-    fn at(&self, coords: &[usize]) -> N {
-        self.elements[self.index_at(coords)]
+    fn at(&self, coords: &[usize]) -> Result<N, ArrayError> {
+        match self.index_at(coords) {
+            Ok(idx) => Ok(self.elements[idx]),
+            Err(e) => Err(e),
+        }
     }
 
-    fn slice(&self, range: std::ops::Range<usize>) -> Self {
-        assert!(range.start <= range.end && range.end <= self.elements.len(), "Slice range out of bounds");
+    fn slice(&self, range: std::ops::Range<usize>) -> Result<Self, ArrayError> {
+        if !(range.start <= range.end && range.end <= self.elements.len()) {
+            return Err(ArrayError::OutOfBounds { value: "slice range" })
+        }
+
         if self.shape.len() == 1 {
-            Self::flat(self.elements[range].into())
+            Ok(Self::flat(self.elements[range].into()))
         } else if range.len() >= self.shape[0] {
-            self.clone()
+            Ok(self.clone())
         } else {
             let new_shape =
                 if range.len() > 1 { vec![range.len()].into_iter().chain(self.shape[1..].iter().cloned()).collect() }
