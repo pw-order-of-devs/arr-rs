@@ -375,6 +375,33 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
 
     // ==== matrices
 
+    /// Construct an array with ones at and below the given diagonal and zeros elsewhere
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - number of rows
+    /// * `m` - number of columns. optional, defaults to `n`
+    /// * `k` - chosen diagonal. optional, defaults to 0
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected: Array<i32> = array!([[1, 0], [1, 1]]).unwrap();
+    /// assert_eq!(expected, Array::<i32>::tri(2, Some(2), None).unwrap());
+    ///
+    /// let expected: Array<i32> = array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]]).unwrap();
+    /// assert_eq!(expected, Array::<i32>::tri(3, Some(3), None).unwrap());
+    /// ```
+    fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Result<Self, ArrayError>;
+}
+
+/// ArrayTrait - Array Create functions
+pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
+
+    // matrices
+
     /// Extract a diagonal or construct a diagonal array
     ///
     /// # Arguments
@@ -398,7 +425,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap(), Some(1)).unwrap();
     /// assert_eq!(expected, arr);
     /// ```
-    fn diag(&self, k: Option<isize>) -> Result<Self, ArrayError>;
+    fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
 
     /// Construct a diagonal array for flattened input
     ///
@@ -420,28 +447,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// let arr: Array<i32> = Array::diagflat(&array!([[1, 2], [3, 4]]).unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     /// ```
-    fn diagflat(&self, k: Option<isize>) -> Result<Self, ArrayError>;
-
-    /// Construct an array with ones at and below the given diagonal and zeros elsewhere
-    ///
-    /// # Arguments
-    ///
-    /// * `n` - number of rows
-    /// * `m` - number of columns. optional, defaults to `n`
-    /// * `k` - chosen diagonal. optional, defaults to 0
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let expected: Array<i32> = array!([[1, 0], [1, 1]]).unwrap();
-    /// assert_eq!(expected, Array::<i32>::tri(2, Some(2), None).unwrap());
-    ///
-    /// let expected: Array<i32> = array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]]).unwrap();
-    /// assert_eq!(expected, Array::<i32>::tri(3, Some(3), None).unwrap());
-    /// ```
-    fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Result<Self, ArrayError>;
+    fn diagflat(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
 
     /// Return a copy of an array with elements above the k-th diagonal zeroed.
     /// For arrays with ndim exceeding 2, tril will apply to the final two axes.
@@ -463,7 +469,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[[1, 0], [3, 4]], [[5, 0], [7, 8]]]).unwrap();
     /// assert_eq!(expected, arr.tril(None).unwrap());
     /// ```
-    fn tril(&self, k: Option<isize>) -> Result<Self, ArrayError>;
+    fn tril(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
 
     /// Return a copy of an array with elements below the k-th diagonal zeroed.
     /// For arrays with ndim exceeding 2, triu will apply to the final two axes.
@@ -485,7 +491,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[[1, 2], [0, 4]], [[5, 6], [0, 8]]]).unwrap();
     /// assert_eq!(expected, arr.triu(None).unwrap());
     /// ```
-    fn triu(&self, k: Option<isize>) -> Result<Self, ArrayError>;
+    fn triu(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
 
     /// Generate a Vandermonde matrix
     ///
@@ -508,5 +514,5 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]]).unwrap();
     /// assert_eq!(expected, arr.vander(None, Some(true)).unwrap());
     /// ```
-    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Self, ArrayError>;
+    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Array<N>, ArrayError>;
 }

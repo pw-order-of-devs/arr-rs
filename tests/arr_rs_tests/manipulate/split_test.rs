@@ -41,9 +41,9 @@ case(Ok(array_arange!(0, 7)), 3, Some(2), Err(ArrayError::AxisOutOfBounds)),
     match expected {
         Ok(expected) => {
             let expected = expected.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Array<i32>>>();
-            assert_eq!(Ok(expected), array.unwrap().split(parts, axis))
+            assert_eq!(Ok(expected), array.split(parts, axis))
         },
-        Err(err) => assert_eq!(Err(err), array.unwrap().split(parts, axis)),
+        Err(err) => assert_eq!(Err(err), array.split(parts, axis)),
     }
 }
 
@@ -57,7 +57,7 @@ case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 2, vec![array!([[[0, 1]], [[4, 
 case(Ok(array_arange!(0, 6)), 3, vec![]),
 )] fn test_hsplit(array: Result<Array<i32>, ArrayError>, parts: usize, expected: Vec<Result<Array<i32>, ArrayError>>) {
     let expected = expected.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Array<i32>>>();
-    assert_eq!(Ok(expected), array.unwrap().hsplit(parts))
+    assert_eq!(Ok(expected), array.hsplit(parts))
 }
 
 #[rstest(
@@ -69,7 +69,7 @@ case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 2, vec![array!([[[0, 1], [2, 3]
 case(array_arange!(0, 5).reshape(vec![2, 3]), 4, vec![]),
 )] fn test_vsplit(array: Result<Array<i32>, ArrayError>, parts: usize, expected: Vec<Result<Array<i32>, ArrayError>>) {
     let expected = expected.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Array<i32>>>();
-    assert_eq!(Ok(expected), array.unwrap().vsplit(parts))
+    assert_eq!(Ok(expected), array.vsplit(parts))
 }
 
 #[rstest(
@@ -82,5 +82,5 @@ case(array_arange!(0, 11).reshape(vec![2, 2, 3]), 3, vec![array!([[[0], [3]], [[
 case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 4, vec![array!([[[0], [2]], [[4], [6]]]), array!([[[1], [3]], [[5], [7]]])]),
 )] fn test_dsplit(array: Result<Array<i32>, ArrayError>, parts: usize, expected: Vec<Result<Array<i32>, ArrayError>>) {
     let expected = expected.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Array<i32>>>();
-    assert_eq!(Ok(expected), array.unwrap().dsplit(parts))
+    assert_eq!(Ok(expected), array.dsplit(parts))
 }

@@ -13,8 +13,8 @@ case(array!([[1, 2, 3], [1, 2, 3]]), array!([[1, 2, 3, 4], [1, 2, 3, 4]]), vec![
     let expected = expected.into_iter().map(Tuple2::from_tuple).collect::<Vec<Tuple2<i32>>>();
     let expected = Array::new(expected, expected_shape);
     match result {
-        Ok(_) => assert_eq!(expected, arr1.unwrap().broadcast(&arr2.unwrap())),
-        Err(err) => assert_eq!(Err(err), arr1.unwrap().broadcast(&arr2.unwrap())),
+        Ok(_) => assert_eq!(expected, arr1.broadcast(&arr2.unwrap())),
+        Err(err) => assert_eq!(Err(err), arr1.broadcast(&arr2.unwrap())),
     }
 }
 
@@ -28,7 +28,7 @@ case(array!([1, 2]), vec![1, 1, 2, 1], array!([[[[1], [2]]]])),
 case(array!([[1, 2, 3], [1, 2, 3]]), vec![2, 4], Err(ArrayError::BroadcastShapeMismatch)),
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![2, 3], Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_broadcast_to(arr: Result<Array<i32>, ArrayError>, shape: Vec<usize>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, arr.unwrap().broadcast_to(shape))
+    assert_eq!(expected, arr.broadcast_to(shape))
 }
 
 #[rstest(

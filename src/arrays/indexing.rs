@@ -68,3 +68,23 @@ impl <N: Numeric> ArrayIndexing<N> for Array<N> {
         }
     }
 }
+
+
+impl <N: Numeric> ArrayIndexing<N> for Result<Array<N>, ArrayError> {
+
+    fn index_at(&self, coords: &[usize]) -> Result<usize, ArrayError> {
+        self.clone()?.index_at(coords)
+    }
+
+    fn index_to_coord(&self, idx: usize) -> Result<Vec<usize>, ArrayError> {
+        self.clone()?.index_to_coord(idx)
+    }
+
+    fn at(&self, coords: &[usize]) -> Result<N, ArrayError> {
+        self.clone()?.at(coords)
+    }
+
+    fn slice(&self, range: std::ops::Range<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.slice(range)
+    }
+}

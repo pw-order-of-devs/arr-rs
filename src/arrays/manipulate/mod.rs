@@ -2,6 +2,8 @@
 pub mod axis;
 /// broadcast array functions implementation
 pub mod broadcast;
+/// iterable array functions implementation
+pub mod iter;
 /// split array functions implementation
 pub mod split;
 /// stack array functions implementation
@@ -27,7 +29,7 @@ use crate::traits::{
 
 impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
-    fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Result<Self, ArrayError> {
+    fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
         if axis.is_some() && axis.unwrap() >= self.ndim() { return Err(ArrayError::AxisOutOfBounds) }
 
         if indices.len() > 1 {
@@ -39,7 +41,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
             if validate_result.is_err() { return Err(validate_result.err().unwrap()) }
         }
 
-        let values = if axis.unwrap_or(0) > 0 { values.ravel() } else { values.clone() };
+        let values = if axis.unwrap_or(0) > 0 { values.ravel()? } else { values.clone() };
         let (subarrays, chunk_size, subarray_len) =
             if let Some(axis) = axis {
                 let subarrays = if axis == 0 { 1 } else { self.get_shape()[..axis].iter().product::<usize>() };
@@ -89,7 +91,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         Self::new(new_elements, new_shape)
     }
 
-    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Self, ArrayError> {
+    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
             if axis >= self.ndim() { return Err(ArrayError::AxisOutOfBounds) }
             let mut sorted_indices = indices;
@@ -125,7 +127,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         }
     }
 
-    fn append(&self, values: &Self, axis: Option<usize>) -> Result<Self, ArrayError> {
+    fn append(&self, values: &Self, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
             if axis >= self.ndim() {
                 return Err(ArrayError::AxisOutOfBounds)
@@ -158,7 +160,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         }
     }
 
-    fn reshape(&self, shape: Vec<usize>) -> Result<Self, ArrayError> {
+    fn reshape(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
         if self.elements.len() != shape.iter().product() {
             Err(ArrayError::ShapeMustMatchValuesLength)
         } else {
@@ -166,14 +168,14 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         }
     }
 
-    fn resize(&self, shape: Vec<usize>) -> Result<Self, ArrayError> {
+    fn resize(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
         self.get_elements().into_iter().cycle()
             .take(shape.iter().product::<usize>())
             .collect::<Self>()
             .reshape(shape)
     }
 
-    fn unique(&self, axis: Option<usize>) -> Result<Self, ArrayError> {
+    fn unique(&self, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
             let split = self.split(self.shape[axis], Some(axis))?;
             let mut parts = split.into_iter()
@@ -202,11 +204,11 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         }
     }
 
-    fn ravel(&self) -> Self {
-        Self::flat(self.elements.clone())
+    fn ravel(&self) -> Result<Array<N>, ArrayError> {
+        Ok(Self::flat(self.elements.clone()))
     }
 
-    fn atleast(&self, n: usize) -> Result<Self, ArrayError> {
+    fn atleast(&self, n: usize) -> Result<Array<N>, ArrayError> {
         match n {
             0 => Ok(self.clone()),
             1 => Self::atleast_1d(self),
@@ -216,7 +218,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         }
     }
 
-    fn trim_zeros(&self) -> Result<Self, ArrayError> {
+    fn trim_zeros(&self) -> Result<Array<N>, ArrayError> {
         if self.ndim() != 1 { return Err(ArrayError::UnsupportedDimension { fun: "trim_zeros", supported: "1D", }) }
         let new_elements = self.get_elements()
             .into_iter().rev()
@@ -228,71 +230,55 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
         Ok(Self::flat(new_elements))
     }
+}
 
-    fn for_each<F: FnMut(&N)>(&self, f: F) {
-        self.elements.iter()
-            .for_each(f)
+impl <N: Numeric> ArrayManipulate<N> for Result<Array<N>, ArrayError> {
+    
+    fn insert(&self, indices: Vec<usize>, values: &Array<N>, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.insert(indices, values, axis)
     }
 
-    fn for_each_e<F: FnMut(usize, &N)>(&self, mut f: F) {
-        self.elements.iter().enumerate()
-            .for_each(|(idx, item)| f(idx, item))
+    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.delete(indices, axis)
     }
 
-    fn map<F: FnMut(&N) -> N>(&self, f: F) -> Self {
-        self.elements.iter()
-            .map(f)
-            .collect()
+    fn append(&self, values: &Array<N>, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.append(values, axis)
     }
 
-    fn map_e<F: FnMut(usize, &N) -> N>(&self, mut f: F) -> Self {
-        self.elements.iter().enumerate()
-            .map(|(idx, item)| f(idx, item))
-            .collect()
+    fn reshape(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.reshape(shape)
     }
 
-    fn filter<F: FnMut(&N) -> bool>(&self, mut f: F) -> Self {
-        self.elements.clone().into_iter()
-            .filter(|item| f(item))
-            .collect::<Array<N>>()
-            .ravel()
+    fn resize(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.resize(shape)
     }
 
-    fn filter_e<F: FnMut(usize, &N) -> bool>(&self, mut f: F) -> Self {
-        self.elements.clone().into_iter().enumerate()
-            .filter(|(idx, item)| f(*idx, item))
-            .map(|i| i.1)
-            .collect::<Array<N>>()
-            .ravel()
+    fn unique(&self, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.unique(axis)
     }
 
-    fn filter_map<F: FnMut(&N) -> Option<N>>(&self, f: F) -> Self {
-        self.elements.clone().iter()
-            .filter_map(f)
-            .collect::<Array<N>>()
-            .ravel()
+    fn ravel(&self) -> Result<Array<N>, ArrayError> {
+        self.clone()?.ravel()
     }
 
-    fn filter_map_e<F: FnMut(usize, &N) -> Option<N>>(&self, mut f: F) -> Self {
-        self.elements.clone().iter().enumerate()
-            .filter_map(|(idx, item)| f(idx, item))
-            .collect::<Array<N>>()
-            .ravel()
+    fn atleast(&self, n: usize) -> Result<Array<N>, ArrayError> {
+        self.clone()?.atleast(n)
     }
 
-    fn fold<F: FnMut(&N, &N) -> N>(&self, init: N, mut f: F) -> N {
-        self.elements.iter().fold(init, |a, b| f(&a, b))
+    fn trim_zeros(&self) -> Result<Array<N>, ArrayError> {
+        self.clone()?.trim_zeros()
     }
 }
 
 impl <N: Numeric> Array<N> {
 
-    fn atleast_1d(&self) -> Result<Self, ArrayError> {
+    fn atleast_1d(&self) -> Result<Array<N>, ArrayError> {
         if !self.ndim() >= 1 { Ok(self.clone()) }
         else { self.reshape(vec![1]) }
     }
 
-    fn atleast_2d(&self) -> Result<Self, ArrayError> {
+    fn atleast_2d(&self) -> Result<Array<N>, ArrayError> {
         if self.ndim() >= 2 { Ok(self.clone()) }
         else {
             match self.ndim() {
@@ -303,7 +289,7 @@ impl <N: Numeric> Array<N> {
         }
     }
 
-    fn atleast_3d(&self) -> Result<Self, ArrayError> {
+    fn atleast_3d(&self) -> Result<Array<N>, ArrayError> {
         if self.ndim() >= 3 { Ok(self.clone()) }
         else {
             match self.ndim() {

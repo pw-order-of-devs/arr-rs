@@ -2,18 +2,21 @@
 pub mod axis;
 /// Array Broadcast functions
 pub mod broadcast;
+/// Array Iterable functions
+pub mod iter;
 /// Array Split functions
 pub mod split;
 /// Array Stack functions
 pub mod stack;
 
+use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
     types::numeric::Numeric,
 };
 
 /// ArrayTrait - Array Manipulate functions
-pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
 
     /// Insert values along the given axis for the given indices
     ///
@@ -35,7 +38,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// let arr = arr.insert(vec![1, 3], &Array::single(1.), None);
     /// assert_eq!(array!([1., 1., 2., 3., 1., 4.]), arr);
     /// ```
-    fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Result<Self, ArrayError>;
+    fn insert(&self, indices: Vec<usize>, values: &Array<N>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
 
     /// Delete values along the given axis
     ///
@@ -56,7 +59,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// let arr = arr.delete(vec![2, 3], None);
     /// assert_eq!(array!([1., 2.]), arr);
     /// ```
-    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Self, ArrayError>;
+    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
 
     /// Append values to the end of an array
     ///
@@ -77,7 +80,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// let arr = arr.append(&Array::flat(vec![1., 3.]), None);
     /// assert_eq!(array!([1., 2., 3., 4., 1., 3.]), arr);
     /// ```
-    fn append(&self, values: &Self, axis: Option<usize>) -> Result<Self, ArrayError>;
+    fn append(&self, values: &Array<N>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
 
     /// Reshapes an array
     ///
@@ -95,7 +98,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// let arr = arr.reshape(vec![2, 2]);
     /// assert_eq!(array!([[1, 2], [3, 4]]), arr);
     /// ```
-    fn reshape(&self, shape: Vec<usize>) -> Result<Self, ArrayError>;
+    fn reshape(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError>;
 
     /// Resizes an array,
     ///
@@ -117,7 +120,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// let array = arr.resize(vec![8]);
     /// assert_eq!(array!([1, 2, 3, 4, 1, 2, 3, 4]), array);
     /// ```
-    fn resize(&self, shape: Vec<usize>) -> Result<Self, ArrayError>;
+    fn resize(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError>;
 
 
     /// Find the unique elements of an array,
@@ -136,7 +139,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 2, 1], vec![5]).unwrap();
     /// assert_eq!(array!([1, 2, 3]), arr.unique(None));
     /// ```
-    fn unique(&self, axis: Option<usize>) -> Result<Self, ArrayError>;
+    fn unique(&self, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
 
     /// Return a contiguous flattened array
     ///
@@ -156,7 +159,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// let arr_3 = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 2, 2]).unwrap();
     /// assert_eq!(expected, arr_3.ravel().get_shape());
     /// ```
-    fn ravel(&self) -> Self;
+    fn ravel(&self) -> Result<Array<N>, ArrayError>;
 
     /// Convert array to at least n dimension
     ///
@@ -173,7 +176,7 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(array!([[1]]), arr.atleast(2));
     /// assert_eq!(array!([[[1]]]), arr.atleast(3));
     /// ```
-    fn atleast(&self, n: usize) -> Result<Self, ArrayError>;
+    fn atleast(&self, n: usize) -> Result<Array<N>, ArrayError>;
 
     /// Trim the leading and/or trailing zeros from a 1D array
     ///
@@ -185,154 +188,5 @@ pub trait ArrayManipulate<N: Numeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec![0, 0, 1, 2, 3, 4, 0, 0]);
     /// assert_eq!(array!([1, 2, 3, 4]), arr.trim_zeros());
     /// ```
-    fn trim_zeros(&self) -> Result<Self, ArrayError>;
-
-    /// Loop over array elements
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.for_each(|item| println!("{item}"));
-    /// ```
-    fn for_each<F: FnMut(&N)>(&self, f: F);
-
-    /// Loop over enumerated array elements
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.for_each_e(|idx, item| println!("{idx}:{item}"));
-    /// ```
-    fn for_each_e<F: FnMut(usize, &N)>(&self, f: F);
-
-    /// Map over array elements
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr: Array<i32> = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.map(|item| item * 2);
-    /// ```
-    fn map<F: FnMut(&N) -> N>(&self, f: F) -> Self;
-
-    /// Map over enumerated array elements
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr: Array<i32> = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.map_e(|idx, item| item * idx as i32);
-    /// ```
-    fn map_e<F: FnMut(usize, &N) -> N>(&self, f: F) -> Self;
-
-    /// Filter over array elements
-    /// Returns a flat filtered array
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr: Array<i32> = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.filter(|item| item % 2 == 0);
-    /// ```
-    fn filter<F: FnMut(&N) -> bool>(&self, f: F) -> Self;
-
-    /// Filter over enumerated array elements
-    /// Returns a flat filtered array
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr: Array<i32> = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.filter_e(|idx, item| item % (idx + 1) as i32 == 0);
-    /// ```
-    fn filter_e<F: FnMut(usize, &N) -> bool>(&self, f: F) -> Self;
-
-    /// Filter and map over array elements
-    /// Returns a flat filtered array
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr: Array<i32> = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.filter_map(|item| if item % 2 == 0 { Some(*item) } else { None });
-    /// ```
-    fn filter_map<F: FnMut(&N) -> Option<N>>(&self, f: F) -> Self;
-
-    /// Filter and map over enumerated array elements
-    /// Returns a flat filtered array
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr: Array<i32> = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.filter_map_e(|idx, item| if item % (idx + 1) as i32 == 0 { Some(*item) } else { None });
-    /// ```
-    fn filter_map_e<F: FnMut(usize, &N) -> Option<N>>(&self, f: F) -> Self;
-
-    /// Fold elements of array elements
-    ///
-    /// # Arguments
-    ///
-    /// * `f` - function to be called on each array element
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let arr: Array<i32> = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// arr.fold(0, |a, b| a + b);
-    /// arr.fold(1, |a, b| a * b);
-    /// ```
-    fn fold<F: FnMut(&N, &N) -> N>(&self, init: N, f: F) -> N;
+    fn trim_zeros(&self) -> Result<Array<N>, ArrayError>;
 }

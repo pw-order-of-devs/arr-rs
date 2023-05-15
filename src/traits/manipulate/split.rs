@@ -1,3 +1,4 @@
+use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
     types::numeric::Numeric,
@@ -25,7 +26,7 @@ pub trait ArraySplit<N: Numeric> where Self: Sized + Clone {
     /// let split = arr.array_split(4, None).unwrap();
     /// assert_eq!(vec![array_flat!(0, 1, 2), array_flat!(3, 4), array_flat!(5, 6), array_flat!(7, 8)], split);
     /// ```
-    fn array_split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Self>, ArrayError>;
+    fn array_split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<N>>, ArrayError>;
 
     /// Split an array into multiple sub-arrays of equal size
     ///
@@ -46,7 +47,7 @@ pub trait ArraySplit<N: Numeric> where Self: Sized + Clone {
     /// let split = arr.split(4, None).unwrap();
     /// assert_eq!(vec![array_flat!(0, 1), array_flat!(2, 3), array_flat!(4, 5), array_flat!(6, 7)], split);
     /// ```
-    fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Self>, ArrayError>;
+    fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<N>>, ArrayError>;
 
     /// Split an array into multiple sub-arrays horizontally (column-wise)
     ///
@@ -62,7 +63,7 @@ pub trait ArraySplit<N: Numeric> where Self: Sized + Clone {
     /// let split = arr.hsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0, 1]], [[4, 5]]]).unwrap(), array!([[[2, 3]], [[6, 7]]]).unwrap()], split);
     /// ```
-    fn hsplit(&self, parts: usize) -> Result<Vec<Self>, ArrayError>;
+    fn hsplit(&self, parts: usize) -> Result<Vec<Array<N>>, ArrayError>;
 
     /// Split an array into multiple sub-arrays vertically (row-wise)
     ///
@@ -78,7 +79,7 @@ pub trait ArraySplit<N: Numeric> where Self: Sized + Clone {
     /// let split = arr.vsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0, 1], [2, 3]]]).unwrap(), array!([[[4, 5], [6, 7]]]).unwrap()], split);
     /// ```
-    fn vsplit(&self, parts: usize) -> Result<Vec<Self>, ArrayError>;
+    fn vsplit(&self, parts: usize) -> Result<Vec<Array<N>>, ArrayError>;
 
     /// Split an array into multiple sub-arrays along the 3rd axis (depth)
     ///
@@ -94,5 +95,5 @@ pub trait ArraySplit<N: Numeric> where Self: Sized + Clone {
     /// let split = arr.dsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0], [2]], [[4], [6]]]).unwrap(), array!([[[1], [3]], [[5], [7]]]).unwrap()], split);
     /// ```
-    fn dsplit(&self, parts: usize) -> Result<Vec<Self>, ArrayError>;
+    fn dsplit(&self, parts: usize) -> Result<Vec<Array<N>>, ArrayError>;
 }
