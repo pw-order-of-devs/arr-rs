@@ -1,4 +1,5 @@
 use crate::arrays::Array;
+use crate::prelude::ArrayCreateFrom;
 use crate::traits::{
     create::ArrayCreate,
     errors::ArrayError,
@@ -14,7 +15,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
     // ==== from data
 
-    fn new(elements: Vec<N>, shape: Vec<usize>) -> Result<Self, ArrayError> {
+    fn new(elements: Vec<N>, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
         match elements.len() == shape.iter().product() {
             true => Ok(Self { elements, shape, }),
             false => Err(ArrayError::ShapeMustMatchValuesLength)
@@ -112,7 +113,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             .map(N::from).collect()
     }
 
-    fn linspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Self, ArrayError> {
+    fn linspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Array<N>, ArrayError> {
         let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
         let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
         assert_eq!(start.get_shape(), stop.get_shape());
@@ -142,7 +143,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             .collect()
     }
 
-    fn logspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>, base: Option<&Array<usize>>) -> Result<Self, ArrayError> {
+    fn logspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>, base: Option<&Array<usize>>) -> Result<Array<N>, ArrayError> {
         let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
         let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
 
@@ -165,7 +166,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         else { reshaped.unwrap().transpose(None) }
     }
 
-    fn geomspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Result<Self, ArrayError> {
+    fn geomspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Result<Array<N>, ArrayError> {
         if start == N::ZERO {
             return Err(ArrayError::ParameterError { param: "start", message: "geometric sequence cannot include zero" });
         } else if stop == N::ZERO {
@@ -185,7 +186,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         Ok(result)
     }
 
-    fn geomspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Self, ArrayError> {
+    fn geomspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Array<N>, ArrayError> {
         let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
         let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
 
@@ -197,7 +198,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::geomspace(a, b, num, endpoint))
-            .collect::<Vec<Result<Self, _>>>();
+            .collect::<Vec<Result<Array<N>, _>>>();
         let has_error = values.clone().into_iter().find(|a| a.is_err());
         if let Some(error) = has_error { return Err(error.err().unwrap()) }
 
@@ -209,7 +210,25 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
     // ==== matrices
 
-    fn diag(&self, k: Option<isize>) -> Result<Self, ArrayError> {
+    fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+        let (m, k) = (m.unwrap_or(n), k.unwrap_or(0));
+
+        let elements = (0..n)
+            .flat_map(|i| (0..m).map(move |j|
+                if j as isize <= i as isize + k { N::ONE }
+                else { N::ZERO }
+            ))
+            .collect();
+
+        Self::new(elements, vec![n, m])
+    }
+}
+
+impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
+
+    // ==== matrices
+
+    fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
         if !vec![1, 2].contains(&self.ndim()) {
             return Err(ArrayError::UnsupportedDimension { fun: "diag", supported: "1D and 2D", })
         }
@@ -256,34 +275,21 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         else { diag_2d(self, k) }
     }
 
-    fn diagflat(&self, k: Option<isize>) -> Result<Self, ArrayError> {
-        self.ravel().diag(k)
+    fn diagflat(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+        self.ravel()?.diag(k)
     }
 
-    fn tri(n: usize, m: Option<usize>, k: Option<isize>) -> Result<Self, ArrayError> {
-        let (m, k) = (m.unwrap_or(n), k.unwrap_or(0));
-
-        let elements = (0..n)
-            .flat_map(|i| (0..m).map(move |j|
-                if j as isize <= i as isize + k { N::ONE }
-                else { N::ZERO }
-            ))
-            .collect();
-
-        Self::new(elements, vec![n, m])
-    }
-
-    fn tril(&self, k: Option<isize>) -> Result<Self, ArrayError> {
+    fn tril(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
         let k = k.unwrap_or(0);
         self.apply_triangular(k, |j, i, k| j > i + k)
     }
 
-    fn triu(&self, k: Option<isize>) -> Result<Self, ArrayError> {
+    fn triu(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
         let k = k.unwrap_or(0);
         self.apply_triangular(k, |j, i, k| j < i + k)
     }
 
-    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Self, ArrayError> {
+    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Array<N>, ArrayError> {
         if self.ndim() != 1 { return Err(ArrayError::UnsupportedDimension { fun: "vander", supported: "1D", }) }
 
         let size = self.shape[0];
@@ -302,9 +308,32 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     }
 }
 
+impl <N: Numeric> ArrayCreateFrom<N> for Result<Array<N>, ArrayError> {
+
+    fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.diag(k)
+    }
+
+    fn diagflat(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.diagflat(k)
+    }
+
+    fn tril(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.tril(k)
+    }
+
+    fn triu(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.triu(k)
+    }
+
+    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.vander(n, increasing)
+    }
+}
+
 impl <N: Numeric> Array<N> {
 
-    fn apply_triangular<F>(&self, k: isize, compare: F) -> Result<Self, ArrayError>
+    fn apply_triangular<F>(&self, k: isize, compare: F) -> Result<Array<N>, ArrayError>
         where F: Fn(isize, isize, isize) -> bool {
         let last_dim = self.shape.len() - 1;
         let second_last_dim = self.shape.len() - 2;

@@ -1,3 +1,4 @@
+use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
     types::numeric::Numeric,
@@ -99,5 +100,5 @@ pub trait ArrayIndexing<N: Numeric> where Self: Sized + Clone {
     /// let slice_1 = arr.slice(0..1).unwrap();
     /// assert_eq!(format!("{expected}"), format!("{slice_1}"));
     /// ```
-    fn slice(&self, range: std::ops::Range<usize>) -> Result<Self, ArrayError>;
+    fn slice(&self, range: std::ops::Range<usize>) -> Result<Array<N>, ArrayError>;
 }

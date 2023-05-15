@@ -1,3 +1,4 @@
+use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
     types::numeric::Numeric,
@@ -27,7 +28,7 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[1, 2], [3, 4], [5, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::concatenate(vec![arr, other], Some(0)).unwrap());
     /// ```
-    fn concatenate(arrs: Vec<Self>, axis: Option<usize>) -> Result<Self, ArrayError>;
+    fn concatenate(arrs: Vec<Array<N>>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
 
     /// Join a sequence of arrays along a new axis
     ///
@@ -50,7 +51,7 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::stack(vec![arr, other], Some(0)).unwrap());
     /// ```
-    fn stack(arrs: Vec<Self>, axis: Option<usize>) -> Result<Self, ArrayError>;
+    fn stack(arrs: Vec<Array<N>>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
 
     /// Stack arrays in sequence vertically (row wise)
     ///
@@ -72,7 +73,7 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[1], [2], [3], [4], [5], [6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::vstack(vec![arr, other]).unwrap());
     /// ```
-    fn vstack(arrs: Vec<Self>) -> Result<Self, ArrayError>;
+    fn vstack(arrs: Vec<Array<N>>) -> Result<Array<N>, ArrayError>;
 
     /// Stack arrays in sequence horizontally (column wise)
     ///
@@ -94,7 +95,7 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[1, 4], [2, 5], [3, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::hstack(vec![arr, other]).unwrap());
     /// ```
-    fn hstack(arrs: Vec<Self>) -> Result<Self, ArrayError>;
+    fn hstack(arrs: Vec<Array<N>>) -> Result<Array<N>, ArrayError>;
 
     /// Stack arrays in sequence depth wise (along third axis)
     ///
@@ -116,7 +117,7 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[[1, 4]], [[2, 5]], [[3, 6]]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::dstack(vec![arr, other]).unwrap());
     /// ```
-    fn dstack(arrs: Vec<Self>) -> Result<Self, ArrayError>;
+    fn dstack(arrs: Vec<Array<N>>) -> Result<Array<N>, ArrayError>;
 
     /// Stack 1d or 2d arrays as columns into a 2d array
     /// row_stack is an alias for vstack
@@ -134,7 +135,7 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[1, 4], [2, 5], [3, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::column_stack(vec![arr, other]).unwrap());
     /// ```
-    fn column_stack(arrs: Vec<Self>) -> Result<Self, ArrayError>;
+    fn column_stack(arrs: Vec<Array<N>>) -> Result<Array<N>, ArrayError>;
 
     /// Stack arrays in sequence vertically (row wise)
     ///
@@ -156,5 +157,5 @@ pub trait ArrayStack<N: Numeric> where Self: Sized + Clone {
     /// let expected: Array<i32> = array!([[1], [2], [3], [4], [5], [6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::row_stack(vec![arr, other]).unwrap());
     /// ```
-    fn row_stack(arrs: Vec<Self>) -> Result<Self, ArrayError>;
+    fn row_stack(arrs: Vec<Array<N>>) -> Result<Array<N>, ArrayError>;
 }

@@ -17,7 +17,10 @@ use crate::traits::{
     create::ArrayCreate,
     errors::ArrayError,
     indexing::ArrayIndexing,
-    manipulate::ArrayManipulate,
+    manipulate::{
+        ArrayManipulate,
+        iter::ArrayIter,
+    },
     meta::ArrayMeta,
     types::{
         numeric::Numeric,

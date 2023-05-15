@@ -128,6 +128,33 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
     }
 }
 
+impl <N: Numeric> ArrayAxis<N> for Result<Array<N>, ArrayError> {
+
+    fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.transpose(axes)
+    }
+
+    fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.moveaxis(source, destination)
+    }
+
+    fn rollaxis(&self, axis: isize, start: Option<isize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.rollaxis(axis, start)
+    }
+
+    fn swapaxes(&self, axis: isize, start: isize) -> Result<Array<N>, ArrayError> {
+        self.clone()?.swapaxes(axis, start)
+    }
+
+    fn expand_dims(&self, axes: Vec<isize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.expand_dims(axes)
+    }
+
+    fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.squeeze(axes)
+    }
+}
+
 impl <N: Numeric> Array<N> {
 
     fn normalize_axis(&self, axis: isize, ndim: Option<usize>) -> usize {

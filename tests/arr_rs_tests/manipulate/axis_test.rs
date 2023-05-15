@@ -85,7 +85,7 @@ case(array_arange!(1, 8).reshape(vec![2, 2, 1, 2, 1]), Some(vec![1]), Err(ArrayE
 case(array_arange!(1, 8).reshape(vec![2, 2, 1, 2, 1]), Some(vec![2, 3, 4]), Err(ArrayError::SqueezeShapeOfAxisMustBeOne)),
 )] fn test_squeeze(arr: Result<Array<i32>, ArrayError>, axis: Option<Vec<isize>>, expected: Result<Vec<usize>, ArrayError>) {
     match expected {
-        Ok(expected) => assert_eq!(expected, arr.unwrap().squeeze(axis).unwrap().get_shape()),
-        Err(err) => assert_eq!(Err(err), arr.unwrap().squeeze(axis)),
+        Ok(expected) => assert_eq!(expected, arr.squeeze(axis).get_shape()),
+        Err(err) => assert_eq!(Err(err), arr.squeeze(axis)),
     }
 }

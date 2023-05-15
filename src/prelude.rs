@@ -1,12 +1,16 @@
 // traits traits
 pub use crate::traits::{
     errors::ArrayError,
-    create::ArrayCreate,
+    create::{
+        ArrayCreate,
+        ArrayCreateFrom,
+    },
     indexing::ArrayIndexing,
     manipulate::{
         ArrayManipulate,
         axis::ArrayAxis,
         broadcast::ArrayBroadcast,
+        iter::ArrayIter,
         split::ArraySplit,
         stack::ArrayStack,
     },

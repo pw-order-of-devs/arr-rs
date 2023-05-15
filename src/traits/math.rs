@@ -1,4 +1,8 @@
-use crate::traits::types::numeric::Numeric;
+use crate::arrays::Array;
+use crate::traits::{
+    errors::ArrayError,
+    types::numeric::Numeric,
+};
 
 /// ArrayTrait - Array Math functions
 pub trait ArrayMath<N: Numeric> where Self: Sized + Clone {
@@ -11,10 +15,10 @@ pub trait ArrayMath<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![1,2,3,4]);
-    /// let multiplied = arr.power(2);
+    /// let multiplied = arr.power(2).unwrap();
     /// assert_eq!(Array::flat(vec![1, 4, 9, 16]), multiplied);
     /// ```
-    fn power(&self, value: N) -> Self;
+    fn power(&self, value: N) -> Result<Array<N>, ArrayError>;
 
     /// Multiplication of array elements
     ///
@@ -24,10 +28,10 @@ pub trait ArrayMath<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![1,2,3,4]);
-    /// let multiplied = arr.product();
+    /// let multiplied = arr.product().unwrap();
     /// assert_eq!(24, multiplied);
     /// ```
-    fn product(&self) -> N;
+    fn product(&self) -> Result<N, ArrayError>;
 
     /// Sum of array elements
     ///
@@ -37,10 +41,10 @@ pub trait ArrayMath<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![1,2,3,4]);
-    /// let sum = arr.sum();
+    /// let sum = arr.sum().unwrap();
     /// assert_eq!(10, sum);
     /// ```
-    fn sum(&self) -> N;
+    fn sum(&self) -> Result<N, ArrayError>;
 
     /// Cumulative sum of array elements
     ///
@@ -50,8 +54,8 @@ pub trait ArrayMath<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![1,2,3,4]);
-    /// let sum = arr.cumsum();
+    /// let sum = arr.cumsum().unwrap();
     /// assert_eq!(Array::flat(vec![1, 3, 6, 10]), sum);
     /// ```
-    fn cumsum(&self) -> Self;
+    fn cumsum(&self) -> Result<Array<N>, ArrayError>;
 }
