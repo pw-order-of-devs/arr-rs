@@ -33,7 +33,7 @@ pub trait ArrayBroadcast<N: Numeric> where Self: Sized + Clone {
     /// let broadcast: Array<Tuple2<i32>> = arr_1.broadcast(&arr_2).unwrap();
     /// assert_eq!(expected, broadcast);
     /// ```
-    fn broadcast(&self, other: &Self) -> Result<Array<Tuple2<N>>, ArrayError>;
+    fn broadcast(&self, other: &Array<N>) -> Result<Array<Tuple2<N>>, ArrayError>;
 
     /// Broadcast an array to a new shape
     ///
@@ -52,7 +52,7 @@ pub trait ArrayBroadcast<N: Numeric> where Self: Sized + Clone {
     /// let broadcast: Array<i32> = arr_1.broadcast_to(vec![3, 3]).unwrap();
     /// assert_eq!(expected, broadcast);
     /// ```
-    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Self, ArrayError>;
+    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError>;
 
     /// Broadcast a list of arrays to a common shape
     ///
@@ -75,6 +75,6 @@ pub trait ArrayBroadcast<N: Numeric> where Self: Sized + Clone {
     /// let broadcast: Vec<Array<i32>> = Array::broadcast_arrays(vec![arr_1 ,arr_2]).unwrap();
     /// assert_eq!(expected, broadcast);
     /// ```
-    fn broadcast_arrays(arrays: Vec<Self>) -> Result<Vec<Self>, ArrayError>;
+    fn broadcast_arrays(arrays: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError>;
 }
 

@@ -15,7 +15,7 @@ use crate::traits::{
 
 impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
 
-    fn broadcast(&self, other: &Self) -> Result<Array<Tuple2<N>>, ArrayError> {
+    fn broadcast(&self, other: &Array<N>) -> Result<Array<Tuple2<N>>, ArrayError> {
         let validate_result = self.broadcast_validate_shapes(&other.get_shape());
         if validate_result.is_err() { return Err(validate_result.err().unwrap()) }
 
@@ -52,7 +52,7 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
         }
     }
 
-    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Self, ArrayError> {
+    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
         let validate_result = self.broadcast_validate_shapes(&shape);
         if validate_result.is_err() { return Err(validate_result.err().unwrap()) }
 
@@ -77,7 +77,7 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
         }
     }
 
-    fn broadcast_arrays(arrays: Vec<Self>) -> Result<Vec<Self>, ArrayError> {
+    fn broadcast_arrays(arrays: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError> {
         let shapes = arrays.iter()
             .map(|array| array.get_shape())
             .collect::<Vec<_>>();
@@ -93,6 +93,21 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
         } else {
             Err(common_shape.err().unwrap())
         }
+    }
+}
+
+impl <N: Numeric> ArrayBroadcast<N> for Result<Array<N>, ArrayError> {
+
+    fn broadcast(&self, other: &Array<N>) -> Result<Array<Tuple2<N>>, ArrayError> {
+        self.clone()?.broadcast(other)
+    }
+
+    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.broadcast_to(shape)
+    }
+
+    fn broadcast_arrays(arrays: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError> {
+        Array::broadcast_arrays(arrays)
     }
 }
 
