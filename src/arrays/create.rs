@@ -9,17 +9,20 @@ use crate::traits::{
     },
     meta::ArrayMeta,
     types::numeric::Numeric,
+    validators::{
+        validate_dimension::ValidateDimension,
+        validate_has_error::ValidateHasError,
+    },
 };
+use crate::traits::validators::validate_shape::ValidateShape;
 
 impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
     // ==== from data
 
     fn new(elements: Vec<N>, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
-        match elements.len() == shape.iter().product() {
-            true => Ok(Self { elements, shape, }),
-            false => Err(ArrayError::ShapeMustMatchValuesLength)
-        }
+        shape.matches_values_len(&elements)?;
+        Ok(Self { elements, shape, })
     }
 
     fn single(element: N) ->Self {
@@ -146,8 +149,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     fn logspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>, base: Option<&Array<usize>>) -> Result<Array<N>, ArrayError> {
         let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
         let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
-
-        if start.get_shape() != stop.get_shape() { return Err(ArrayError::ShapesMustMatch { s1: "start", s2: "stop", }); }
+        start.matches_shape(&stop.get_shape())?;
 
         let mut new_shape = vec![num.unwrap_or(50)];
         new_shape.extend(start.get_shape().iter().copied());
@@ -155,8 +157,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
         let base = base.unwrap_or(&Array::flat(vec![10])).clone();
         let base = if base.len() == 1 { Array::<usize>::full_like(&Array::rand(start.get_shape()), base[0]) } else { base };
-
-        if start.get_shape() != base.get_shape() { return Err(ArrayError::ShapesMustMatch { s1: "start", s2: "base", }); }
+        start.matches_shape(&base.get_shape())?;
 
         let values = start.into_iter().zip(stop).zip(base)
             .map(|((a, b), c)| Self::logspace(a, b, num, endpoint, Some(c)).get_elements())
@@ -189,8 +190,7 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     fn geomspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Array<N>, ArrayError> {
         let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
         let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
-
-        if start.get_shape() != stop.get_shape() { return Err(ArrayError::ShapesMustMatch { s1: "start", s2: "stop", }); }
+        start.matches_shape(&stop.get_shape())?;
 
         let mut new_shape = vec![num.unwrap_or(50)];
         new_shape.extend(start.get_shape().iter().copied());
@@ -199,13 +199,12 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::geomspace(a, b, num, endpoint))
             .collect::<Vec<Result<Array<N>, _>>>();
-        let has_error = values.clone().into_iter().find(|a| a.is_err());
-        if let Some(error) = has_error { return Err(error.err().unwrap()) }
+        values.has_error()?;
 
         let values = values.into_iter().map(|a| a.unwrap().get_elements()).collect::<Vec<Vec<N>>>();
-        let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(new_shape);
-        if let Err(error) = reshaped { Err(error) }
-        else { reshaped.unwrap().transpose(None) }
+        Self::flat(values.into_iter().flatten().collect())
+            .reshape(new_shape)?
+            .transpose(None)
     }
 
     // ==== matrices
@@ -229,9 +228,7 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
     // ==== matrices
 
     fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
-        if !vec![1, 2].contains(&self.ndim()) {
-            return Err(ArrayError::UnsupportedDimension { fun: "diag", supported: "1D and 2D", })
-        }
+        self.is_dim_supported(&[1, 2])?;
 
         fn diag_1d<N: Numeric>(data: &Array<N>, k: isize) -> Result<Array<N>, ArrayError> {
             let size = data.get_shape()[0];
@@ -290,7 +287,7 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
     }
 
     fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Array<N>, ArrayError> {
-        if self.ndim() != 1 { return Err(ArrayError::UnsupportedDimension { fun: "vander", supported: "1D", }) }
+        self.is_dim_supported(&[1])?;
 
         let size = self.shape[0];
         let increasing = increasing.unwrap_or(false);

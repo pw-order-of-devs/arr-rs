@@ -25,20 +25,21 @@ use crate::traits::{
     },
     meta::ArrayMeta,
     types::numeric::Numeric,
+    validators::{
+        validate_axis::ValidateAxis,
+        validate_dimension::ValidateDimension,
+        validate_compare::ValidateEqual,
+        validate_shape::ValidateShape,
+    },
 };
 
 impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
     fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
-        if axis.is_some() && axis.unwrap() >= self.ndim() { return Err(ArrayError::AxisOutOfBounds) }
-
-        if indices.len() > 1 {
-            let validate_result = values.broadcast_to(vec![indices.len()]);
-            if validate_result.is_err() { return Err(validate_result.err().unwrap()) }
-        }
+        if indices.len() > 1 { values.is_broadcastable(&[indices.len()])?; }
         if axis.is_some() {
-            let validate_result = values.broadcast_to(self.get_shape());
-            if validate_result.is_err() { return Err(validate_result.err().unwrap()) }
+            self.axis_in_bounds(axis.unwrap())?;
+            values.is_broadcastable(&self.get_shape())?;
         }
 
         let values = if axis.unwrap_or(0) > 0 { values.ravel()? } else { values.clone() };
@@ -50,11 +51,12 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
             } else { (1, 1, self.len()) };
 
         let mut new_shape = self.shape.clone();
-        if let Some(axis) = axis {
-            if self.ndim() > values.ndim() { new_shape[axis] += indices.len(); }
-            else { new_shape[axis] += values.shape[axis % values.ndim()]; }
-        } else {
-            new_shape = vec![self.elements.len() + std::cmp::max(values.len(), indices.len())];
+        match axis {
+            Some(axis) => {
+                if self.ndim() > values.ndim() { new_shape[axis] += indices.len(); }
+                else { new_shape[axis] += values.shape[axis % values.ndim()]; }
+            },
+            None => new_shape = vec![self.elements.len() + std::cmp::max(values.len(), indices.len())],
         }
 
         let axis_some_cond = axis.is_some() && !(indices.len() == 1 || values.len() == 1 || values.len() == chunk_size * subarrays);
@@ -80,12 +82,11 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
         let values =
             if axis.is_some() { Ok(values.clone().into_iter().cycle().take(values.len() * indices.len()).collect()) }
             else if values.len() == 1 { values.broadcast_to(vec![indices.len()]) }
-            else { Ok(values) };
-        if values.is_err() { return Err(values.err().unwrap()) }
+            else { Ok(values) }?;
 
         let mut new_elements = self.elements.clone();
         indices.iter().sorted().rev()
-            .zip(&values.unwrap().get_elements().iter().copied().rev().collect::<Vec<N>>())
+            .zip(&values.get_elements().iter().copied().rev().collect::<Vec<N>>())
             .for_each(|(&i, &e)| new_elements.insert(i, e));
 
         Self::new(new_elements, new_shape)
@@ -93,7 +94,7 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
     fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            if axis >= self.ndim() { return Err(ArrayError::AxisOutOfBounds) }
+            self.axis_in_bounds(axis)?;
             let mut sorted_indices = indices;
             sorted_indices.sort();
             sorted_indices.dedup();
@@ -129,11 +130,10 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
 
     fn append(&self, values: &Self, axis: Option<usize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            if axis >= self.ndim() {
-                return Err(ArrayError::AxisOutOfBounds)
-            } else if self.ndim() != values.ndim() {
+            self.axis_in_bounds(axis)?;
+            if self.ndim().is_equal(&values.ndim()).is_err() {
                 return Err(ArrayError::ParameterError { param: "values", message: "input array should have the same dimension as the original one", })
-            } else if self.get_shape().remove_at(axis) != values.get_shape().remove_at(axis) {
+            } else if self.get_shape().remove_at(axis).is_equal(&values.get_shape().remove_at(axis)).is_err() {
                 return Err(ArrayError::ParameterError { param: "axis", message: "input array dimensions for the concatenation axis must match exactly", })
             }
 
@@ -161,11 +161,8 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
     }
 
     fn reshape(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
-        if self.elements.len() != shape.iter().product() {
-            Err(ArrayError::ShapeMustMatchValuesLength)
-        } else {
-            Self::new(self.elements.clone(), shape)
-        }
+        shape.matches_values_len(&self.get_elements())?;
+        Self::new(self.elements.clone(), shape)
     }
 
     fn resize(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
@@ -188,12 +185,9 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
                 let new_shape = self.get_shape()
                     .remove_at(axis)
                     .insert_at(axis, parts.len());
-                let result = Array::new(flat_parts, new_shape);
-                if !(axis > 0 && axis < self.ndim() - 1) { result }
-                else { match result {
-                    Ok(res) => res.rollaxis(axis as isize, None),
-                    Err(e) => Err(e)
-                } }
+                let result = Array::new(flat_parts, new_shape)?;
+                if !(axis > 0 && axis < self.ndim() - 1) { Ok(result) }
+                else { result.rollaxis(axis as isize, None) }
             }
         } else {
             let mut new_elements = self.get_elements().into_iter()
@@ -214,12 +208,13 @@ impl <N: Numeric> ArrayManipulate<N> for Array<N> {
             1 => Self::atleast_1d(self),
             2 => Self::atleast_2d(self),
             3 => Self::atleast_3d(self),
-            _ => Err(ArrayError::UnsupportedDimension { fun: "atleast", supported: "[1D, 2D, 3D]", }),
+            _ => Err(ArrayError::UnsupportedDimension { supported: vec![0, 1, 2, 3] }),
         }
     }
 
     fn trim_zeros(&self) -> Result<Array<N>, ArrayError> {
-        if self.ndim() != 1 { return Err(ArrayError::UnsupportedDimension { fun: "trim_zeros", supported: "1D", }) }
+        self.is_dim_supported(&[1])?;
+
         let new_elements = self.get_elements()
             .into_iter().rev()
             .skip_while(|&e| e == N::ZERO)

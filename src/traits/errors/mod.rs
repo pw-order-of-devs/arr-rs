@@ -10,9 +10,9 @@ pub enum ArrayError {
     /// Shape of two arrays must match
     ShapesMustMatch {
         /// first shape to match
-        s1: &'static str,
+        shape_1: Vec<usize>,
         /// second shape to match
-        s2: &'static str,
+        shape_2: Vec<usize>,
     },
     /// Axis to perform squeeze on must have a size of one
     SqueezeShapeOfAxisMustBeOne,
@@ -32,10 +32,20 @@ pub enum ArrayError {
     },
     /// Not defined for given dimension of input array
     UnsupportedDimension {
-        /// function name
-        fun: &'static str,
         /// supported dimensions
-        supported: &'static str,
+        supported: Vec<usize>,
+    },
+    /// Collection must contain unique elements
+    MustBeUnique {
+        /// value
+        value: String,
+    },
+    /// Values must be equal
+    MustBeEqual {
+        /// value 1
+        value1: String,
+        /// value 2
+        value2: String,
     },
 }
 
@@ -47,12 +57,14 @@ impl std::fmt::Display for ArrayError {
             ArrayError::BroadcastShapeMismatch => write!(f, "Incompatible shapes for broadcasting"),
             ArrayError::ConcatenateShapeMismatch => write!(f, "Incompatible shapes for concatenate"),
             ArrayError::ShapeMustMatchValuesLength => write!(f, "Shape must match values length"),
-            ArrayError::ShapesMustMatch { s1, s2 } => write!(f, "Shapes of {s1} and {s2} must match"),
+            ArrayError::ShapesMustMatch { shape_1, shape_2 } => write!(f, "Shapes of {shape_1:?} and {shape_2:?} must match"),
             ArrayError::SqueezeShapeOfAxisMustBeOne => write!(f, "cannot select an axis to squeeze out which has size not equal to one"),
             ArrayError::AxisOutOfBounds => write!(f, "`axis` is out of bounds for array"),
             ArrayError::OutOfBounds { value } => write!(f, "`{value}` is out of bounds"),
             ArrayError::ParameterError { param, message } => write!(f, "parameter error: `{param}`: {message}"),
-            ArrayError::UnsupportedDimension { fun, supported } => write!(f, "`{fun}` is defined only for {supported} dimensions"),
+            ArrayError::UnsupportedDimension { supported } => write!(f, "supported dimensions are: {supported:?}"),
+            ArrayError::MustBeUnique { value } => write!(f, "`{value}` must be unique"),
+            ArrayError::MustBeEqual { value1, value2 } => write!(f, "`{value1}` and `{value2}` must be equal"),
         }
     }
 }
