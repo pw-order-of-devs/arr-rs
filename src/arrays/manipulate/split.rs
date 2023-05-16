@@ -10,13 +10,18 @@ use crate::traits::{
     math::ArrayMath,
     meta::ArrayMeta,
     types::numeric::Numeric,
+    validators::{
+        validate_axis::ValidateAxis,
+        validate_dimension::ValidateDimension,
+        validate_has_error::ValidateHasError,
+    },
 };
 
 impl <N: Numeric> ArraySplit<N> for Array<N> {
 
     fn array_split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<N>>, ArrayError> {
         if parts == 0 { return Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", }) }
-        if let Some(axis) = axis { if axis >= self.ndim() { return Err(ArrayError::AxisOutOfBounds) } }
+        self.axis_opt_in_bounds(axis)?;
         if self.is_empty() { return Ok(vec![self.clone()]) }
 
         let axis = axis.unwrap_or(0);
@@ -50,8 +55,7 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
                     }
                 })
                 .collect::<Vec<Result<Self, _>>>();
-            let has_error = result.clone().into_iter().find(|a| a.is_err());
-            if let Some(error) = has_error { Err(error.err().unwrap()) }
+            if let Err(err) = result.has_error() { Err(err) }
             else { Ok(result.into_iter().map(|a| a.unwrap()).collect()) }
         } else {
             Err(arr.err().unwrap())
@@ -59,10 +63,9 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
     }
 
     fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<N>>, ArrayError> {
+        self.axis_opt_in_bounds(axis)?;
         if parts == 0 {
             Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
-        } else if axis.is_some() && axis.unwrap() >= self.ndim() {
-            Err(ArrayError::AxisOutOfBounds)
         } else {
             if self.is_empty() { return Ok(vec![self.clone()]) }
             let n_total = self.shape[axis.unwrap_or(0)];
@@ -73,9 +76,8 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
     }
 
     fn hsplit(&self, parts: usize) -> Result<Vec<Array<N>>, ArrayError> {
-        if self.ndim() == 0 {
-            Err(ArrayError::UnsupportedDimension { fun: "hsplit", supported: "at least 1D", })
-        } else if parts == 0 {
+        self.is_dim_unsupported(&[0])?;
+        if parts == 0 {
             Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
         } else {
             match self.ndim() {
@@ -86,9 +88,8 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
     }
 
     fn vsplit(&self, parts: usize) -> Result<Vec<Array<N>>, ArrayError> {
-        if self.ndim() < 2 {
-            Err(ArrayError::UnsupportedDimension { fun: "vsplit", supported: "at least 2D", })
-        } else if parts == 0 {
+        self.is_dim_unsupported(&[0, 1])?;
+        if parts == 0 {
             Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
         } else {
             self.split(parts, Some(0))
@@ -96,9 +97,8 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
     }
 
     fn dsplit(&self, parts: usize) -> Result<Vec<Array<N>>, ArrayError> {
-        if self.ndim() < 3 {
-            Err(ArrayError::UnsupportedDimension { fun: "dsplit", supported: "at least 3D", })
-        } else if parts == 0 {
+        self.is_dim_unsupported(&[0, 1, 2])?;
+        if parts == 0 {
             Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
         } else {
             self.split(parts, Some(2))

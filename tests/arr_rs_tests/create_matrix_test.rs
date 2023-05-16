@@ -11,7 +11,7 @@ case(array_arange!(0, 15).reshape(vec![4, 4]), Some(1), array!([1, 6, 11])),
 case(array_arange!(0, 15).reshape(vec![4, 4]), Some(-1), array!([4, 9, 14])),
 case(array_arange!(0, 15).reshape(vec![4, 4]), Some(3), array!([3])),
 case(array_arange!(0, 15).reshape(vec![4, 4]), Some(-3), array!([12])),
-case(array_arange!(0, 7).reshape(vec![2, 2, 2]), None, Err(ArrayError::UnsupportedDimension { fun: "diag", supported: "1D and 2D" })),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), None, Err(ArrayError::UnsupportedDimension { supported: vec![1, 2] })),
 )] fn test_diag(array: Result<Array<i32>, ArrayError>, k: Option<isize>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, Array::diag(&array.unwrap(), k))
 }

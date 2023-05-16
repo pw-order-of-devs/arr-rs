@@ -1,4 +1,3 @@
-use std::collections::HashSet;
 use itertools::Itertools;
 use crate::arrays::Array;
 use crate::prelude::ArrayManipulate;
@@ -8,6 +7,10 @@ use crate::traits::{
     meta::ArrayMeta,
     create::ArrayCreate,
     types::numeric::Numeric,
+};
+use crate::traits::validators::{
+    validate_compare::ValidateEqual,
+    validate_unique::ValidateUnique,
 };
 
 impl <N: Numeric> ArrayAxis<N> for Array<N> {
@@ -58,11 +61,12 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
     }
 
     fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Result<Self, ArrayError> {
-        assert_eq!(source.len(), destination.len(), "`source` and `destination` should have the same length");
+        source.is_unique()?;
+        source.len().is_equal(&destination.len())?;
         let source = source.iter().map(|i| self.normalize_axis(*i, None)).collect::<Vec<usize>>();
         let destination = destination.iter().map(|i| self.normalize_axis(*i, None)).collect::<Vec<usize>>();
-        assert_eq!(HashSet::<usize>::from_iter(source.iter().cloned()).len(), source.len(), "`source` axes should be unique");
-        assert_eq!(HashSet::<usize>::from_iter(destination.iter().cloned()).len(), destination.len(), "`destination` axes should be unique");
+        source.is_unique()?;
+        destination.is_unique()?;
 
         let mut order = (0 .. self.ndim())
             .filter(|f| !source.contains(f))
@@ -119,10 +123,11 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
             let mut new_shape = self.get_shape();
 
             if axes.iter().any(|a| self.get_shape()[*a] != 1) {
-                return Err(ArrayError::SqueezeShapeOfAxisMustBeOne)
+                Err(ArrayError::SqueezeShapeOfAxisMustBeOne)
+            } else {
+                for item in axes { new_shape.remove(item); }
+                self.reshape(new_shape)
             }
-            for item in axes { new_shape.remove(item); }
-            self.reshape(new_shape)
         }
         else { self.reshape(self.get_shape().into_iter().filter(|&i| i != 1).collect()) }
     }

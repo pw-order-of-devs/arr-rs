@@ -131,9 +131,9 @@ case(array!([1]), 1, array!([1])),
 case(array!([1, 2]), 2, array!([[1, 2]])),
 case(array!([1, 2]), 3, array!([[[1], [2]]])),
 case(array!([[[1], [2]]]), 3, array!([[[1], [2]]])),
-case(array!([[[2, 2], [2, 2]], [[2, 2], [2, 2]]]), 4, Err(ArrayError::UnsupportedDimension { fun: "atleast", supported: "[1D, 2D, 3D]" })),
+case(array!([[[2, 2], [2, 2]], [[2, 2], [2, 2]]]), 4, Err(ArrayError::UnsupportedDimension { supported: vec![0, 1, 2, 3] })),
 )] fn test_atleast(arr: Result<Array<i32>, ArrayError>, dim: usize, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, arr.unwrap().atleast(dim))
+    assert_eq!(expected, arr.atleast(dim))
 }
 
 #[rstest(
@@ -143,7 +143,7 @@ case(array!([0, 0, 1, 2, 3, 4]), array!([1, 2, 3, 4])),
 case(array!([0, 0, 1, 2, 3, 4]), array!([1, 2, 3, 4])),
 case(array!([0, 0, 1, 2, 3, 4, 0, 0]), array!([1, 2, 3, 4])),
 case(array!([0, 0, 0, 0]), Ok(Array::empty())),
-case(array!([[1, 2]]), Err(ArrayError::UnsupportedDimension { fun: "trim_zeros", supported: "1D" })),
+case(array!([[1, 2]]), Err(ArrayError::UnsupportedDimension { supported: vec![1] })),
 )] fn test_trim_zeros(arr: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, arr.unwrap().trim_zeros())
+    assert_eq!(expected, arr.trim_zeros())
 }

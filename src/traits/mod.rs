@@ -14,3 +14,6 @@ pub mod errors;
 
 /// Numeric types for which array is implemented
 pub mod types;
+
+/// Validators for the library
+pub(crate) mod validators;
