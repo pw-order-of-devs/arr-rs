@@ -9,6 +9,12 @@ use crate::traits::{
     },
     meta::ArrayMeta,
     types::numeric::Numeric,
+    validators::{
+        validate_axis::ValidateAxis,
+        validate_dimension::ValidateDimension,
+        validate_has_error::ValidateHasError,
+        validate_shape::ValidateShapeConcat,
+    },
 };
 
 impl <N: Numeric> ArrayStack<N> for Array<N> {
@@ -16,10 +22,7 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
     fn concatenate(arrs: Vec<Self>, axis: Option<usize>) -> Result<Self, ArrayError> {
         if arrs.is_empty() { Ok(Self::empty()) }
         else {
-            if let Some(axis) = axis {
-                let validate_result = Self::validate_stack_shapes(&arrs, axis, axis);
-                if validate_result.is_err() { return Err(validate_result.err().unwrap()); }
-            }
+            if let Some(axis) = axis { arrs.validate_stack_shapes(axis, axis)?; }
 
             let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
             let result = arrs.remove_at(0).into_iter()
@@ -29,10 +32,9 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
     }
 
     fn stack(arrs: Vec<Self>, axis: Option<usize>) -> Result<Self, ArrayError> {
+        arrs.axis_opt_in_bounds(axis)?;
         if arrs.is_empty() { Ok(Self::empty()) }
-        else if axis.is_some() && arrs.iter().any(|arr| axis.unwrap() >= arr.ndim()) {
-            Err(ArrayError::AxisOutOfBounds)
-        } else if (0..arrs.len() - 1).any(|i| arrs[i].get_shape() != arrs[i + 1].get_shape()) {
+        else if (0..arrs.len() - 1).any(|i| arrs[i].get_shape() != arrs[i + 1].get_shape()) {
             Err(ArrayError::ParameterError { param: "arrs", message: "all input arrays must have the same shape", })
         } else {
             let axis = axis.unwrap_or(0);
@@ -48,8 +50,7 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
     fn vstack(arrs: Vec<Self>) -> Result<Self, ArrayError> {
         if arrs.is_empty() { Ok(Self::empty()) }
         else {
-            let validate_result = Self::validate_stack_shapes(&arrs, 0, 0);
-            if validate_result.is_err() { return Err(validate_result.err().unwrap()); }
+            arrs.validate_stack_shapes(0, 0)?;
 
             let mut new_shape = arrs[0].get_shape();
             if new_shape.len() == 1 { new_shape.insert_at(0, arrs.len()); }
@@ -68,12 +69,10 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
             Self::concatenate(arrs, Some(0))
         } else {
             let arrs = arrs.iter().map(|arr| arr.atleast(2)).collect::<Vec<Result<Self, _>>>();
-            let has_error = arrs.clone().into_iter().find(|a| a.is_err());
-            if let Some(error) = has_error { return Err(error.err().unwrap()) }
+            arrs.has_error()?;
 
-            let arrs = arrs.into_iter().map(|a| a.unwrap()).collect();
-            let validate_result = Self::validate_stack_shapes(&arrs, 1, 0);
-            if validate_result.is_err() { return Err(validate_result.err().unwrap()); }
+            let arrs = arrs.into_iter().map(|a| a.unwrap()).collect::<Vec<Self<>>>();
+            arrs.validate_stack_shapes(1, 0)?;
 
             let mut new_shape = arrs[0].get_shape();
             new_shape[1] = arrs.iter().fold(0, |a, b| a + b.shape[1]);
@@ -89,12 +88,10 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
         if arrs.is_empty() { Ok(Self::empty()) }
         else {
             let arrs = arrs.iter().map(|arr| arr.atleast(3)).collect::<Vec<Result<Self, _>>>();
-            let has_error = arrs.clone().into_iter().find(|a| a.is_err());
-            if let Some(error) = has_error { return Err(error.err().unwrap()) }
+            arrs.has_error()?;
 
-            let arrs = arrs.into_iter().map(|a| a.unwrap()).collect();
-            let validate_result = Self::validate_stack_shapes(&arrs, 2, 0);
-            if validate_result.is_err() { return Err(validate_result.err().unwrap()); }
+            let arrs = arrs.into_iter().map(|a| a.unwrap()).collect::<Vec<Self<>>>();
+            arrs.validate_stack_shapes(2, 0)?;
 
             let mut new_shape = arrs[0].get_shape();
             new_shape[2] = arrs.iter().fold(0, |a, b| a + b.shape[2]);
@@ -110,9 +107,8 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
         if arrs.is_empty() { Ok(Self::empty()) }
         else {
             let (num_rows, mut total_cols) = (arrs[0].shape[0], 0);
-            if arrs.iter().any(|array| array.ndim() > 2) {
-                return Err(ArrayError::UnsupportedDimension { fun: "column_stack", supported: "1-D or 2-D", });
-            } else if arrs.iter().any(|array| array.shape[0] != num_rows) {
+            arrs.is_dim_supported(&[1, 2])?;
+            if arrs.iter().any(|array| array.shape[0] != num_rows) {
                 return Err(ArrayError::ParameterError { param: "arrs", message: "all input arrays must have the same first dimension", });
             }
 
@@ -140,22 +136,5 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
 
     fn row_stack(arrs: Vec<Self>) -> Result<Self, ArrayError> {
         Self::vstack(arrs)
-    }
-}
-
-impl <N: Numeric> Array<N> {
-
-    fn validate_stack_shapes(arrs: &Vec<Self>, axis: usize, remove_at: usize) -> Result<(), ArrayError> {
-        if arrs.iter().any(|arr| axis >= arr.ndim()) {
-            Err(ArrayError::AxisOutOfBounds)
-        } else if (0 .. arrs.len() - 1).any(|i| {
-            let shape_1 = arrs[i].get_shape().remove_at(remove_at);
-            let shape_2 = arrs[i + 1].get_shape().remove_at(remove_at);
-            shape_1 != shape_2
-        }) {
-            Err(ArrayError::ConcatenateShapeMismatch)
-        } else {
-            Ok(())
-        }
     }
 }
