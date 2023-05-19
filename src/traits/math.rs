@@ -14,9 +14,9 @@ pub trait ArrayMath<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::flat(vec![1,2,3,4]);
+    /// let arr = Array::flat(vec![1,2,3,4]).unwrap();
     /// let multiplied = arr.power(2).unwrap();
-    /// assert_eq!(Array::flat(vec![1, 4, 9, 16]), multiplied);
+    /// assert_eq!(Array::flat(vec![1, 4, 9, 16]).unwrap(), multiplied);
     /// ```
     fn power(&self, value: N) -> Result<Array<N>, ArrayError>;
 
@@ -53,9 +53,9 @@ pub trait ArrayMath<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::flat(vec![1,2,3,4]);
+    /// let arr = Array::flat(vec![1,2,3,4]).unwrap();
     /// let sum = arr.cumsum().unwrap();
-    /// assert_eq!(Array::flat(vec![1, 3, 6, 10]), sum);
+    /// assert_eq!(Array::flat(vec![1, 3, 6, 10]).unwrap(), sum);
     /// ```
     fn cumsum(&self) -> Result<Array<N>, ArrayError>;
 }

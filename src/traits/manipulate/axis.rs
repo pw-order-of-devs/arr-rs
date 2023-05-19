@@ -42,8 +42,8 @@ pub trait ArrayAxis<N: Numeric> where Array<N>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
-    /// assert_eq!(vec![4, 5, 3], arr.moveaxis(vec![0], vec![2]).unwrap().get_shape());
-    /// assert_eq!(vec![5, 3, 4], arr.moveaxis(vec![2], vec![0]).unwrap().get_shape());
+    /// assert_eq!(vec![4, 5, 3], arr.moveaxis(vec![0], vec![2]).get_shape().unwrap());
+    /// assert_eq!(vec![5, 3, 4], arr.moveaxis(vec![2], vec![0]).get_shape().unwrap());
     /// ```
     fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Result<Array<N>, ArrayError>;
 
@@ -60,8 +60,8 @@ pub trait ArrayAxis<N: Numeric> where Array<N>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
-    /// assert_eq!(vec![4, 3, 5], arr.rollaxis(1, None).unwrap().get_shape());
-    /// assert_eq!(vec![3, 5, 4], arr.rollaxis(2, Some(1)).unwrap().get_shape());
+    /// assert_eq!(vec![4, 3, 5], arr.rollaxis(1, None).get_shape().unwrap());
+    /// assert_eq!(vec![3, 5, 4], arr.rollaxis(2, Some(1)).get_shape().unwrap());
     /// ```
     fn rollaxis(&self, axis: isize, start: Option<isize>) -> Result<Array<N>, ArrayError>;
 
@@ -78,8 +78,8 @@ pub trait ArrayAxis<N: Numeric> where Array<N>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
-    /// assert_eq!(vec![5, 4, 3], arr.swapaxes(0, 2).unwrap().get_shape());
-    /// assert_eq!(vec![3, 5, 4], arr.swapaxes(2, 1).unwrap().get_shape());
+    /// assert_eq!(vec![5, 4, 3], arr.swapaxes(0, 2).get_shape().unwrap());
+    /// assert_eq!(vec![3, 5, 4], arr.swapaxes(2, 1).get_shape().unwrap());
     /// ```
     fn swapaxes(&self, axis: isize, start: isize) -> Result<Array<N>, ArrayError>;
 
@@ -95,8 +95,8 @@ pub trait ArrayAxis<N: Numeric> where Array<N>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![3, 4, 5]);
-    /// assert_eq!(vec![1, 3, 4, 5], arr.expand_dims(vec![0]).unwrap().get_shape());
-    /// assert_eq!(vec![3, 1, 4, 1, 5], arr.expand_dims(vec![1, 3]).unwrap().get_shape());
+    /// assert_eq!(vec![1, 3, 4, 5], arr.expand_dims(vec![0]).get_shape().unwrap());
+    /// assert_eq!(vec![3, 1, 4, 1, 5], arr.expand_dims(vec![1, 3]).get_shape().unwrap());
     /// ```
     fn expand_dims(&self, axes: Vec<isize>) -> Result<Array<N>, ArrayError>;
 
@@ -112,9 +112,9 @@ pub trait ArrayAxis<N: Numeric> where Array<N>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::<i32>::zeros(vec![1, 3, 1, 4, 5]);
-    /// assert_eq!(vec![3, 4, 5], arr.squeeze(None).unwrap().get_shape());
-    /// assert_eq!(vec![3, 1, 4, 5], arr.squeeze(Some(vec![0])).unwrap().get_shape());
-    /// assert_eq!(vec![1, 3, 4, 5], arr.squeeze(Some(vec![2])).unwrap().get_shape());
+    /// assert_eq!(vec![3, 4, 5], arr.squeeze(None).get_shape().unwrap());
+    /// assert_eq!(vec![3, 1, 4, 5], arr.squeeze(Some(vec![0])).get_shape().unwrap());
+    /// assert_eq!(vec![1, 3, 4, 5], arr.squeeze(Some(vec![2])).get_shape().unwrap());
     /// ```
     fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError>;
 }

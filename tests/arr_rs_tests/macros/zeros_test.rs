@@ -6,6 +6,6 @@ arr, expected,
 case(array_zeros!(8), array![0, 0, 0, 0, 0, 0, 0, 0]),
 case(array_zeros!(3, 3), array!([[0, 0, 0], [0, 0, 0], [0, 0, 0]])),
 case(array_zeros!(2, 2, 2), array!([[[0, 0], [0, 0]], [[0, 0], [0, 0]]])),
-)] fn test_zeros_array_macro(arr: Array<i32>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected.unwrap(), arr);
+)] fn test_zeros_array_macro(arr: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, arr);
 }

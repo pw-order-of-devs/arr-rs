@@ -4,7 +4,10 @@ use crate::traits::{
     errors::ArrayError,
     meta::ArrayMeta,
     types::numeric::Numeric,
-    validators::validate_axis::ValidateAxis,
+    validators::{
+        validate_axis::ValidateAxis,
+        validate_has_error::ValidateHasError,
+    },
 };
 
 pub(crate) trait ValidateShape {
@@ -48,15 +51,15 @@ impl ValidateShape for Vec<usize> {
 impl <N: Numeric> ValidateShape for Array<N> {
 
     fn is_broadcastable(&self, other: &[usize]) -> Result<(), ArrayError> {
-        self.get_shape().is_broadcastable(other)
+        self.get_shape()?.is_broadcastable(other)
     }
 
     fn matches_values_len<T>(&self, other: &[T]) -> Result<(), ArrayError> {
-        self.get_shape().matches_values_len(other)
+        self.get_shape()?.matches_values_len(other)
     }
 
     fn matches_shape(&self, other: &[usize]) -> Result<(), ArrayError> {
-        self.get_shape().matches_shape(other)
+        self.get_shape()?.matches_shape(other)
     }
 }
 
@@ -69,9 +72,10 @@ impl <N: Numeric> ValidateShapeConcat for Vec<Array<N>> {
 
     fn validate_stack_shapes(&self, axis: usize, remove_at: usize) -> Result<(), ArrayError> {
         self.axis_in_bounds(axis)?;
+        self.iter().map(|a| a.get_shape()).collect::<Vec<Result<Vec<usize>, ArrayError>>>().has_error()?;
         if (0 .. self.len() - 1).any(|i| {
-            let shape_1 = self[i].get_shape().remove_at(remove_at);
-            let shape_2 = self[i + 1].get_shape().remove_at(remove_at);
+            let shape_1 = self[i].get_shape().unwrap().remove_at(remove_at);
+            let shape_2 = self[i + 1].get_shape().unwrap().remove_at(remove_at);
             shape_1 != shape_2
         }) {
             Err(ArrayError::ConcatenateShapeMismatch)

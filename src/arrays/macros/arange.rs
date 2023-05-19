@@ -5,9 +5,9 @@
 /// ```
 /// use arr_rs::prelude::*;
 ///
-/// let arr: Array<i32> = array_arange!(0, 4);
+/// let arr: Array<i32> = array_arange!(0, 4).unwrap();
 /// assert_eq!(array!([0, 1, 2, 3, 4]).unwrap(), arr);
-/// let arr: Array<i32> = array_arange!(0, 7, 2);
+/// let arr: Array<i32> = array_arange!(0, 7, 2).unwrap();
 /// assert_eq!(array!([0, 2, 4, 6]).unwrap(), arr);
 /// ```
 #[macro_export]

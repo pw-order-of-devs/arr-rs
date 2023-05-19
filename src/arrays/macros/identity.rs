@@ -5,10 +5,10 @@
 /// ```
 /// use arr_rs::prelude::*;
 ///
-/// let arr: Array<i32> = array_identity!(2);
-/// assert_eq!(vec![2, 2], arr.get_shape());
-/// let arr: Array<f64> = array_identity!(4);
-/// assert_eq!(vec![4, 4], arr.get_shape());
+/// let arr: Result<Array<i32>, ArrayError> = array_identity!(2);
+/// assert_eq!(vec![2, 2], arr.get_shape().unwrap());
+/// let arr: Result<Array<f64>, ArrayError> = array_identity!(4);
+/// assert_eq!(vec![4, 4], arr.get_shape().unwrap());
 /// ```
 #[macro_export]
 macro_rules! array_identity {
