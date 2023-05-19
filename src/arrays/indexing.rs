@@ -24,7 +24,7 @@ impl <N: Numeric> ArrayIndexing<N> for Array<N> {
     }
 
     fn index_to_coord(&self, idx: usize) -> Result<Vec<usize>, ArrayError> {
-        if idx >= self.len() {
+        if idx >= self.len()? {
             Err(ArrayError::ParameterError { param: "idx", message: "index must be smaller than array length", })
         } else {
             let result = self.shape.iter().rev().fold((idx, Vec::new()), |(ri, mut coords), &dim| {
@@ -48,7 +48,7 @@ impl <N: Numeric> ArrayIndexing<N> for Array<N> {
         }
 
         if self.shape.len() == 1 {
-            Ok(Self::flat(self.elements[range].into()))
+            Self::flat(self.elements[range].into())
         } else if range.len() >= self.shape[0] {
             Ok(self.clone())
         } else {

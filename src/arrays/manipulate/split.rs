@@ -22,10 +22,10 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
     fn array_split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<N>>, ArrayError> {
         if parts == 0 { return Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", }) }
         self.axis_opt_in_bounds(axis)?;
-        if self.is_empty() { return Ok(vec![self.clone()]) }
+        if self.is_empty()? { return Ok(vec![self.clone()]) }
 
         let axis = axis.unwrap_or(0);
-        let n_total = self.len();
+        let n_total = self.len()?;
 
         let (sections, extras) = (n_total / parts, n_total % parts);
         let section_sizes = std::iter::repeat(sections + 1)
@@ -36,7 +36,7 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
         let div_points = section_sizes.into_iter()
             .collect::<Array<usize>>()
             .cumsum()
-            .get_elements();
+            .get_elements()?;
 
         let arr = self.rollaxis(axis as isize, None);
         if let Ok(arr) = arr {
@@ -46,10 +46,10 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
                     .skip(w[0]).take(w[1] - w[0])
                     .collect::<Self>())
                 .map(|m| {
-                    if self.ndim() == 1 { Ok(m) }
+                    if self.ndim()? == 1 { Ok(m) }
                     else {
-                        let mut new_shape = self.get_shape();
-                        new_shape[axis] /= self.get_shape().remove_at(axis).iter().product::<usize>();
+                        let mut new_shape = self.get_shape()?;
+                        new_shape[axis] /= self.get_shape()?.remove_at(axis).iter().product::<usize>();
                         if new_shape[axis] == 0 { new_shape[axis] = 1 }
                         m.reshape(new_shape)
                     }
@@ -67,7 +67,7 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
         if parts == 0 {
             Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
         } else {
-            if self.is_empty() { return Ok(vec![self.clone()]) }
+            if self.is_empty()? { return Ok(vec![self.clone()]) }
             let n_total = self.shape[axis.unwrap_or(0)];
 
             if n_total % parts != 0 { Err(ArrayError::ParameterError { param: "parts", message: "array split does not result in an equal division", }) }
@@ -80,7 +80,7 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
         if parts == 0 {
             Err(ArrayError::ParameterError { param: "parts", message: "number of sections must be larger than 0", })
         } else {
-            match self.ndim() {
+            match self.ndim()? {
                 1 => self.split(parts, Some(0)),
                 _ => self.split(parts, Some(1)),
             }

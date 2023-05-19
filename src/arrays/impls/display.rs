@@ -12,18 +12,18 @@ impl <N: Numeric> std::fmt::Display for Array<N> {
 }
 
 fn build_string<N: Numeric>(arr: &Array<N>, precision: Option<usize>, alternate: bool) -> String {
-    if arr.is_empty() {
+    if arr.is_empty().unwrap_or(true) {
         "[]".to_string()
-    } else if arr.len() == 1 {
-        format!("[{}]", arr.get_elements()[0])
+    } else if arr.len().unwrap_or(0) == 1 {
+        format!("[{}]", arr.get_elements().unwrap()[0])
     } else {
-        let mut shape = arr.get_shape();
+        let mut shape = arr.get_shape().unwrap();
         shape.reverse();
         let multiply = shape.iter().enumerate()
             .map(|(idx, _)| shape[0..=idx].iter().product())
             .collect::<Vec<usize>>();
         let mut str = vec!["[".repeat(multiply.len())];
-        arr.get_elements().iter().enumerate().for_each(|(idx, &elem)|
+        arr.get_elements().unwrap().iter().enumerate().for_each(|(idx, &elem)|
             str.push(print_subarray(&shape, idx, elem, multiply.clone(), precision, alternate))
         );
         multiply.iter().for_each(|_| str.push("]".to_string()));
