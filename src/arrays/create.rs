@@ -25,26 +25,26 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         Ok(Self { elements, shape, })
     }
 
-    fn single(element: N) ->Self {
-        Self { elements: vec![element], shape: vec![1], }
+    fn single(element: N) -> Result<Self, ArrayError> {
+        Self::new(vec![element], vec![1])
     }
 
-    fn flat(elements: Vec<N>) -> Self {
-        Self { elements: elements.clone(), shape: vec![elements.len()], }
+    fn flat(elements: Vec<N>) -> Result<Self, ArrayError> {
+        Self::new(elements.clone(), vec![elements.len()])
     }
 
-    fn rand(shape: Vec<usize>) -> Self {
+    fn rand(shape: Vec<usize>) -> Result<Self, ArrayError> {
         let size = shape.iter().product();
         let mut elements: Vec<N> = Vec::with_capacity(size);
         (0..size).for_each(|_| elements.push(N::rand(N::ZERO..=N::ONE)));
-        Self { elements, shape }
+        Self::new(elements, shape)
     }
 
-    fn empty() -> Self {
-        Self { elements: Vec::<N>::new(), shape: vec![0], }
+    fn empty() -> Result<Self, ArrayError> {
+        Self::new(vec![], vec![0])
     }
 
-    fn eye(n: usize, m: Option<usize>, k: Option<usize>) -> Self {
+    fn eye(n: usize, m: Option<usize>, k: Option<usize>) -> Result<Self, ArrayError> {
         let m = m.unwrap_or(n);
         let k = k.unwrap_or(0);
 
@@ -55,45 +55,45 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
             })
             .collect();
 
-        Self { elements, shape: vec![n, m] }
+        Self::new(elements, vec![n, m])
     }
 
-    fn identity(n: usize) -> Self {
+    fn identity(n: usize) -> Result<Self, ArrayError> {
         let elements = (0 .. n * n)
             .map(|i|
                 if i % (n + 1) == 0 { N::ONE }
                 else { N::ZERO })
             .collect();
-        Self { elements, shape: vec![n, n] }
+        Self::new(elements, vec![n, n])
     }
 
-    fn zeros(shape: Vec<usize>) -> Self {
-        Self { elements: vec![N::ZERO; shape.iter().product()], shape: shape.clone(), }
+    fn zeros(shape: Vec<usize>) -> Result<Self, ArrayError> {
+        Self::new(vec![N::ZERO; shape.iter().product()], shape.clone())
     }
 
-    fn zeros_like(other: &Self) -> Self {
-        Self { elements: vec![N::ZERO; other.get_shape().iter().product()], shape: other.get_shape(), }
+    fn zeros_like(other: &Self) -> Result<Self, ArrayError> {
+        Self::new(vec![N::ZERO; other.get_shape()?.iter().product()], other.get_shape()?)
     }
 
-    fn ones(shape: Vec<usize>) -> Self {
-        Self { elements: vec![N::ONE; shape.iter().product()], shape: shape.clone(), }
+    fn ones(shape: Vec<usize>) -> Result<Self, ArrayError> {
+        Self::new(vec![N::ONE; shape.iter().product()], shape.clone())
     }
 
-    fn ones_like(other: &Self) -> Self {
-        Self { elements: vec![N::ONE; other.get_shape().iter().product()], shape: other.get_shape(), }
+    fn ones_like(other: &Self) -> Result<Self, ArrayError> {
+        Self::new(vec![N::ONE; other.get_shape()?.iter().product()], other.get_shape()?)
     }
 
-    fn full(shape: Vec<usize>, fill_value: N) -> Self {
-        Self { elements: vec![fill_value; shape.iter().product()], shape: shape.clone(), }
+    fn full(shape: Vec<usize>, fill_value: N) -> Result<Self, ArrayError> {
+        Self::new(vec![fill_value; shape.iter().product()], shape.clone())
     }
 
-    fn full_like(other: &Self, fill_value: N) -> Self {
-        Self { elements: vec![fill_value; other.get_shape().iter().product()], shape: other.get_shape(), }
+    fn full_like(other: &Self, fill_value: N) -> Result<Self, ArrayError> {
+        Self::new(vec![fill_value; other.get_shape()?.iter().product()], other.get_shape()?)
     }
 
     // ==== from range
 
-    fn arange(start: N, stop: N, step: Option<N>) -> Self {
+    fn arange(start: N, stop: N, step: Option<N>) -> Result<Self, ArrayError> {
         let step = step.unwrap_or(N::ONE).to_f64();
         let size = ((stop.to_f64() + 1. - start.to_f64()) / step).to_usize();
         let mut elements = Vec::with_capacity(size);
@@ -105,63 +105,69 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
         Self::flat(elements.into_iter().map(N::from).collect())
     }
 
-    fn linspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Self {
+    fn linspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Result<Self, ArrayError> {
         let (num, endpoint) = (num.unwrap_or(50), endpoint.unwrap_or(true));
         let delta = if endpoint { 1 } else { 0 };
         let step = (stop.to_f64() - start.to_f64()) / (num - delta) as f64;
 
-        (0..num)
+        let result = (0..num)
             .map(|i| start.to_f64() + i as f64 * step).enumerate()
             .map(|(i, val)| if endpoint && i == num - 1 { stop.to_f64() } else { val })
-            .map(N::from).collect()
+            .map(N::from).collect();
+        Ok(result)
     }
 
     fn linspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Array<N>, ArrayError> {
-        let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
-        let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
+        let start = if start.len()? == 1 { Self::full_like(stop, start[0])? } else { start.clone() };
+        let stop = if stop.len()? == 1 { Self::full_like(&start, stop[0])? } else { stop.clone() };
         assert_eq!(start.get_shape(), stop.get_shape());
         let mut new_shape = vec![num.unwrap_or(50)];
-        new_shape.extend(start.get_shape().iter().copied());
+        new_shape.extend(start.get_shape()?.iter().copied());
         new_shape.reverse();
 
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::linspace(a, b, num, endpoint).get_elements())
-            .collect::<Vec<Vec<N>>>();
+            .collect::<Vec<Result<Vec<N>, ArrayError>>>();
+        values.has_error()?;
+        let values = values.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Vec<N>>>();
         let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(new_shape);
         if let Err(error) = reshaped { Err(error) }
         else { reshaped?.transpose(None) }
     }
 
-    fn logspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>, base: Option<usize>) -> Self {
+    fn logspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>, base: Option<usize>) -> Result<Self, ArrayError> {
         let (num, endpoint, base) = (num.unwrap_or(50), endpoint.unwrap_or(true), base.unwrap_or(10).to_f64());
         let delta = if endpoint { 1 } else { 0 };
         let (log_start, log_stop) = (base.powf(start.to_f64()), base.powf(stop.to_f64()));
         let log_step = (log_stop / log_start).powf(1. / (num - delta) as f64);
 
-        (0..num)
+        let result = (0..num)
             .map(|i| log_start * log_step.powf(i as f64))
             .enumerate()
             .map(|(i, val)| if endpoint && i == num - 1 { log_stop } else { val })
             .map(N::from)
-            .collect()
+            .collect();
+        Ok(result)
     }
 
     fn logspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>, base: Option<&Array<usize>>) -> Result<Array<N>, ArrayError> {
-        let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
-        let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
-        start.matches_shape(&stop.get_shape())?;
+        let start = if start.len()? == 1 { Self::full_like(stop, start[0])? } else { start.clone() };
+        let stop = if stop.len()? == 1 { Self::full_like(&start, stop[0])? } else { stop.clone() };
+        start.matches_shape(&stop.get_shape()?)?;
 
         let mut new_shape = vec![num.unwrap_or(50)];
-        new_shape.extend(start.get_shape().iter().copied());
+        new_shape.extend(start.get_shape()?.iter().copied());
         new_shape.reverse();
 
-        let base = base.unwrap_or(&Array::flat(vec![10])).clone();
-        let base = if base.len() == 1 { Array::<usize>::full_like(&Array::rand(start.get_shape()), base[0]) } else { base };
-        start.matches_shape(&base.get_shape())?;
+        let base = base.unwrap_or(&Array::flat(vec![10])?).clone();
+        let base = if base.len()? == 1 { Array::<usize>::full_like(&Array::rand(start.get_shape()?)?, base[0])? } else { base };
+        start.matches_shape(&base.get_shape()?)?;
 
         let values = start.into_iter().zip(stop).zip(base)
             .map(|((a, b), c)| Self::logspace(a, b, num, endpoint, Some(c)).get_elements())
-            .collect::<Vec<Vec<N>>>();
+            .collect::<Vec<Result<Vec<N>, ArrayError>>>();
+        values.has_error()?;
+        let values = values.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Vec<N>>>();
         let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(new_shape);
         if let Err(error) = reshaped { Err(error) }
         else { reshaped.unwrap().transpose(None) }
@@ -188,20 +194,23 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
     }
 
     fn geomspace_a(start: &Self, stop: &Self, num: Option<usize>, endpoint: Option<bool>) -> Result<Array<N>, ArrayError> {
-        let start = if start.len() == 1 { Self::full_like(stop, start[0]) } else { start.clone() };
-        let stop = if stop.len() == 1 { Self::full_like(&start, stop[0]) } else { stop.clone() };
-        start.matches_shape(&stop.get_shape())?;
+        let start = if start.len()? == 1 { Self::full_like(stop, start[0])? } else { start.clone() };
+        let stop = if stop.len()? == 1 { Self::full_like(&start, stop[0])? } else { stop.clone() };
+        start.matches_shape(&stop.get_shape()?)?;
 
         let mut new_shape = vec![num.unwrap_or(50)];
-        new_shape.extend(start.get_shape().iter().copied());
+        new_shape.extend(start.get_shape()?.iter().copied());
         new_shape.reverse();
 
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::geomspace(a, b, num, endpoint))
             .collect::<Vec<Result<Array<N>, _>>>();
         values.has_error()?;
+        values.iter().map(|a| a.get_elements()).collect::<Vec<Result<Vec<N>, ArrayError>>>().has_error()?;
 
-        let values = values.into_iter().map(|a| a.unwrap().get_elements()).collect::<Vec<Vec<N>>>();
+        let values = values.into_iter()
+            .map(|a| a.unwrap().get_elements().unwrap())
+            .collect::<Vec<Vec<N>>>();
         Self::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)?
             .transpose(None)
@@ -231,17 +240,18 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
         self.is_dim_supported(&[1, 2])?;
 
         fn diag_1d<N: Numeric>(data: &Array<N>, k: isize) -> Result<Array<N>, ArrayError> {
-            let size = data.get_shape()[0];
+            let size = data.get_shape()?[0];
             let abs_k = k.unsigned_abs();
             let new_shape = vec![size + abs_k, size + abs_k];
+            let data_elements = data.get_elements()?;
             let elements = (0..new_shape[0] * new_shape[1])
                 .map(|idx| {
                     let (i, j) = (idx / new_shape[1], idx % new_shape[1]);
                     if k >= 0 && j == i + k as usize {
-                        if i < size { data.get_elements()[i] }
+                        if i < size { data_elements[i] }
                         else { N::ZERO }
                     } else if k < 0 && i == j + abs_k {
-                        if j < size { data.get_elements()[j] }
+                        if j < size { data_elements[j] }
                         else { N::ZERO }
                     } else {
                         N::ZERO
@@ -253,22 +263,23 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
         }
 
         fn diag_2d<N: Numeric>(data: &Array<N>, k: isize) -> Result<Array<N>, ArrayError> {
-            let rows = data.get_shape()[0];
-            let cols = data.get_shape()[1];
+            let rows = data.get_shape()?[0];
+            let cols = data.get_shape()?[1];
             let (start_row, start_col) =
                 if k >= 0 { (0, k as usize) }
                 else { ((-k) as usize, 0) };
 
+            let data_elements = data.get_elements()?;
             let elements = (start_row..rows)
                 .zip(start_col..cols)
-                .map(|(i, j)| data.get_elements()[i * cols + j])
+                .map(|(i, j)| data_elements[i * cols + j])
                 .collect::<Vec<N>>();
 
             Array::new(elements.clone(), vec![elements.len()])
         }
 
         let k = k.unwrap_or(0);
-        if self.ndim() == 1 { diag_1d(self, k) }
+        if self.ndim()? == 1 { diag_1d(self, k) }
         else { diag_2d(self, k) }
     }
 

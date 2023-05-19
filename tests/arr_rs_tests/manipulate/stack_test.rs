@@ -39,7 +39,7 @@ arrs, expected,
 case(vec![array!([1, 2, 3]), array!([4, 5, 6])], array!([[1, 2, 3], [4, 5, 6]])),
 case(vec![array!([[1, 2], [3, 4]]), array!([[5, 6], [7, 8], [9, 10]])], array!([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])),
 case(vec![array!([[1]]), array!([[2]]), array!([[3]])], array!([[1], [2], [3]])),
-case(vec![array!([[1, 2, 3], [1, 2, 3]]), Ok(Array::empty())], Err(ArrayError::ConcatenateShapeMismatch)),
+case(vec![array!([[1, 2, 3], [1, 2, 3]]), Array::empty()], Err(ArrayError::ConcatenateShapeMismatch)),
 case(vec![array!([[1, 2, 3], [1, 2, 3]]), array!([[5, 6]])], Err(ArrayError::ConcatenateShapeMismatch)),
 )] fn test_vstack(arrs: Vec<Result<Array<i32>, ArrayError>>, expected: Result<Array<i32>, ArrayError>) {
     let arrs = arrs.iter().map(|a| a.as_ref().unwrap().clone()).collect();
@@ -87,7 +87,7 @@ arrs, expected,
 case(vec![array!([1, 2, 3]), array!([4, 5, 6])], array!([[1, 2, 3], [4, 5, 6]])),
 case(vec![array!([[1, 2], [3, 4]]), array!([[5, 6], [7, 8], [9, 10]])], array!([[1, 2], [3, 4], [5, 6], [7, 8], [9, 10]])),
 case(vec![array!([[1]]), array!([[2]]), array!([[3]])], array!([[1], [2], [3]])),
-case(vec![array!([[1, 2, 3], [1, 2, 3]]), Ok(Array::empty())], Err(ArrayError::ConcatenateShapeMismatch)),
+case(vec![array!([[1, 2, 3], [1, 2, 3]]), Array::empty()], Err(ArrayError::ConcatenateShapeMismatch)),
 case(vec![array!([[1, 2, 3], [1, 2, 3]]), array!([[5, 6]])], Err(ArrayError::ConcatenateShapeMismatch)),
 )] fn test_row_stack(arrs: Vec<Result<Array<i32>, ArrayError>>, expected: Result<Array<i32>, ArrayError>) {
     let arrs = arrs.iter().map(|a| a.as_ref().unwrap().clone()).collect();

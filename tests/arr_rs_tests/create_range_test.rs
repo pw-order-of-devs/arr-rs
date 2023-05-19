@@ -7,7 +7,7 @@ case(0, 4, None, array!([0, 1, 2, 3, 4])),
 case(0, 4, Some(1), array!([0, 1, 2, 3, 4])),
 case(0, 7, Some(2), array!([0, 2, 4, 6])),
 )] fn test_arange(start: i32, stop: i32, step: Option<i32>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected.unwrap(), Array::arange(start, stop, step))
+    assert_eq!(expected, Array::arange(start, stop, step))
 }
 
 #[rstest(
@@ -18,7 +18,7 @@ case(0., 5., Some(5), Some(false), array!([0., 1., 2., 3., 4.])),
 case(0., 10., Some(6), Some(true), array!([0., 2., 4., 6., 8., 10.])),
 case(-1., 1., Some(5), None, array!([-1., -0.5, 0.0, 0.5, 1.])),
 )] fn test_linspace(start: f64, stop: f64, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(expected.unwrap(), Array::linspace(start, stop, num, endpoint))
+    assert_eq!(expected, Array::linspace(start, stop, num, endpoint))
 }
 
 #[rstest(
@@ -42,7 +42,7 @@ case(0., 5., Some(5), Some(false), array!([1., 10.000000000000002, 100.000000000
 case(0., 10., Some(6), Some(true), array!([1., 100.00000000000003, 10000.000000000005, 1000000.0000000008, 100000000.00000012, 10000000000.])),
 case(-1., 1., Some(5), None, array!([0.1, 0.316227766016838, 1.0000000000000002, 3.16227766016838, 10.])),
 )] fn test_logspace(start: f64, stop: f64, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(&expected.unwrap(), &Array::logspace(start, stop, num, endpoint, None))
+    assert_eq!(&expected, &Array::logspace(start, stop, num, endpoint, None))
 }
 
 #[rstest(

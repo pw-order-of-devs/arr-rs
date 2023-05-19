@@ -5,10 +5,10 @@
 /// ```
 /// use arr_rs::prelude::*;
 ///
-/// let arr: Array<i32> = array_zeros!(8);
-/// assert_eq!(array!([0, 0, 0, 0, 0, 0, 0, 0]).unwrap(), arr);
-/// let arr: Array<f64> = array_zeros!(2, 2, 2);
-/// assert_eq!(array!([[[0, 0], [0, 0]], [[0, 0], [0, 0]]]).unwrap(), arr);
+/// let arr: Result<Array<i32>, ArrayError> = array_zeros!(8);
+/// assert_eq!(array!([0, 0, 0, 0, 0, 0, 0, 0]), arr);
+/// let arr: Result<Array<f64>, ArrayError> = array_zeros!(2, 2, 2);
+/// assert_eq!(array!([[[0, 0], [0, 0]], [[0, 0], [0, 0]]]), arr);
 /// ```
 #[macro_export]
 macro_rules! array_zeros {

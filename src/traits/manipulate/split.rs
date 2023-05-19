@@ -20,11 +20,11 @@ pub trait ArraySplit<N: Numeric> where Self: Sized + Clone {
     ///
     /// let arr = array_arange!(0, 7);
     /// let split = arr.array_split(3, None).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1, 2), array_flat!(3, 4, 5), array_flat!(6, 7)], split);
+    /// assert_eq!(vec![array_flat!(0, 1, 2).unwrap(), array_flat!(3, 4, 5).unwrap(), array_flat!(6, 7).unwrap()], split);
     ///
     /// let arr = array_arange!(0, 8);
     /// let split = arr.array_split(4, None).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1, 2), array_flat!(3, 4), array_flat!(5, 6), array_flat!(7, 8)], split);
+    /// assert_eq!(vec![array_flat!(0, 1, 2).unwrap(), array_flat!(3, 4).unwrap(), array_flat!(5, 6).unwrap(), array_flat!(7, 8).unwrap()], split);
     /// ```
     fn array_split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<N>>, ArrayError>;
 
@@ -41,11 +41,11 @@ pub trait ArraySplit<N: Numeric> where Self: Sized + Clone {
     ///
     /// let arr = array_arange!(0, 8);
     /// let split = arr.split(3, None).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1, 2), array_flat!(3, 4, 5), array_flat!(6, 7, 8)], split);
+    /// assert_eq!(vec![array_flat!(0, 1, 2).unwrap(), array_flat!(3, 4, 5).unwrap(), array_flat!(6, 7, 8).unwrap()], split);
     ///
     /// let arr = array_arange!(0, 7);
     /// let split = arr.split(4, None).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1), array_flat!(2, 3), array_flat!(4, 5), array_flat!(6, 7)], split);
+    /// assert_eq!(vec![array_flat!(0, 1).unwrap(), array_flat!(2, 3).unwrap(), array_flat!(4, 5).unwrap(), array_flat!(6, 7).unwrap()], split);
     /// ```
     fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<N>>, ArrayError>;
 

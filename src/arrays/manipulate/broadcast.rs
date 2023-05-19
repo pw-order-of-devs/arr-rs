@@ -20,9 +20,9 @@ use crate::traits::{
 impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
 
     fn broadcast(&self, other: &Array<N>) -> Result<Array<Tuple2<N>>, ArrayError> {
-        self.get_shape().is_broadcastable(&other.get_shape())?;
+        self.get_shape()?.is_broadcastable(&other.get_shape()?)?;
 
-        let final_shape = self.broadcast_shape(other.get_shape())?;
+        let final_shape = self.broadcast_shape(other.get_shape()?)?;
 
         let inner_arrays_self = self.extract_inner_arrays();
         let inner_arrays_other = other.extract_inner_arrays();
@@ -53,9 +53,9 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
     }
 
     fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
-        self.get_shape().is_broadcastable(&shape)?;
+        self.get_shape()?.is_broadcastable(&shape)?;
 
-        if self.get_shape().iter().product::<usize>() == shape.iter().product::<usize>() {
+        if self.get_shape()?.iter().product::<usize>() == shape.iter().product::<usize>() {
             self.reshape(shape)
         } else {
             let output_elements: Vec<N> = self.elements
@@ -77,8 +77,9 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
     }
 
     fn broadcast_arrays(arrays: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError> {
+        arrays.iter().map(|array| array.get_shape()).collect::<Vec<Result<Vec<usize>, ArrayError>>>().has_error()?;
         let shapes = arrays.iter()
-            .map(|array| array.get_shape())
+            .map(|array| array.get_shape().unwrap())
             .collect::<Vec<_>>();
 
         let common_shape = Self::common_broadcast_shape(&shapes);

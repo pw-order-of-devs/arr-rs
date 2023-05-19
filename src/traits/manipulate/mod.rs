@@ -32,10 +32,10 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.insert(vec![1], &Array::single(1.), None);
+    /// let arr = arr.insert(vec![1], &Array::single(1.).unwrap(), None);
     /// assert_eq!(array!([1., 1., 2., 3., 4.]), arr);
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.insert(vec![1, 3], &Array::single(1.), None);
+    /// let arr = arr.insert(vec![1, 3], &Array::single(1.).unwrap(), None);
     /// assert_eq!(array!([1., 1., 2., 3., 1., 4.]), arr);
     /// ```
     fn insert(&self, indices: Vec<usize>, values: &Array<N>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
@@ -74,10 +74,10 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.append(&Array::single(1.), None);
+    /// let arr = arr.append(&Array::single(1.).unwrap(), None);
     /// assert_eq!(array!([1., 2., 3., 4., 1.]), arr);
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.append(&Array::flat(vec![1., 3.]), None);
+    /// let arr = arr.append(&Array::flat(vec![1., 3.]).unwrap(), None);
     /// assert_eq!(array!([1., 2., 3., 4., 1., 3.]), arr);
     /// ```
     fn append(&self, values: &Array<N>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
@@ -151,13 +151,13 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let expected = vec![8];
     ///
     /// let arr_1 = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// assert_eq!(expected, arr_1.ravel().get_shape());
+    /// assert_eq!(expected, arr_1.ravel().get_shape().unwrap());
     ///
     /// let arr_2 = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]).unwrap();
-    /// assert_eq!(expected, arr_2.ravel().get_shape());
+    /// assert_eq!(expected, arr_2.ravel().get_shape().unwrap());
     ///
     /// let arr_3 = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 2, 2]).unwrap();
-    /// assert_eq!(expected, arr_3.ravel().get_shape());
+    /// assert_eq!(expected, arr_3.ravel().get_shape().unwrap());
     /// ```
     fn ravel(&self) -> Result<Array<N>, ArrayError>;
 

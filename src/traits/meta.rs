@@ -1,4 +1,7 @@
-use crate::traits::types::numeric::Numeric;
+use crate::traits::{
+    errors::ArrayError,
+    types::numeric::Numeric,
+};
 
 /// ArrayTrait - Array Metadata functions
 pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
@@ -11,9 +14,9 @@ pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::new(vec![1,2,3,4], vec![4]).unwrap();
-    /// assert_eq!(vec![1, 2, 3, 4], arr.get_elements());
+    /// assert_eq!(vec![1, 2, 3, 4], arr.get_elements().unwrap());
     /// ```
-    fn get_elements(&self) -> Vec<N>;
+    fn get_elements(&self) -> Result<Vec<N>, ArrayError>;
 
     /// Obtain the vector containing array shape
     ///
@@ -23,9 +26,9 @@ pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::new(vec![1,2,3,4], vec![4]).unwrap();
-    /// assert_eq!(vec![4], arr.get_shape());
+    /// assert_eq!(vec![4], arr.get_shape().unwrap());
     /// ```
-    fn get_shape(&self) -> Vec<usize>;
+    fn get_shape(&self) -> Result<Vec<usize>, ArrayError>;
 
     /// Count of array dimensions
     ///
@@ -35,14 +38,14 @@ pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr_1 = Array::new(vec![1,2,3,4], vec![4]).unwrap();
-    /// let ndim_1 = arr_1.ndim();
+    /// let ndim_1 = arr_1.ndim().unwrap();
     /// assert_eq!(1, ndim_1);
     ///
     /// let arr_2 = Array::new(vec![1,2,3,4], vec![2, 2]).unwrap();
-    /// let ndim_2 = arr_2.ndim();
+    /// let ndim_2 = arr_2.ndim().unwrap();
     /// assert_eq!(2, ndim_2);
     /// ```
-    fn ndim(&self) -> usize;
+    fn ndim(&self) -> Result<usize, ArrayError>;
 
     /// Count of array elements
     ///
@@ -52,10 +55,10 @@ pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::new(vec![1,2,3,4], vec![4]).unwrap();
-    /// let len = arr.len();
+    /// let len = arr.len().unwrap();
     /// assert_eq!(4, len);
     /// ```
-    fn len(&self) -> usize;
+    fn len(&self) -> Result<usize, ArrayError>;
 
     /// Check if array element count equals zero
     ///
@@ -65,12 +68,12 @@ pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr_1 = Array::new(vec![1,2,3,4], vec![4]).unwrap();
-    /// let empty_1 = arr_1.is_empty();
+    /// let empty_1 = arr_1.is_empty().unwrap();
     /// assert_eq!(false, empty_1);
     ///
-    /// let arr_2: Array<f64> = Array::empty();
-    /// let empty_2 = arr_2.is_empty();
+    /// let arr_2: Array<f64> = Array::empty().unwrap();
+    /// let empty_2 = arr_2.is_empty().unwrap();
     /// assert_eq!(true, empty_2);
     /// ```
-    fn is_empty(&self) -> bool;
+    fn is_empty(&self) -> Result<bool, ArrayError>;
 }

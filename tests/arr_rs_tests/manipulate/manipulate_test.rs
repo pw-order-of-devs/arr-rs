@@ -121,7 +121,7 @@ case(array!([[1, 2], [3, 4], [5, 6]]), vec![6]),
 case(array!([[1, 2, 3], [4, 5, 6]]), vec![6]),
 case(array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), vec![8]),
 )] fn test_ravel(array: Result<Array<i32>, ArrayError>, expected: Vec<usize>) {
-    assert_eq!(expected, array.ravel().get_shape())
+    assert_eq!(expected, array.ravel().get_shape().unwrap())
 }
 
 #[rstest(
@@ -142,7 +142,7 @@ case(array!([1, 2, 3, 4]), array!([1, 2, 3, 4])),
 case(array!([0, 0, 1, 2, 3, 4]), array!([1, 2, 3, 4])),
 case(array!([0, 0, 1, 2, 3, 4]), array!([1, 2, 3, 4])),
 case(array!([0, 0, 1, 2, 3, 4, 0, 0]), array!([1, 2, 3, 4])),
-case(array!([0, 0, 0, 0]), Ok(Array::empty())),
+case(array!([0, 0, 0, 0]), Array::empty()),
 case(array!([[1, 2]]), Err(ArrayError::UnsupportedDimension { supported: vec![1] })),
 )] fn test_trim_zeros(arr: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, arr.trim_zeros())
