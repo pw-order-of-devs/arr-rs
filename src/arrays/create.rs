@@ -127,9 +127,8 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::linspace(a, b, num, endpoint).get_elements())
-            .collect::<Vec<Result<Vec<N>, ArrayError>>>();
-        values.has_error()?;
-        let values = values.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Vec<N>>>();
+            .collect::<Vec<Result<Vec<N>, ArrayError>>>().has_error()?.iter()
+            .map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Vec<N>>>();
         let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(new_shape);
         if let Err(error) = reshaped { Err(error) }
         else { reshaped?.transpose(None) }
@@ -165,9 +164,10 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
         let values = start.into_iter().zip(stop).zip(base)
             .map(|((a, b), c)| Self::logspace(a, b, num, endpoint, Some(c)).get_elements())
-            .collect::<Vec<Result<Vec<N>, ArrayError>>>();
-        values.has_error()?;
-        let values = values.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Vec<N>>>();
+            .collect::<Vec<Result<Vec<N>, ArrayError>>>()
+            .has_error()?.iter()
+            .map(|a| a.as_ref().unwrap().clone())
+            .collect::<Vec<Vec<N>>>();
         let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(new_shape);
         if let Err(error) = reshaped { Err(error) }
         else { reshaped.unwrap().transpose(None) }
@@ -204,12 +204,11 @@ impl <N: Numeric> ArrayCreate<N> for Array<N> {
 
         let values = start.into_iter().zip(stop)
             .map(|(a, b)| Self::geomspace(a, b, num, endpoint))
-            .collect::<Vec<Result<Array<N>, _>>>();
-        values.has_error()?;
-        values.iter().map(|a| a.get_elements()).collect::<Vec<Result<Vec<N>, ArrayError>>>().has_error()?;
-
-        let values = values.into_iter()
-            .map(|a| a.unwrap().get_elements().unwrap())
+            .collect::<Vec<Result<Array<N>, _>>>()
+            .has_error()?.iter()
+            .map(|a| a.get_elements()).collect::<Vec<Result<Vec<N>, ArrayError>>>()
+            .has_error()?.into_iter()
+            .map(|a| a.unwrap())
             .collect::<Vec<Vec<N>>>();
         Self::flat(values.into_iter().flatten().collect())
             .reshape(new_shape)?

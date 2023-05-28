@@ -1,9 +1,11 @@
 use itertools::Itertools;
 use crate::arrays::Array;
-use crate::prelude::ArrayManipulate;
 use crate::traits::{
     errors::ArrayError,
-    manipulate::axis::ArrayAxis,
+    manipulate::{
+        ArrayManipulate,
+        axis::ArrayAxis,
+    },
     meta::ArrayMeta,
     create::ArrayCreate,
     types::numeric::Numeric,
@@ -163,13 +165,5 @@ impl <N: Numeric> ArrayAxis<N> for Result<Array<N>, ArrayError> {
 
     fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {
         self.clone()?.squeeze(axes)
-    }
-}
-
-impl <N: Numeric> Array<N> {
-
-    fn normalize_axis(axis: isize, ndim: usize) -> usize {
-        if axis < 0 { (axis + ndim as isize) as usize }
-        else { axis as usize }
     }
 }
