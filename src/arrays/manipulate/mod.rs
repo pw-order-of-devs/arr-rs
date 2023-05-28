@@ -4,6 +4,8 @@ pub mod axis;
 pub mod broadcast;
 /// iterable array functions implementation
 pub mod iter;
+/// reorder array functions implementation
+pub mod reorder;
 /// split array functions implementation
 pub mod split;
 /// stack array functions implementation
@@ -295,5 +297,13 @@ impl <N: Numeric> Array<N> {
                 _ => Ok(self.clone()),
             }
         }
+    }
+}
+
+impl <N: Numeric> Array<N> {
+
+    pub(crate) fn normalize_axis(axis: isize, ndim: usize) -> usize {
+        if axis < 0 { (axis + ndim as isize) as usize }
+        else { axis as usize }
     }
 }

@@ -23,3 +23,16 @@ impl <N: Clone> VecInsertAt<N> for Vec<N> {
         self.clone()
     }
 }
+
+pub(crate) trait VecRevert<N> {
+
+    fn reverse_ext(&mut self) -> Self;
+}
+
+impl <N: Clone> VecRevert<N> for Vec<N> {
+
+    fn reverse_ext(&mut self) -> Self {
+        self.reverse();
+        self.clone()
+    }
+}

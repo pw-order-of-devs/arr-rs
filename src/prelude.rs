@@ -11,6 +11,7 @@ pub use crate::traits::{
         axis::ArrayAxis,
         broadcast::ArrayBroadcast,
         iter::ArrayIter,
+        reorder::ArrayReorder,
         split::ArraySplit,
         stack::ArrayStack,
     },

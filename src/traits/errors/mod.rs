@@ -47,6 +47,8 @@ pub enum ArrayError {
         /// value 2
         value2: String,
     },
+    /// Function is not implemented
+    NotImplemented,
 }
 
 impl std::error::Error for ArrayError {}
@@ -65,6 +67,7 @@ impl std::fmt::Display for ArrayError {
             ArrayError::UnsupportedDimension { supported } => write!(f, "supported dimensions are: {supported:?}"),
             ArrayError::MustBeUnique { value } => write!(f, "`{value}` must be unique"),
             ArrayError::MustBeEqual { value1, value2 } => write!(f, "`{value1}` and `{value2}` must be equal"),
+            ArrayError::NotImplemented => write!(f, "not implemented"),
         }
     }
 }

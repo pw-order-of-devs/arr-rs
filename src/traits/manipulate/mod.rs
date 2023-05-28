@@ -4,6 +4,8 @@ pub mod axis;
 pub mod broadcast;
 /// Array Iterable functions
 pub mod iter;
+/// Array Reordering functions
+pub mod reorder;
 /// Array Split functions
 pub mod split;
 /// Array Stack functions
