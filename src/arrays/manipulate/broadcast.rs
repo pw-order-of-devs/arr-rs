@@ -86,9 +86,11 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
         if let Ok(common_shape) = common_shape {
             let result = arrays.iter()
                 .map(|array| array.broadcast_to(common_shape.clone()))
-                .collect::<Vec<Result<Self, _>>>();
-            result.has_error()?;
-            Ok(result.into_iter().map(|a| a.unwrap()).collect())
+                .collect::<Vec<Result<Self, _>>>()
+                .has_error()?
+                .into_iter().map(|a| a.unwrap())
+                .collect();
+            Ok(result)
         } else {
             Err(common_shape.err().unwrap())
         }
@@ -128,9 +130,11 @@ impl <N: Numeric> Array<N> {
                 else if dim2 == 1 || dim1 == dim2 { Ok(dim1) }
                 else { Err(ArrayError::BroadcastShapeMismatch) }
             })
-            .collect::<Vec<Result<usize, ArrayError>>>();
-        result.has_error()?;
-        Ok(result.iter().map(|a| *a.as_ref().unwrap()).collect())
+            .collect::<Vec<Result<usize, ArrayError>>>()
+            .has_error()?.iter()
+            .map(|a| *a.as_ref().unwrap())
+            .collect();
+        Ok(result)
     }
 
     fn common_broadcast_shape(shapes: &[Vec<usize>]) -> Result<Vec<usize>, ArrayError> {

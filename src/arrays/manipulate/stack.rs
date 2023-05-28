@@ -69,10 +69,11 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
         if arrs.iter().all(|arr| arr.ndim().unwrap() == 1) {
             Self::concatenate(arrs, Some(0))
         } else {
-            let arrs = arrs.iter().map(|arr| arr.atleast(2)).collect::<Vec<Result<Self, _>>>();
-            arrs.has_error()?;
-
-            let arrs = arrs.into_iter().map(|a| a.unwrap()).collect::<Vec<Self<>>>();
+            let arrs = arrs.iter()
+                .map(|arr| arr.atleast(2)).collect::<Vec<Result<Self, _>>>()
+                .has_error()?.into_iter()
+                .map(|a| a.unwrap())
+                .collect::<Vec<Self<>>>();
             arrs.validate_stack_shapes(1, 0)?;
 
             let mut new_shape = arrs[0].get_shape()?;
@@ -88,10 +89,12 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
     fn dstack(arrs: Vec<Self>) -> Result<Self, ArrayError> {
         if arrs.is_empty() { Self::empty() }
         else {
-            let arrs = arrs.iter().map(|arr| arr.atleast(3)).collect::<Vec<Result<Self, _>>>();
-            arrs.has_error()?;
-
-            let arrs = arrs.into_iter().map(|a| a.unwrap()).collect::<Vec<Self<>>>();
+            let arrs = arrs.iter()
+                .map(|arr| arr.atleast(3))
+                .collect::<Vec<Result<Self, _>>>()
+                .has_error()?.into_iter()
+                .map(|a| a.unwrap())
+                .collect::<Vec<Self<>>>();
             arrs.validate_stack_shapes(2, 0)?;
 
             let mut new_shape = arrs[0].get_shape()?;
