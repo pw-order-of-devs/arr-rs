@@ -34,3 +34,23 @@ case(array_arange!(0, 15).reshape(vec![2, 2, 2, 2]), array!([[[[4, 5], [6, 7]], 
 )] fn test_fliplr(array: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.fliplr())
 }
+
+#[rstest(
+array, shifts, axes, expected,
+case(array_arange!(0, 9), vec![2], None, array!([8, 9, 0, 1, 2, 3, 4, 5, 6, 7])),
+case(array_arange!(0, 9), vec![-2], None, array!([2, 3, 4, 5, 6, 7, 8, 9, 0, 1])),
+case(array_arange!(0, 9).reshape(vec![2, 5]), vec![1], None, array!([[9, 0, 1, 2, 3], [4, 5, 6, 7, 8]])),
+case(array_arange!(0, 9).reshape(vec![2, 5]), vec![-1], None, array!([[1, 2, 3, 4, 5], [6, 7, 8, 9, 0]])),
+case(array_arange!(0, 9).reshape(vec![2, 5]), vec![1], Some(vec![0]), array!([[5, 6, 7, 8, 9], [0, 1, 2, 3, 4]])),
+case(array_arange!(0, 9).reshape(vec![2, 5]), vec![-1], Some(vec![0]), array!([[5, 6, 7, 8, 9], [0, 1, 2, 3, 4]])),
+case(array_arange!(0, 9).reshape(vec![2, 5]), vec![1], Some(vec![1]), array!([[4, 0, 1, 2, 3], [9, 5, 6, 7, 8]])),
+case(array_arange!(0, 9).reshape(vec![2, 5]), vec![-1], Some(vec![1]), array!([[1, 2, 3, 4, 0], [6, 7, 8, 9, 5]])),
+case(array_arange!(0, 9).reshape(vec![2, 5]), vec![1, 1], Some(vec![1, 0]), array!([[9, 5, 6, 7, 8], [4, 0, 1, 2, 3]])),
+case(array_arange!(0, 9).reshape(vec![2, 5]), vec![2, 1], Some(vec![1, 0]), array!([[8, 9, 5, 6, 7], [3, 4, 0, 1, 2]])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), vec![1], None, array!([[[7, 0], [1, 2]], [[3, 4], [5, 6]]])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), vec![1], Some(vec![0]), array!([[[4, 5], [6, 7]], [[0, 1], [2, 3]]])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), vec![1], Some(vec![1]), array!([[[2, 3], [0, 1]], [[6, 7], [4, 5]]])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), vec![1], Some(vec![2]), array!([[[1, 0], [3, 2]], [[5, 4], [7, 6]]])),
+)] fn test_roll(array: Result<Array<i32>, ArrayError>, shifts: Vec<isize>, axes: Option<Vec<isize>>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.roll(shifts, axes))
+}
