@@ -54,3 +54,19 @@ case(array_arange!(0, 7).reshape(vec![2, 2, 2]), vec![1], Some(vec![2]), array!(
 )] fn test_roll(array: Result<Array<i32>, ArrayError>, shifts: Vec<isize>, axes: Option<Vec<isize>>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.roll(shifts, axes))
 }
+
+#[rstest(
+array, k, axes, expected,
+case(array_arange!(0, 3).reshape(vec![2, 2]), 0, vec![0, 1], array_arange!(0, 3).reshape(vec![2, 2])),
+case(array_arange!(0, 3).reshape(vec![2, 2]), 1, vec![0, 1], array!([[1, 3], [0, 2]])),
+case(array_arange!(0, 3).reshape(vec![2, 2]), 2, vec![0, 1], array!([[3, 2], [1, 0]])),
+case(array_arange!(0, 3).reshape(vec![2, 2]), 3, vec![0, 1], array!([[2, 0], [3, 1]])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 0, vec![0, 1], array_arange!(0, 7).reshape(vec![2, 2, 2])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 1, vec![0, 1], array!([[[2, 3], [6, 7]], [[0, 1], [4, 5]]])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 2, vec![0, 1], array!([[[6, 7], [4, 5]], [[2, 3], [0, 1]]])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 3, vec![0, 1], array!([[[4, 5], [0, 1]], [[6, 7], [2, 3]]])),
+case(array_arange!(0, 3).reshape(vec![2, 2]), 1, vec![0, 1, 2], Err(ArrayError::ParameterError { param: "axes", message: "axes length must be 2" })),
+case(array_arange!(0, 3).reshape(vec![2, 2]), 1, vec![1, 2], Err(ArrayError::ParameterError { param: "axes", message: "out of range" })),
+)] fn test_rot90(array: Result<Array<i32>, ArrayError>, k: usize, axes: Vec<isize>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.rot90(k, axes))
+}

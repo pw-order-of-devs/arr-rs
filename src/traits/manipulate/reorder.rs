@@ -65,4 +65,22 @@ pub trait ArrayReorder<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(array!([[[4, 5], [6, 7]], [[0, 1], [2, 3]]]), arr.roll(vec![1], Some(vec![0])));
     /// ```
     fn roll(&self, shift: Vec<isize>, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError>;
+
+    /// Rotate an array by 90 degrees in the plane specified by axes.
+    /// Rotation direction is from the first towards the second axis.
+    ///
+    /// # Arguments
+    ///
+    /// * `k` - number of times the array is rotated by 90 degrees.
+    /// * `axes` - the array is rotated in the plane defined by the axes. axes must be different.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = array_arange!(0, 7).reshape(vec![2, 4]);
+    /// assert_eq!(array!([[3, 7], [2, 6], [1, 5], [0, 4]]), arr.rot90(1, vec![0, 1]));
+    /// ```
+    fn rot90(&self, k: usize, axes: Vec<isize>) -> Result<Array<N>, ArrayError>;
 }
