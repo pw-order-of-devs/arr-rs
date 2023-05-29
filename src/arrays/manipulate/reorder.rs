@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use crate::arrays::Array;
 use crate::ext::vec_ext::{VecRemoveAt, VecRevert};
+use crate::prelude::ArrayAxis;
 use crate::traits::{
     create::ArrayCreate,
     errors::ArrayError,
@@ -126,6 +127,38 @@ impl <N: Numeric> ArrayReorder<N> for Array<N> {
             }
         }
     }
+
+    fn rot90(&self, k: usize, axes: Vec<isize>) -> Result<Array<N>, ArrayError> {
+        self.is_dim_unsupported(&[0, 1])?;
+        if axes.len() != 2 {
+            return Err(ArrayError::ParameterError { param: "axes", message: "axes length must be 2" })
+        }
+        let self_ndim = self.ndim()? as isize;
+        if axes[0] >= self_ndim || axes[0] < -self_ndim || axes[1] >= self_ndim || axes[1] < -self_ndim {
+            return Err(ArrayError::ParameterError { param: "axes", message: "out of range" })
+        }
+
+        let k = k % 4;
+        if k == 0 { return Ok(self.clone()) }
+        if k == 2 { return self.flip(Some(vec![axes[1]])).flip(Some(vec![axes[0]])) }
+
+        let axes = axes.into_iter().map(|i| Self::normalize_axis(i, self_ndim as usize)).collect::<Vec<usize>>();
+        let mut axes_list = Array::arange(0, self_ndim - 1, None)?.get_elements()?;
+        (axes_list[axes[0]], axes_list[axes[1]]) = (axes_list[axes[1]], axes_list[axes[0]]);
+
+        if k == 1 { self.flip(Some(vec![axes[1] as isize])).transpose(Some(axes_list)) }
+        else { self.transpose(Some(axes_list)).flip(Some(vec![axes[1] as isize])) }
+    }
+}
+
+#[cfg(test)] mod test {
+    use crate::prelude::*;
+
+    #[test] fn test() {
+        let arr: Result<Array<i32>, _> = array!([[1, 2], [3, 4]]);
+        let res = arr.rot90(1, vec![0, 1, 2]);
+        println!("{res:?}");
+    }
 }
 
 impl <N: Numeric> ArrayReorder<N> for Result<Array<N>, ArrayError> {
@@ -144,5 +177,9 @@ impl <N: Numeric> ArrayReorder<N> for Result<Array<N>, ArrayError> {
 
     fn roll(&self, shift: Vec<isize>, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {
         self.clone()?.roll(shift, axes)
+    }
+
+    fn rot90(&self, k: usize, axes: Vec<isize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.rot90(k, axes)
     }
 }
