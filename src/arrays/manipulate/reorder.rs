@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::arrays::Array;
 use crate::ext::vec_ext::{VecRemoveAt, VecRevert};
 use crate::traits::{
@@ -5,6 +6,7 @@ use crate::traits::{
     errors::ArrayError,
     manipulate::{
         ArrayManipulate,
+        broadcast::ArrayBroadcast,
         reorder::ArrayReorder,
         split::ArraySplit,
     },
@@ -30,23 +32,18 @@ impl <N: Numeric> ArrayReorder<N> for Array<N> {
                 let self_shape = self.shape.clone();
                 let axes = axes.into_iter().map(|i| Self::normalize_axis(i, self_ndim)).collect::<Vec<usize>>();
 
-                let mut indexer: Vec<(Option<isize>, Option<isize>, Option<isize>)> = vec![(None, None, None); self_ndim];
-                axes.iter().for_each(|&i| indexer[i] = (None, None, Some(-1)));
-
                 let mut elements = self.elements.clone();
-
                 for ax in axes {
-                    elements = if ax == 0 {
-                        Array::flat(elements)
-                            .split(self_shape[0], Some(ax))?.reverse_ext().into_iter()
+                    let flatten = Array::flat(elements);
+                    elements =
+                        if ax == 0 { flatten
+                            .split(self_shape[0], Some(0))?.reverse_ext().into_iter()
                             .flatten().collect::<Vec<N>>()
-                    } else if ax == self_ndim - 1 {
-                        Array::flat(elements)
+                        } else if ax == self_ndim - 1 { flatten
                             .split(self_shape[0 .. ax].iter().product(), None)?.iter_mut()
                             .flat_map(|arr| arr.elements.reverse_ext())
                             .collect::<Vec<N>>()
-                    } else {
-                        Array::flat(elements)
+                        } else { flatten
                             .split(self_shape[ax], None)?.into_iter()
                             .map(|i| i.reshape(self.shape.clone().remove_at(ax)))
                             .map(|i| i.flip(Some(vec![ax as isize - 1])))
@@ -54,8 +51,8 @@ impl <N: Numeric> ArrayReorder<N> for Array<N> {
                             .has_error()?.into_iter()
                             .flat_map(|i| i.unwrap())
                             .collect::<Vec<N>>()
-                    }
-                };
+                        }
+                    };
 
                 Array::flat(elements).reshape(self_shape)
             }
@@ -71,6 +68,64 @@ impl <N: Numeric> ArrayReorder<N> for Array<N> {
         self.is_dim_unsupported(&[0, 1])?;
         self.clone().flip(Some(vec![1]))
     }
+
+    fn roll(&self, shift: Vec<isize>, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {
+        let array = if axes.is_none() { self.ravel()? } else { self.clone() };
+        let axes = axes.unwrap_or(vec![0]);
+
+        let self_ndim = array.ndim()?;
+        let broadcasted = Array::flat(shift).broadcast(&Array::flat(axes)?)?;
+        if broadcasted.ndim()? > 1 { return Err(ArrayError::ParameterError { param: "'shift' and 'axis'", message: "should be 1D" }); }
+        let broadcasted = broadcasted.into_iter().map(|a| (
+            Self::normalize_axis(a.1, self_ndim),
+            a.0,
+        )).collect::<Vec<(usize, isize)>>();
+
+        let mut shifts: HashMap<usize, isize> = HashMap::new();
+        broadcasted.iter().for_each(|(a, b)| {
+            *shifts.entry(*a).or_insert(0) += *b;
+        });
+
+        let mut elements = array.get_elements()?;
+        match self_ndim {
+            0 => Array::empty(),
+            1 => {
+                shifts.iter().for_each(|(_, &sh)| {
+                    if sh >= 0 { elements.rotate_right(sh as usize); }
+                    else { elements.rotate_left(sh.unsigned_abs()); }
+                });
+                Array::flat(elements).reshape(self.shape.clone())
+            },
+            _ => {
+                for (ax, sh) in shifts.clone() {
+                    let flatten = Array::flat(elements.clone());
+                    elements = if ax == 0 {
+                        let mut split = flatten.split(self.shape[0], Some(0))?;
+                        if sh >= 0 { split.rotate_right(sh as usize); }
+                        else { split.rotate_left(sh.unsigned_abs()); }
+                        split.into_iter().flatten().collect()
+                    } else if ax == self_ndim - 1 { flatten
+                        .split(self.shape[0 .. ax].iter().product(), None)?.iter()
+                        .flat_map(|item| {
+                            let mut tmp_item = item.elements.clone();
+                            if sh >= 0 { tmp_item.rotate_right(sh as usize); }
+                            else { tmp_item.rotate_left(sh.unsigned_abs()); }
+                            tmp_item
+                        }).collect()
+                    } else { flatten
+                        .split(self.shape[ax], None)?.into_iter()
+                        .map(|i| i.reshape(self.shape.clone().remove_at(ax)))
+                        .map(|i| i.roll(vec![shifts[&ax]], Some(vec![ax as isize - 1])))
+                        .collect::<Vec<Result<Array<N>, _>>>()
+                        .has_error()?.into_iter()
+                        .flat_map(|i| i.unwrap())
+                        .collect::<Vec<N>>()
+                    }
+                }
+                Array::new(elements, self.shape.clone())
+            }
+        }
+    }
 }
 
 impl <N: Numeric> ArrayReorder<N> for Result<Array<N>, ArrayError> {
@@ -85,5 +140,9 @@ impl <N: Numeric> ArrayReorder<N> for Result<Array<N>, ArrayError> {
 
     fn fliplr(&self) -> Result<Array<N>, ArrayError> {
         self.clone()?.fliplr()
+    }
+
+    fn roll(&self, shift: Vec<isize>, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.roll(shift, axes)
     }
 }
