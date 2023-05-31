@@ -1,5 +1,12 @@
 # 📑 Changelog
 
+## [v0.3.0](https://github.com/pw-order-of-devs/arr-rs/compare/v0.2.0...v0.3.0)
+
+### 🚀 Enhancements
+
+- Reordering operations [\#85](https://github.com/pw-order-of-devs/arr-rs/issues/85)
+- Enhance error handling  [\#81](https://github.com/pw-order-of-devs/arr-rs/issues/81)
+
 ## [v0.2.0](https://github.com/pw-order-of-devs/arr-rs/compare/v0.1.2...v0.2.0)
 
 ### 🚀 Enhancements
