@@ -41,6 +41,10 @@ Copy + Clone + PartialEq + PartialOrd + Debug + Display + FromStr {
     fn bitwise_xor(&self, other: &Self) -> Self;
     /// bitwise not operation
     fn bitwise_not(&self) -> Self;
+    /// left shift operation
+    fn left_shift(&self, other: &Self) -> Self;
+    /// right shift operation
+    fn right_shift(&self, other: &Self) -> Self;
 }
 
 macro_rules! impl_numeric {
@@ -89,6 +93,14 @@ macro_rules! impl_numeric {
 
             fn bitwise_not(&self) -> Self {
                 !self.clone()
+            }
+
+            fn left_shift(&self, other: &Self) -> Self {
+                self << other
+            }
+
+            fn right_shift(&self, other: &Self) -> Self {
+                self >> other
             }
         }
     };
@@ -151,6 +163,14 @@ macro_rules! impl_numeric_float {
             fn bitwise_not(&self) -> Self {
                 !(*self as i128) as $t
             }
+
+            fn left_shift(&self, other: &Self) -> Self {
+                ((*self as i128) << (*other as i128)) as $t
+            }
+
+            fn right_shift(&self, other: &Self) -> Self {
+                ((*self as i128) >> (*other as i128)) as $t
+            }
         }
     };
 }
@@ -201,5 +221,13 @@ impl Numeric for bool {
 
     fn bitwise_not(&self) -> Self {
         !*self
+    }
+
+    fn left_shift(&self, other: &Self) -> Self {
+        (self.to_usize() << other.to_usize()) == 1
+    }
+
+    fn right_shift(&self, other: &Self) -> Self {
+        (self.to_usize() >> other.to_usize()) == 1
     }
 }

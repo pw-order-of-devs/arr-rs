@@ -91,4 +91,36 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::<i32>::flat(vec![-14]), array!([13]).invert());
     /// ```
     fn invert(&self) -> Result<Array<N>, ArrayError>;
+
+    /// Shift the bits of an integer to the left
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::<u8>::flat(vec![20]), array!([5]).left_shift(&array!([2]).unwrap()));
+    /// assert_eq!(Array::<u8>::flat(vec![10, 20, 40]), array!([5]).left_shift(&array!([1, 2, 3]).unwrap()));
+    /// ```
+    fn left_shift(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Shift the bits of an integer to the right
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::<u8>::flat(vec![5]), array!([10]).right_shift(&array!([1]).unwrap()));
+    /// assert_eq!(Array::<u8>::flat(vec![5, 2, 1]), array!([10]).right_shift(&array!([1, 2, 3]).unwrap()));
+    /// ```
+    fn right_shift(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 }

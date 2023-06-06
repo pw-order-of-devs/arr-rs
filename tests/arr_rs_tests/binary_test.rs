@@ -49,4 +49,20 @@ case(array!([13]), Array::<i32>::flat(vec![-14])),
     assert_eq!(expected, array.invert())
 }
 
+#[rstest(
+array, other, expected,
+case(array_flat![5], array_flat![2], array_flat![20]),
+case(array_flat![5], array_flat![1, 2, 3], array_flat![10, 20, 40]),
+case(array_flat![1, 2, 3], array_flat![2, 2, 2, 2], Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_left_shift(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.left_shift(&other.unwrap()))
+}
 
+#[rstest(
+array, other, expected,
+case(array_flat![10], array_flat![1], array_flat![5]),
+case(array_flat![10], array_flat![1, 2, 3], array_flat![5, 2, 1]),
+case(array_flat![1, 2, 3], array_flat![2, 2, 2, 2], Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_right_shift(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.right_shift(&other.unwrap()))
+}

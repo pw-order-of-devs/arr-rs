@@ -113,6 +113,20 @@ impl <N: Numeric> Numeric for Tuple2<N> {
             self.1.bitwise_not(),
         )
     }
+
+    fn left_shift(&self, other: &Self) -> Self {
+        Self(
+            self.0.left_shift(&other.0),
+            self.1.left_shift(&other.1),
+        )
+    }
+
+    fn right_shift(&self, other: &Self) -> Self {
+        Self(
+            self.0.right_shift(&other.0),
+            self.1.right_shift(&other.1),
+        )
+    }
 }
 
 impl<N: Numeric> Display for Tuple2<N> {
