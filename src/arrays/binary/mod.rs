@@ -1,9 +1,9 @@
 use crate::arrays::Array;
-use crate::prelude::ArrayBroadcast;
 use crate::traits::{
     errors::ArrayError,
     binary::ArrayBinary,
     create::ArrayCreate,
+    manipulate::broadcast::ArrayBroadcast,
     meta::ArrayMeta,
     types::numeric::Numeric,
     validators::validate_shape::ValidateShape,
