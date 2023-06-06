@@ -65,6 +65,10 @@ impl <N: Numeric> ArrayBinary<N> for Array<N> {
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
+
+    fn binary_repr(num: N) -> String {
+        num.binary_repr()
+    }
 }
 
 impl <N: Numeric> ArrayBinary<N> for Result<Array<N>, ArrayError> {
@@ -95,5 +99,9 @@ impl <N: Numeric> ArrayBinary<N> for Result<Array<N>, ArrayError> {
 
     fn right_shift(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.right_shift(other)
+    }
+
+    fn binary_repr(num: N) -> String {
+        num.binary_repr()
     }
 }

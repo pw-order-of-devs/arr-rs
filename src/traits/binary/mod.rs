@@ -123,4 +123,22 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::<u8>::flat(vec![5, 2, 1]), array!([10]).right_shift(&array!([1, 2, 3]).unwrap()));
     /// ```
     fn right_shift(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Return the binary representation of the input number as a string
+    ///
+    /// # Arguments
+    ///
+    /// * `num` - integer decimal number
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!("10".to_string(), Array::<u8>::binary_repr(2));
+    /// assert_eq!("11".to_string(), Array::<u8>::binary_repr(3));
+    /// assert_eq!("11111101".to_string(), Array::<i8>::binary_repr(-3));
+    /// assert_eq!("11111111".to_string(), Array::<u8>::binary_repr(255));
+    /// ```
+    fn binary_repr(num: N) -> String;
 }

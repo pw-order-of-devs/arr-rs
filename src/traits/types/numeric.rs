@@ -45,6 +45,8 @@ Copy + Clone + PartialEq + PartialOrd + Debug + Display + FromStr {
     fn left_shift(&self, other: &Self) -> Self;
     /// right shift operation
     fn right_shift(&self, other: &Self) -> Self;
+    /// binary representation of number
+    fn binary_repr(&self) -> String;
 }
 
 macro_rules! impl_numeric {
@@ -102,6 +104,10 @@ macro_rules! impl_numeric {
             fn right_shift(&self, other: &Self) -> Self {
                 self >> other
             }
+
+            fn binary_repr(&self) -> String {
+                format!("{self:b}")
+            }
         }
     };
 }
@@ -117,7 +123,7 @@ impl_numeric!(u32);
 impl_numeric!(u64);
 
 macro_rules! impl_numeric_float {
-    ($t:ty) => {
+    ($t:ty, $ti:ty) => {
         impl Numeric for $t {
             const ZERO: Self = 0 as $t;
             const ONE: Self = 1 as $t;
@@ -149,34 +155,38 @@ macro_rules! impl_numeric_float {
             }
 
             fn bitwise_and(&self, other: &Self) -> Self {
-                (*self as i128 & *other as i128) as $t
+                (*self as $ti & *other as $ti) as $t
             }
 
             fn bitwise_or(&self, other: &Self) -> Self {
-                (*self as i128 | *other as i128) as $t
+                (*self as $ti | *other as $ti) as $t
             }
 
             fn bitwise_xor(&self, other: &Self) -> Self {
-                (*self as i128 ^ *other as i128) as $t
+                (*self as $ti ^ *other as $ti) as $t
             }
 
             fn bitwise_not(&self) -> Self {
-                !(*self as i128) as $t
+                !(*self as $ti) as $t
             }
 
             fn left_shift(&self, other: &Self) -> Self {
-                ((*self as i128) << (*other as i128)) as $t
+                ((*self as $ti) << (*other as $ti)) as $t
             }
 
             fn right_shift(&self, other: &Self) -> Self {
-                ((*self as i128) >> (*other as i128)) as $t
+                ((*self as $ti) >> (*other as $ti)) as $t
+            }
+
+            fn binary_repr(&self) -> String {
+                format!("{:b}", *self as $ti)
             }
         }
     };
 }
 
-impl_numeric_float!(f32);
-impl_numeric_float!(f64);
+impl_numeric_float!(f32, i64);
+impl_numeric_float!(f64, i128);
 
 impl Numeric for bool {
     const ZERO: Self = false;
@@ -229,5 +239,9 @@ impl Numeric for bool {
 
     fn right_shift(&self, other: &Self) -> Self {
         (self.to_usize() >> other.to_usize()) == 1
+    }
+
+    fn binary_repr(&self) -> String {
+        format!("{:b}", *self as usize)
     }
 }

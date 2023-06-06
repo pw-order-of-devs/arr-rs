@@ -127,6 +127,10 @@ impl <N: Numeric> Numeric for Tuple2<N> {
             self.1.right_shift(&other.1),
         )
     }
+
+    fn binary_repr(&self) -> String {
+        format!("({}, {})", self.0.binary_repr(), self.1.binary_repr())
+    }
 }
 
 impl<N: Numeric> Display for Tuple2<N> {

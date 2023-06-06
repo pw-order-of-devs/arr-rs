@@ -66,3 +66,13 @@ case(array_flat![1, 2, 3], array_flat![2, 2, 2, 2], Err(ArrayError::BroadcastSha
 )] fn test_right_shift(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.right_shift(&other.unwrap()))
 }
+
+#[rstest(
+num, expected,
+case(2 as u8, "10"),
+case(3 as u8, "11"),
+case(-3 as i8, "11111101"),
+case(255 as i32, "11111111"),
+)] fn test_binary_repr<N: Numeric>(num: N, expected: &str) {
+    assert_eq!(expected, Array::binary_repr(num))
+}
