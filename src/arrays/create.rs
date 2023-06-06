@@ -1,7 +1,6 @@
 use crate::arrays::Array;
-use crate::prelude::ArrayCreateFrom;
 use crate::traits::{
-    create::ArrayCreate,
+    create::{ArrayCreate, ArrayCreateFrom},
     errors::ArrayError,
     manipulate::{
         ArrayManipulate,
@@ -12,9 +11,9 @@ use crate::traits::{
     validators::{
         validate_dimension::ValidateDimension,
         validate_has_error::ValidateHasError,
+        validate_shape::ValidateShape,
     },
 };
-use crate::traits::validators::validate_shape::ValidateShape;
 
 impl <N: Numeric> ArrayCreate<N> for Array<N> {
 

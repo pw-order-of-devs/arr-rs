@@ -1,6 +1,6 @@
 use crate::arrays::Array;
-use crate::prelude::ArrayError;
 use crate::traits::{
+    errors::ArrayError,
     manipulate::iter::ArrayIter,
     math::ArrayMath,
     types::numeric::Numeric,

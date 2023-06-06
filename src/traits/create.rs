@@ -1,6 +1,8 @@
 use crate::arrays::Array;
-use crate::traits::errors::ArrayError;
-use crate::traits::types::numeric::Numeric;
+use crate::traits::{
+    errors::ArrayError,
+    types::numeric::Numeric,
+};
 
 /// ArrayTrait - Array Create functions
 pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {

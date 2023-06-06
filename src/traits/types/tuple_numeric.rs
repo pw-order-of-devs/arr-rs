@@ -78,8 +78,40 @@ impl <N: Numeric> Numeric for Tuple2<N> {
         self.0.to_usize()
     }
 
+    fn to_i32(&self) -> i32 {
+        self.0.to_i32()
+    }
+
     fn to_f64(&self) -> f64 {
         self.0.to_f64()
+    }
+
+    fn bitwise_and(&self, other: &Self) -> Self {
+        Self(
+            self.0.bitwise_and(&other.0),
+            self.1.bitwise_and(&other.1),
+        )
+    }
+
+    fn bitwise_or(&self, other: &Self) -> Self {
+        Self(
+            self.0.bitwise_or(&other.0),
+            self.1.bitwise_or(&other.1),
+        )
+    }
+
+    fn bitwise_xor(&self, other: &Self) -> Self {
+        Self(
+            self.0.bitwise_xor(&other.0),
+            self.1.bitwise_xor(&other.1),
+        )
+    }
+
+    fn bitwise_not(&self) -> Self {
+        Self(
+            self.0.bitwise_not(),
+            self.1.bitwise_not(),
+        )
     }
 }
 

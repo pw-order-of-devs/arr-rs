@@ -28,8 +28,19 @@ Copy + Clone + PartialEq + PartialOrd + Debug + Display + FromStr {
 
     /// Convert to usize
     fn to_usize(&self) -> usize;
+    /// Convert to i32
+    fn to_i32(&self) -> i32;
     /// Convert to f64
     fn to_f64(&self) -> f64;
+
+    /// bitwise and operation
+    fn bitwise_and(&self, other: &Self) -> Self;
+    /// bitwise or operation
+    fn bitwise_or(&self, other: &Self) -> Self;
+    /// bitwise xor operation
+    fn bitwise_xor(&self, other: &Self) -> Self;
+    /// bitwise not operation
+    fn bitwise_not(&self) -> Self;
 }
 
 macro_rules! impl_numeric {
@@ -56,15 +67,32 @@ macro_rules! impl_numeric {
                 *self as usize
             }
 
+            fn to_i32(&self) -> i32 {
+                *self as i32
+            }
+
             fn to_f64(&self) -> f64 {
                 *self as f64
+            }
+
+            fn bitwise_and(&self, other: &Self) -> Self {
+                self & other
+            }
+
+            fn bitwise_or(&self, other: &Self) -> Self {
+                self | other
+            }
+
+            fn bitwise_xor(&self, other: &Self) -> Self {
+                self ^ other
+            }
+
+            fn bitwise_not(&self) -> Self {
+                !self.clone()
             }
         }
     };
 }
-
-impl_numeric!(f32);
-impl_numeric!(f64);
 impl_numeric!(isize);
 impl_numeric!(i8);
 impl_numeric!(i16);
@@ -75,6 +103,60 @@ impl_numeric!(u8);
 impl_numeric!(u16);
 impl_numeric!(u32);
 impl_numeric!(u64);
+
+macro_rules! impl_numeric_float {
+    ($t:ty) => {
+        impl Numeric for $t {
+            const ZERO: Self = 0 as $t;
+            const ONE: Self = 1 as $t;
+
+            fn rand(range: RangeInclusive<Self>) -> $t {
+                let mut rng = rand::thread_rng();
+                let value = rng.sample(&Uniform::from(range));
+                value as $t
+            }
+
+            fn from_usize(value: usize) -> $t {
+                value as $t
+            }
+
+            fn from_f64(value: f64) -> $t {
+                value as $t
+            }
+
+            fn to_usize(&self) -> usize {
+                *self as usize
+            }
+
+            fn to_i32(&self) -> i32 {
+                *self as i32
+            }
+
+            fn to_f64(&self) -> f64 {
+                *self as f64
+            }
+
+            fn bitwise_and(&self, other: &Self) -> Self {
+                (*self as i128 & *other as i128) as $t
+            }
+
+            fn bitwise_or(&self, other: &Self) -> Self {
+                (*self as i128 | *other as i128) as $t
+            }
+
+            fn bitwise_xor(&self, other: &Self) -> Self {
+                (*self as i128 ^ *other as i128) as $t
+            }
+
+            fn bitwise_not(&self) -> Self {
+                !(*self as i128) as $t
+            }
+        }
+    };
+}
+
+impl_numeric_float!(f32);
+impl_numeric_float!(f64);
 
 impl Numeric for bool {
     const ZERO: Self = false;
@@ -97,7 +179,27 @@ impl Numeric for bool {
         *self as usize
     }
 
+    fn to_i32(&self) -> i32 {
+        *self as i32
+    }
+
     fn to_f64(&self) -> f64 {
         self.to_usize() as f64
+    }
+
+    fn bitwise_and(&self, other: &Self) -> Self {
+        self & other
+    }
+
+    fn bitwise_or(&self, other: &Self) -> Self {
+        self | other
+    }
+
+    fn bitwise_xor(&self, other: &Self) -> Self {
+        self ^ other
+    }
+
+    fn bitwise_not(&self) -> Self {
+        !*self
     }
 }
