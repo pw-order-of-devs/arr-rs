@@ -4,6 +4,15 @@ use crate::traits::{
     types::numeric::Numeric,
 };
 
+/// the order of the bits packed/unpacked
+#[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
+pub enum BitOrder {
+    /// standard binary representation
+    Big,
+    /// reversed order
+    Little,
+}
+
 /// ArrayTrait - Binary Array operations
 pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
 
@@ -146,4 +155,27 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!("11111111".to_string(), Array::<u8>::binary_repr(255));
     /// ```
     fn binary_repr(num: N) -> String;
+}
+
+/// ArrayTrait - Binary Array bits operations
+pub trait ArrayBinaryBits where Self: Sized + Clone {
+
+    /// Unpacks elements of a uint8 array into a binary-valued output array
+    ///
+    /// # Arguments
+    ///
+    /// * `axis` - the dimension over which bit-unpacking is done. if none, array is flattened
+    /// * `count` - the number of elements to unpack along axis. if negative, array is trimmed
+    /// * `bit_order` - the order of the returned bits. defaults to `Big`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected: Result<Array<u8>, _> = array!([[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 0, 1, 1, 1]]);
+    /// let array: Result<Array<u8>, _> = array!([[2], [7], [23]]);
+    /// assert_eq!(expected, array.unpack_bits(Some(1), None, None));
+    /// ```
+    fn unpack_bits(&self, axis: Option<isize>, count: Option<isize>, bit_order: Option<BitOrder>) -> Result<Array<u8>, ArrayError>;
 }
