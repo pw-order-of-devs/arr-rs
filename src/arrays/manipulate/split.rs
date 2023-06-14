@@ -1,5 +1,5 @@
 use crate::arrays::Array;
-use crate::ext::vec_ext::{VecInsertAt, VecRemoveAt};
+use crate::ext::vec_ext::VecInsertAt;
 use crate::traits::{
     errors::ArrayError,
     manipulate::{
@@ -49,8 +49,7 @@ impl <N: Numeric> ArraySplit<N> for Array<N> {
                     if self.ndim()? == 1 { Ok(m) }
                     else {
                         let mut new_shape = self.get_shape()?;
-                        new_shape[axis] /= self.get_shape()?.remove_at(axis).iter().product::<usize>();
-                        if new_shape[axis] == 0 { new_shape[axis] = 1 }
+                        new_shape[axis] /= parts;
                         m.reshape(new_shape)
                     }
                 })
