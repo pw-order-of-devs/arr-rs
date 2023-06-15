@@ -1,13 +1,20 @@
 use crate::arrays::Array;
 use crate::traits::{
-    create::{ArrayCreate, ArrayCreateFrom},
+    create::{
+        ArrayCreate,
+        ArrayCreateFrom,
+        ArrayCreateNumeric,
+    },
     errors::ArrayError,
     manipulate::{
         ArrayManipulate,
         axis::ArrayAxis,
     },
     meta::ArrayMeta,
-    types::numeric::Numeric,
+    types::{
+        ArrayElement,
+        numeric::Numeric,
+    },
     validators::{
         validate_dimension::ValidateDimension,
         validate_has_error::ValidateHasError,
@@ -15,32 +22,35 @@ use crate::traits::{
     },
 };
 
-impl <N: Numeric> ArrayCreate<N> for Array<N> {
+impl <T: ArrayElement> ArrayCreate<T> for Array<T> {
 
     // ==== from data
 
-    fn new(elements: Vec<N>, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
+    fn new(elements: Vec<T>, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
         shape.matches_values_len(&elements)?;
         Ok(Self { elements, shape, })
     }
 
-    fn single(element: N) -> Result<Self, ArrayError> {
+    fn single(element: T) -> Result<Self, ArrayError> {
         Self::new(vec![element], vec![1])
     }
 
-    fn flat(elements: Vec<N>) -> Result<Self, ArrayError> {
+    fn flat(elements: Vec<T>) -> Result<Self, ArrayError> {
         Self::new(elements.clone(), vec![elements.len()])
     }
+
+    fn empty() -> Result<Self, ArrayError> {
+        Self::new(vec![], vec![0])
+    }
+}
+
+impl <N: ArrayElement + Numeric> ArrayCreateNumeric<N> for Array<N> {
 
     fn rand(shape: Vec<usize>) -> Result<Self, ArrayError> {
         let size = shape.iter().product();
         let mut elements: Vec<N> = Vec::with_capacity(size);
         (0..size).for_each(|_| elements.push(N::rand(N::ZERO..=N::ONE)));
         Self::new(elements, shape)
-    }
-
-    fn empty() -> Result<Self, ArrayError> {
-        Self::new(vec![], vec![0])
     }
 
     fn eye(n: usize, m: Option<usize>, k: Option<usize>) -> Result<Self, ArrayError> {
@@ -237,7 +247,7 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
     fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
         self.is_dim_supported(&[1, 2])?;
 
-        fn diag_1d<N: Numeric>(data: &Array<N>, k: isize) -> Result<Array<N>, ArrayError> {
+        fn diag_1d<N: ArrayElement + Numeric>(data: &Array<N>, k: isize) -> Result<Array<N>, ArrayError> {
             let size = data.get_shape()?[0];
             let abs_k = k.unsigned_abs();
             let new_shape = vec![size + abs_k, size + abs_k];
@@ -260,7 +270,7 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
             Array::new(elements, new_shape)
         }
 
-        fn diag_2d<N: Numeric>(data: &Array<N>, k: isize) -> Result<Array<N>, ArrayError> {
+        fn diag_2d<N: ArrayElement + Numeric>(data: &Array<N>, k: isize) -> Result<Array<N>, ArrayError> {
             let rows = data.get_shape()?[0];
             let cols = data.get_shape()?[1];
             let (start_row, start_col) =
@@ -314,7 +324,7 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
     }
 }
 
-impl <N: Numeric> ArrayCreateFrom<N> for Result<Array<N>, ArrayError> {
+impl <N: ArrayElement + Numeric> ArrayCreateFrom<N> for Result<Array<N>, ArrayError> {
 
     fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
         self.clone()?.diag(k)

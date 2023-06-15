@@ -9,6 +9,7 @@ pub use crate::traits::{
     create::{
         ArrayCreate,
         ArrayCreateFrom,
+        ArrayCreateNumeric,
     },
     indexing::ArrayIndexing,
     manipulate::{
@@ -23,6 +24,7 @@ pub use crate::traits::{
     math::ArrayMath,
     meta::ArrayMeta,
     types::{
+        ArrayElement,
         numeric::Numeric,
         numeric_ops::NumericOps,
         signed_numeric::SignedNumeric,

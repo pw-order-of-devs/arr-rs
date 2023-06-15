@@ -2,7 +2,7 @@ use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
     meta::ArrayMeta,
-    types::numeric::Numeric,
+    types::ArrayElement,
     validators::validate_has_error::ValidateHasError,
 };
 
@@ -12,7 +12,7 @@ pub(crate) trait ValidateAxis {
     fn axis_opt_in_bounds(&self, axis: Option<usize>) -> Result<(), ArrayError>;
 }
 
-impl <N: Numeric> ValidateAxis for Array<N> {
+impl <T: ArrayElement> ValidateAxis for Array<T> {
 
     fn axis_in_bounds(&self, axis: usize) -> Result<(), ArrayError> {
         if axis >= self.ndim()? {
@@ -33,7 +33,7 @@ impl <N: Numeric> ValidateAxis for Array<N> {
     }
 }
 
-impl <N: Numeric> ValidateAxis for Vec<Array<N>> {
+impl <T: ArrayElement> ValidateAxis for Vec<Array<T>> {
 
     fn axis_in_bounds(&self, axis: usize) -> Result<(), ArrayError> {
         self.iter().map(|a| a.ndim()).collect::<Vec<Result<usize, ArrayError>>>().has_error()?;
