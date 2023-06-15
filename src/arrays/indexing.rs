@@ -1,8 +1,9 @@
 use crate::arrays::Array;
-use crate::prelude::{ArrayError, ArrayMeta};
 use crate::traits::{
+    errors::ArrayError,
     create::ArrayCreate,
     indexing::ArrayIndexing,
+    meta::ArrayMeta,
     types::numeric::Numeric,
 };
 

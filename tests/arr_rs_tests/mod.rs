@@ -1,3 +1,4 @@
+mod binary_test;
 mod create_from_test;
 mod create_matrix_test;
 mod create_range_test;

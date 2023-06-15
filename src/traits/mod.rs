@@ -9,6 +9,9 @@ pub mod math;
 /// Array Metadata functions
 pub mod meta;
 
+/// Binary Array operations
+pub mod binary;
+
 /// Definition of errors returned by the library
 pub mod errors;
 

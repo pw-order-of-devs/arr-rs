@@ -1,6 +1,11 @@
 // traits traits
 pub use crate::traits::{
     errors::ArrayError,
+    binary::{
+        ArrayBinary,
+        ArrayBinaryBits,
+        BitOrder,
+    },
     create::{
         ArrayCreate,
         ArrayCreateFrom,

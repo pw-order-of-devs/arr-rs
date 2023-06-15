@@ -9,10 +9,10 @@ use crate::traits::{
     meta::ArrayMeta,
     create::ArrayCreate,
     types::numeric::Numeric,
-};
-use crate::traits::validators::{
-    validate_compare::ValidateEqual,
-    validate_unique::ValidateUnique,
+    validators::{
+        validate_compare::ValidateEqual,
+        validate_unique::ValidateUnique,
+    },
 };
 
 impl <N: Numeric> ArrayAxis<N> for Array<N> {

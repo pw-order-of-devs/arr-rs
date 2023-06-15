@@ -9,6 +9,9 @@ pub mod math;
 /// metadata of array
 pub mod meta;
 
+/// binary array operations implementation
+pub mod binary;
+
 /// implementations of external traits
 pub mod impls;
 
