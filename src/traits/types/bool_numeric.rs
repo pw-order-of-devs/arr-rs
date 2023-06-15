@@ -4,6 +4,7 @@ use std::ops::{
     BitXor, BitXorAssign,
     Not,
 };
+use crate::traits::types::ArrayElement;
 
 use crate::traits::types::numeric::Numeric;
 
@@ -13,4 +14,5 @@ BitAnd + BitAndAssign +
 BitOr + BitOrAssign +
 BitXor + BitXorAssign {}
 
+impl ArrayElement for bool {}
 impl BoolNumeric for bool {}

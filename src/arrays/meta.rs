@@ -2,12 +2,12 @@ use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
     meta::ArrayMeta,
-    types::numeric::Numeric,
+    types::ArrayElement,
 };
 
-impl <N: Numeric> ArrayMeta<N> for Array<N> {
+impl <T: ArrayElement> ArrayMeta<T> for Array<T> {
 
-    fn get_elements(&self) -> Result<Vec<N>, ArrayError> {
+    fn get_elements(&self) -> Result<Vec<T>, ArrayError> {
         Ok(self.elements.clone())
     }
 
@@ -28,9 +28,9 @@ impl <N: Numeric> ArrayMeta<N> for Array<N> {
     }
 }
 
-impl <N: Numeric> ArrayMeta<N> for Result<Array<N>, ArrayError> {
+impl <T: ArrayElement> ArrayMeta<T> for Result<Array<T>, ArrayError> {
 
-    fn get_elements(&self) -> Result<Vec<N>, ArrayError> {
+    fn get_elements(&self) -> Result<Vec<T>, ArrayError> {
         self.clone()?.get_elements()
     }
 

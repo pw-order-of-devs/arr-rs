@@ -1,17 +1,17 @@
 use crate::arrays::Array;
 use crate::traits::{
     meta::ArrayMeta,
-    types::numeric::Numeric,
+    types::ArrayElement,
 };
 
-impl <N: Numeric> std::fmt::Display for Array<N> {
+impl <T: ArrayElement> std::fmt::Display for Array<T> {
 
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", build_string(self, f.precision(), f.alternate()))
     }
 }
 
-fn build_string<N: Numeric>(arr: &Array<N>, precision: Option<usize>, alternate: bool) -> String {
+fn build_string<T: ArrayElement>(arr: &Array<T>, precision: Option<usize>, alternate: bool) -> String {
     if arr.is_empty().unwrap_or(true) {
         "[]".to_string()
     } else if arr.len().unwrap_or(0) == 1 {
@@ -23,7 +23,7 @@ fn build_string<N: Numeric>(arr: &Array<N>, precision: Option<usize>, alternate:
             .map(|(idx, _)| shape[0..=idx].iter().product())
             .collect::<Vec<usize>>();
         let mut str = vec!["[".repeat(multiply.len())];
-        arr.get_elements().unwrap().iter().enumerate().for_each(|(idx, &elem)|
+        arr.get_elements().unwrap().into_iter().enumerate().for_each(|(idx, elem)|
             str.push(print_subarray(&shape, idx, elem, multiply.clone(), precision, alternate))
         );
         multiply.iter().for_each(|_| str.push("]".to_string()));
@@ -31,7 +31,7 @@ fn build_string<N: Numeric>(arr: &Array<N>, precision: Option<usize>, alternate:
     }
 }
 
-fn print_subarray<N: Numeric>(shape: &[usize], idx: usize, elem: N, m: Vec<usize>, p: Option<usize>, a: bool) -> String {
+fn print_subarray<T: ArrayElement>(shape: &[usize], idx: usize, elem: T, m: Vec<usize>, p: Option<usize>, a: bool) -> String {
     let mut str = vec![];
     if idx == 0 && shape[shape.len() - 1] != 1 {
         str.push(format_with_precision(elem, ", ", p));
@@ -55,7 +55,7 @@ fn print_subarray<N: Numeric>(shape: &[usize], idx: usize, elem: N, m: Vec<usize
     str.join("")
 }
 
-fn format_with_coma<N: Numeric>(elem: N, condition: bool, precision: Option<usize>) -> String {
+fn format_with_coma<T: ArrayElement>(elem: T, condition: bool, precision: Option<usize>) -> String {
     if condition {
         format_with_precision(elem, ", ", precision)
     } else {
@@ -63,7 +63,7 @@ fn format_with_coma<N: Numeric>(elem: N, condition: bool, precision: Option<usiz
     }
 }
 
-fn format_with_precision<N: Numeric>(elem: N, suffix: &str, precision: Option<usize>) -> String {
+fn format_with_precision<T: ArrayElement>(elem: T, suffix: &str, precision: Option<usize>) -> String {
     if precision.is_some() {
         format!("{elem:.p$}{s}", elem = elem, p = precision.unwrap(), s = suffix)
     } else {

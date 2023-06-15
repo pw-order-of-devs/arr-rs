@@ -4,10 +4,10 @@ use crate::traits::{
     create::ArrayCreate,
     indexing::ArrayIndexing,
     meta::ArrayMeta,
-    types::numeric::Numeric,
+    types::ArrayElement,
 };
 
-impl <N: Numeric> ArrayIndexing<N> for Array<N> {
+impl <T: ArrayElement> ArrayIndexing<T> for Array<T> {
 
     fn index_at(&self, coords: &[usize]) -> Result<usize, ArrayError> {
         if self.shape.len() != coords.len() {
@@ -36,9 +36,9 @@ impl <N: Numeric> ArrayIndexing<N> for Array<N> {
         }
     }
 
-    fn at(&self, coords: &[usize]) -> Result<N, ArrayError> {
+    fn at(&self, coords: &[usize]) -> Result<T, ArrayError> {
         match self.index_at(coords) {
-            Ok(idx) => Ok(self.elements[idx]),
+            Ok(idx) => Ok(self.elements[idx].clone()),
             Err(e) => Err(e),
         }
     }
@@ -71,7 +71,7 @@ impl <N: Numeric> ArrayIndexing<N> for Array<N> {
 }
 
 
-impl <N: Numeric> ArrayIndexing<N> for Result<Array<N>, ArrayError> {
+impl <T: ArrayElement> ArrayIndexing<T> for Result<Array<T>, ArrayError> {
 
     fn index_at(&self, coords: &[usize]) -> Result<usize, ArrayError> {
         self.clone()?.index_at(coords)
@@ -81,11 +81,11 @@ impl <N: Numeric> ArrayIndexing<N> for Result<Array<N>, ArrayError> {
         self.clone()?.index_to_coord(idx)
     }
 
-    fn at(&self, coords: &[usize]) -> Result<N, ArrayError> {
+    fn at(&self, coords: &[usize]) -> Result<T, ArrayError> {
         self.clone()?.at(coords)
     }
 
-    fn slice(&self, range: std::ops::Range<usize>) -> Result<Array<N>, ArrayError> {
+    fn slice(&self, range: std::ops::Range<usize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.slice(range)
     }
 }

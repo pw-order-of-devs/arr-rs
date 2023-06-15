@@ -19,11 +19,11 @@ pub mod impls;
 #[cfg(feature = "macros")]
 pub mod macros;
 
-use crate::traits::types::numeric::Numeric;
+use crate::traits::types::ArrayElement;
 
 /// Array structure definition
 #[derive(Clone, Debug)]
-pub struct Array<N: Numeric> {
-    pub(crate) elements: Vec<N>,
+pub struct Array<T: ArrayElement> {
+    pub(crate) elements: Vec<T>,
     pub(crate) shape: Vec<usize>,
 }

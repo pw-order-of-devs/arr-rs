@@ -5,9 +5,10 @@ use std::str::FromStr;
 use rand::Rng;
 use rand::distributions::Uniform;
 
+use crate::traits::types::ArrayElement;
+
 /// Numeric type for array
-pub trait Numeric:
-Copy + Clone + PartialEq + PartialOrd + Debug + Display + FromStr {
+pub trait Numeric: ArrayElement + Clone + Copy + Display + Debug + PartialEq + PartialOrd + FromStr {
     /// Zero constant value
     const ZERO: Self;
     /// One constant value
@@ -51,6 +52,8 @@ Copy + Clone + PartialEq + PartialOrd + Debug + Display + FromStr {
 
 macro_rules! impl_numeric {
     ($t:ty) => {
+        impl ArrayElement for $t {}
+
         impl Numeric for $t {
             const ZERO: Self = 0 as $t;
             const ONE: Self = 1 as $t;
@@ -124,6 +127,8 @@ impl_numeric!(u64);
 
 macro_rules! impl_numeric_float {
     ($t:ty, $ti:ty) => {
+        impl ArrayElement for $t {}
+
         impl Numeric for $t {
             const ZERO: Self = 0 as $t;
             const ONE: Self = 1 as $t;

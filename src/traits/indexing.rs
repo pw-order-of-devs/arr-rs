@@ -1,11 +1,11 @@
 use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
-    types::numeric::Numeric,
+    types::ArrayElement,
 };
 
 /// ArrayTrait - Array Indexing functions
-pub trait ArrayIndexing<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayIndexing<T: ArrayElement> where Self: Sized + Clone {
 
     /// Return an index of element at the given coordinates
     ///
@@ -77,7 +77,7 @@ pub trait ArrayIndexing<N: Numeric> where Self: Sized + Clone {
     /// let at_3 = arr.at(&[1, 1, 1]).unwrap();
     /// assert_eq!(8, at_3);
     /// ```
-    fn at(&self, coords: &[usize]) -> Result<N, ArrayError>;
+    fn at(&self, coords: &[usize]) -> Result<T, ArrayError>;
 
     /// Return a subarray of provided range
     ///
@@ -100,5 +100,5 @@ pub trait ArrayIndexing<N: Numeric> where Self: Sized + Clone {
     /// let slice_1 = arr.slice(0..1).unwrap();
     /// assert_eq!(format!("{expected}"), format!("{slice_1}"));
     /// ```
-    fn slice(&self, range: std::ops::Range<usize>) -> Result<Array<N>, ArrayError>;
+    fn slice(&self, range: std::ops::Range<usize>) -> Result<Array<T>, ArrayError>;
 }
