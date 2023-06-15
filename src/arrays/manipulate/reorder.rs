@@ -1,12 +1,15 @@
 use std::collections::HashMap;
 use crate::arrays::Array;
 use crate::ext::vec_ext::{VecRemoveAt, VecRevert};
-use crate::prelude::ArrayAxis;
 use crate::traits::{
-    create::ArrayCreate,
+    create::{
+        ArrayCreate,
+        ArrayCreateNumeric,
+    },
     errors::ArrayError,
     manipulate::{
         ArrayManipulate,
+        axis::ArrayAxis,
         broadcast::ArrayBroadcast,
         reorder::ArrayReorder,
         split::ArraySplit,

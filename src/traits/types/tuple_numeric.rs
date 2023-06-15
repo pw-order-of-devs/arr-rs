@@ -2,7 +2,10 @@ use std::fmt::Display;
 use std::ops::RangeInclusive;
 use std::str::FromStr;
 
-use crate::traits::types::numeric::Numeric;
+use crate::traits::types::{
+    ArrayElement,
+    numeric::Numeric,
+};
 
 /// Numeric Tuple trait for array
 pub trait TupleNumeric<N: Numeric>: Numeric {
@@ -52,6 +55,8 @@ impl<T: Numeric + FromStr> FromStr for Tuple2<T> {
         Ok(Tuple2(x, y))
     }
 }
+
+impl <T: Numeric> ArrayElement for Tuple2<T> {}
 
 impl <N: Numeric> Numeric for Tuple2<N> {
     const ZERO: Self = Tuple2(N::ZERO, N::ZERO);

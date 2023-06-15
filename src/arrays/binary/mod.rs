@@ -1,6 +1,5 @@
 use crate::arrays::Array;
 use crate::ext::vec_ext::{VecRemoveAt, VecRevert};
-use crate::prelude::ArrayAxis;
 use crate::traits::{
     errors::ArrayError,
     binary::{
@@ -12,6 +11,7 @@ use crate::traits::{
     indexing::ArrayIndexing,
     manipulate::{
         ArrayManipulate,
+        axis::ArrayAxis,
         broadcast::ArrayBroadcast,
         split::ArraySplit,
     },

@@ -1,11 +1,14 @@
 use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
-    types::numeric::Numeric,
+    types::{
+        ArrayElement,
+        numeric::Numeric,
+    },
 };
 
 /// ArrayTrait - Array Create functions
-pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
 
     // ==== from data
 
@@ -28,7 +31,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
     /// assert_eq!("[[1, 2], \n [3, 4]]", format!("{arr:#}"));
     /// ```
-    fn new(elements: Vec<N>, shape: Vec<usize>) -> Result<Self, ArrayError>;
+    fn new(elements: Vec<T>, shape: Vec<usize>) -> Result<Self, ArrayError>;
 
     /// Creates new array with single element
     ///
@@ -45,7 +48,7 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(vec![1], arr.get_elements().unwrap());
     /// assert_eq!(vec![1], arr.get_shape().unwrap());
     /// ```
-    fn single(element: N) -> Result<Self, ArrayError>;
+    fn single(element: T) -> Result<Self, ArrayError>;
 
     /// Creates new flat array
     ///
@@ -60,7 +63,22 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     ///
     /// assert_eq!(array!([1, 2, 3, 4]), Array::<i32>::flat(vec![1, 2, 3, 4]));
     /// ```
-    fn flat(elements: Vec<N>) -> Result<Self, ArrayError>;
+    fn flat(elements: Vec<T>) -> Result<Self, ArrayError>;
+
+    /// Creates new empty array
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert!(Array::<i32>::empty().is_empty().unwrap());
+    /// ```
+    fn empty() -> Result<Self, ArrayError>;
+}
+
+/// ArrayTrait - Array Create functions
+pub trait ArrayCreateNumeric<N: ArrayElement + Numeric> where Self: Sized + Clone {
 
     /// Creates new array with random elements from (0 ..= 1) range
     ///
@@ -77,17 +95,6 @@ pub trait ArrayCreate<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(64, Array::<f64>::rand(vec![4, 4, 4]).len().unwrap());
     /// ```
     fn rand(shape: Vec<usize>) -> Result<Self, ArrayError>;
-
-    /// Creates new empty array
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// assert!(Array::<i32>::empty().is_empty().unwrap());
-    /// ```
-    fn empty() -> Result<Self, ArrayError>;
 
     /// Creates new 2d array with ones on the diagonal and zeros elsewhere
     ///

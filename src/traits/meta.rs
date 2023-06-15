@@ -1,10 +1,7 @@
-use crate::traits::{
-    errors::ArrayError,
-    types::numeric::Numeric,
-};
+use crate::traits::errors::ArrayError;
 
 /// ArrayTrait - Array Metadata functions
-pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayMeta<T: Clone> where Self: Sized + Clone {
 
     /// Obtain the vector containing array elements
     ///
@@ -16,7 +13,7 @@ pub trait ArrayMeta<N: Numeric> where Self: Sized + Clone {
     /// let arr = Array::new(vec![1,2,3,4], vec![4]).unwrap();
     /// assert_eq!(vec![1, 2, 3, 4], arr.get_elements().unwrap());
     /// ```
-    fn get_elements(&self) -> Result<Vec<N>, ArrayError>;
+    fn get_elements(&self) -> Result<Vec<T>, ArrayError>;
 
     /// Obtain the vector containing array shape
     ///

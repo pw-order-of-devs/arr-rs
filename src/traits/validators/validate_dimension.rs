@@ -2,7 +2,7 @@ use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
     meta::ArrayMeta,
-    types::numeric::Numeric,
+    types::ArrayElement,
     validators::validate_has_error::ValidateHasError,
 };
 
@@ -31,7 +31,7 @@ impl ValidateDimension for usize {
     }
 }
 
-impl <N: Numeric> ValidateDimension for Array<N> {
+impl <T: ArrayElement> ValidateDimension for Array<T> {
 
     fn is_dim_supported(&self, supported: &[usize]) -> Result<(), ArrayError> {
         if !supported.contains(&self.ndim()?) {
@@ -50,7 +50,7 @@ impl <N: Numeric> ValidateDimension for Array<N> {
     }
 }
 
-impl <N: Numeric> ValidateDimension for Vec<Array<N>> {
+impl <T: ArrayElement> ValidateDimension for Vec<Array<T>> {
 
     fn is_dim_supported(&self, unsupported: &[usize]) -> Result<(), ArrayError> {
         self.iter().map(|a| a.ndim()).collect::<Vec<Result<usize, ArrayError>>>().has_error()?;
