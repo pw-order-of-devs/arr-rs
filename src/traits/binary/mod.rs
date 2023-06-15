@@ -178,4 +178,22 @@ pub trait ArrayBinaryBits where Self: Sized + Clone {
     /// assert_eq!(expected, array.unpack_bits(Some(1), None, None));
     /// ```
     fn unpack_bits(&self, axis: Option<isize>, count: Option<isize>, bit_order: Option<BitOrder>) -> Result<Array<u8>, ArrayError>;
+
+    /// Packs the elements of a binary-valued array into bits in a uint8 array
+    ///
+    /// # Arguments
+    ///
+    /// * `axis` - the dimension over which bit-unpacking is done. if none, array is flattened
+    /// * `bit_order` - the order of the returned bits. defaults to `Big`
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected: Result<Array<u8>, _> = array!([[2], [7], [23]]);
+    /// let array: Result<Array<u8>, _> = array!([[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 0, 1, 1, 1]]);
+    /// assert_eq!(expected, array.pack_bits(Some(1), None));
+    /// ```
+    fn pack_bits(&self, axis: Option<isize>, bit_order: Option<BitOrder>) -> Result<Array<u8>, ArrayError>;
 }

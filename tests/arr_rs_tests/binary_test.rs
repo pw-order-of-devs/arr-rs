@@ -71,7 +71,7 @@ case(array_flat![1, 2, 3], array_flat![2, 2, 2, 2], Err(ArrayError::BroadcastSha
 array, axis, count, bit_order, expected,
 case(array_flat!(2, 3, 5), None, None, None, array!([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1])),
 case(array_flat!(2, 3, 5), None, None, Some(BitOrder::Little), array!([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0])),
-case(array_flat!(2, 3, 5), None, Some(1), None, array!([0])),
+case(array_flat!(2, 3, 5), None, Some(1), None, array_flat!(0)),
 case(array!([[2], [3], [5]]), Some(0), None, None, array!([[0], [0], [0], [0], [0], [0], [1], [0], [0], [0], [0], [0], [0], [0], [1], [1], [0], [0], [0], [0], [0], [1], [0], [1]])),
 case(array!([[2], [3], [5]]), Some(1), None, None, array!([[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 1, 0, 1]])),
 case(array!([[[2]], [[3]], [[5]]]), Some(0), None, None, array!([[[0]], [[0]], [[0]], [[0]], [[0]], [[0]], [[1]], [[0]], [[0]], [[0]], [[0]], [[0]], [[0]], [[0]], [[1]], [[1]], [[0]], [[0]], [[0]], [[0]], [[0]], [[1]], [[0]], [[1]]])),
@@ -82,6 +82,21 @@ case(array!([[[2, 2]], [[3, 3]], [[5, 5]]]), Some(1), None, None, array!([[[0, 0
 case(array!([[[2, 2]], [[3, 3]], [[5, 5]]]), Some(2), None, None, array!([[[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0]], [[0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1]], [[0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1]]])),
 )] fn test_unpack_bits(array: Result<Array<u8>, ArrayError>, axis: Option<isize>, count: Option<isize>, bit_order: Option<BitOrder>, expected: Result<Array<u8>, ArrayError>) {
     assert_eq!(expected, array.unpack_bits(axis, count, bit_order))
+}
+
+#[rstest(
+array, axis, bit_order, expected,
+case(array!([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1]), None, None, array_flat!(2, 3, 5)),
+case(array!([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]), None, Some(BitOrder::Little), array_flat!(2, 3, 5)),
+case(array!([[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 1, 0, 1]]), None, None, array_flat!(2, 3, 5)),
+case(array!([[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 1, 0, 1]]), Some(0), None, array!([[0, 0, 0, 0, 0, 32, 192, 96]])),
+case(array!([[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 0, 1, 0, 1]]), Some(1), None, array!([[2], [3], [5]])),
+case(array!([[[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1]], [[0, 0, 0, 0, 0, 1, 0, 1], [0, 0, 0, 0,  0, 0, 1, 1]]]), None, None, array_flat!(2, 3, 5, 3)),
+case(array!([[[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1]], [[0, 0, 0, 0, 0, 1, 0, 1], [0, 0, 0, 0,  0, 0, 1, 1]]]), Some(0), None, array!([[[0, 0, 0, 0, 0, 64, 128, 64], [0, 0, 0, 0, 0, 0, 192, 192]]])),
+case(array!([[[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1]], [[0, 0, 0, 0, 0, 1, 0, 1], [0, 0, 0, 0,  0, 0, 1, 1]]]), Some(1), None, array!([[[0, 0, 0, 0, 0, 0, 192, 64]], [[0, 0, 0, 0, 0, 128, 64, 192]]])),
+case(array!([[[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1]], [[0, 0, 0, 0, 0, 1, 0, 1], [0, 0, 0, 0,  0, 0, 1, 1]]]), Some(2), None, array!([[[2], [3]], [[5], [3]]])),
+)] fn test_pack_bits(array: Result<Array<u8>, ArrayError>, axis: Option<isize>, bit_order: Option<BitOrder>, expected: Result<Array<u8>, ArrayError>) {
+    assert_eq!(expected, array.pack_bits(axis, bit_order))
 }
 
 #[rstest(

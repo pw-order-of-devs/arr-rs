@@ -1,5 +1,6 @@
 use crate::arrays::Array;
-use crate::ext::vec_ext::VecRevert;
+use crate::ext::vec_ext::{VecRemoveAt, VecRevert};
+use crate::prelude::ArrayAxis;
 use crate::traits::{
     errors::ArrayError,
     binary::{
@@ -87,11 +88,10 @@ impl ArrayBinaryBits for Array<u8> {
 
     fn unpack_bits(&self, axis: Option<isize>, count: Option<isize>, bit_order: Option<BitOrder>) -> Result<Array<u8>, ArrayError> {
         if self.is_empty()? { return Array::empty() }
-        let array_u8 = self.into_iter().map(|i| i.to_usize() as u8).collect::<Array<u8>>();
         let bit_order = bit_order.unwrap_or(BitOrder::Big);
         match axis {
             None => {
-                let result = array_u8.ravel()?
+                let result = self.ravel()?
                     .into_iter()
                     .flat_map(|a| {
                         let mut elems = (0..8).rev().map(move |idx| (a >> idx) & 1).collect::<Vec<u8>>();
@@ -121,12 +121,10 @@ impl ArrayBinaryBits for Array<u8> {
                     }
                 } else {
                     let (parts, shape_first) = (self.get_shape()?.iter().product(), self.get_shape()?[0]);
-                    let split = self.split(self.shape[axis], Some(axis))?
-                        .into_iter()
+                    let split = self.split(self.shape[axis], Some(axis))?.into_iter()
                         .map(|arr| arr.unpack_bits(None, count, Some(bit_order)))
                         .collect::<Vec<Result<Array<u8>, _>>>()
-                        .has_error()?
-                        .into_iter()
+                        .has_error()?.into_iter()
                         .map(|arr| arr.unwrap())
                         .collect::<Vec<Array<u8>>>()
                         .into_iter().flatten().collect::<Array<u8>>()
@@ -137,6 +135,48 @@ impl ArrayBinaryBits for Array<u8> {
                         .collect()
                 }.reshape(new_shape)
             }
+        }
+    }
+
+    fn pack_bits(&self, axis: Option<isize>, bit_order: Option<BitOrder>) -> Result<Array<u8>, ArrayError> {
+        if self.is_empty()? { return Array::empty() }
+        let bit_order = bit_order.unwrap_or(BitOrder::Big);
+        match axis {
+            None => {
+                let mut elements = self.get_elements()?;
+                if elements.len() % 8 != 0 { elements.extend_from_slice(&vec![0; 8 - elements.len() % 8]) }
+
+                let parts = elements.len() / 8;
+                let result = (0 .. parts).map(|p| {
+                    let subarray = elements[p * 8 .. (p + 1) * 8].iter()
+                        .map(|i| if i > &0 { "1" } else { "0" })
+                        .collect::<Vec<&str>>()
+                        .join("");
+                    let subarray = if bit_order == BitOrder::Little { subarray.chars().rev().collect() } else { subarray };
+                    u8::from_str_radix(&subarray, 2).unwrap()
+                }).collect();
+                Ok(result)
+            },
+            Some(axis) => {
+                let mut new_shape = self.get_shape()?;
+                let parts = self.get_shape()?.into_iter().rev().collect::<Vec<usize>>();
+                let axis = Self::normalize_axis(axis, self.ndim()?);
+                new_shape[axis] = 1;
+                let split = if axis == self.ndim()? - 1 {
+                    self.split(parts[axis], Some(self.ndim()? - 1 - axis))?
+                } else {
+                    let parts = self.get_shape()?.remove_at(axis).into_iter().product();
+                    self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])
+                        .ravel().split(parts, None)?
+                };
+                split.into_iter()
+                    .map(|arr| arr.pack_bits(None, Some(bit_order)).get_elements())
+                    .collect::<Vec<Result<Vec<u8>, _>>>()
+                    .has_error()?.into_iter()
+                    .flat_map(|arr| arr.unwrap())
+                    .collect::<Array<u8>>()
+                    .reshape(new_shape)
+            },
         }
     }
 }
@@ -179,5 +219,9 @@ impl ArrayBinaryBits for Result<Array<u8>, ArrayError> {
 
     fn unpack_bits(&self, axis: Option<isize>, count: Option<isize>, bit_order: Option<BitOrder>) -> Result<Array<u8>, ArrayError> {
         self.clone()?.unpack_bits(axis, count, bit_order)
+    }
+
+    fn pack_bits(&self, axis: Option<isize>, bit_order: Option<BitOrder>) -> Result<Array<u8>, ArrayError> {
+        self.clone()?.pack_bits(axis, bit_order)
     }
 }
