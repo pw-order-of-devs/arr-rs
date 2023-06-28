@@ -13,7 +13,7 @@ pub mod numeric_ops;
 /// SignedNumeric type definition
 pub mod signed_numeric;
 
-/// Tuple numeric types definition
+/// Tuple types definition
 pub mod tuple;
 
 /// base trait for arrays

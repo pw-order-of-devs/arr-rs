@@ -3,7 +3,7 @@ use crate::traits::{
     errors::ArrayError,
     types::{
         ArrayElement,
-        tuple::Tuple2,
+        tuple::tuple2::Tuple2,
     }
 };
 

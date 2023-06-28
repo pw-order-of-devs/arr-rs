@@ -9,7 +9,7 @@ use crate::traits::{
     meta::ArrayMeta,
     types::{
         ArrayElement,
-        tuple::Tuple2,
+        tuple::tuple2::Tuple2,
     },
     validators::{
         validate_has_error::ValidateHasError,

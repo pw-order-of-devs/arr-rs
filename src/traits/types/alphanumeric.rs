@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use crate::prelude::Tuple3;
 use crate::traits::types::ArrayElement;
 
 /// Alphanumeric trait for array
@@ -27,6 +28,18 @@ pub trait Alphanumeric: ArrayElement {
 
     /// join string by separator
     fn join(&self, sep: Self) -> Self;
+
+    /// partition string by first occurrence of separator
+    fn partition(&self, sep: Self) -> Tuple3<Self>;
+
+    /// partition string by last occurrence of separator
+    fn rpartition(&self, sep: Self) -> Tuple3<Self>;
+
+    /// replace <old> string with <new> <count> times
+    fn replace(&self, old: Self, new: Self, count: Option<usize>) -> Self;
+
+    /// strips string elements
+    fn strip(&self, chars: Self) -> Self;
 
     /// left-justifies string elements
     fn ljust(&self, width: usize, fill_char: char) -> Self;
@@ -94,6 +107,46 @@ impl Alphanumeric for String {
 
     fn join(&self, sep: Self) -> Self {
         self.chars().join(&sep)
+    }
+
+    fn partition(&self, sep: Self) -> Tuple3<Self> {
+        if let Some(index) = self.find(&sep) {
+            let (before, rest) = self.split_at(index);
+            let (_, after) = rest.split_at(sep.len());
+            Tuple3(before.to_string(), sep, after.to_string())
+        } else {
+            Tuple3(self.clone(), "".to_string(), "".to_string())
+        }
+    }
+
+    fn rpartition(&self, sep: Self) -> Tuple3<Self> {
+        if let Some(index) = self.rfind(&sep) {
+            let (before, rest) = self.split_at(index);
+            let (_, after) = rest.split_at(sep.len());
+            Tuple3(before.to_string(), sep, after.to_string())
+        } else {
+            Tuple3(self.clone(), "".to_string(), "".to_string())
+        }
+    }
+
+    fn replace(&self, old: Self, new: Self, count: Option<usize>) -> Self {
+        let mut replaced_count = 0;
+        let mut replaced_string = self.clone();
+
+        while let Some(index) = replaced_string.find(old.as_str()) {
+            if count.is_some() && replaced_count >= count.unwrap() {
+                break;
+            }
+
+            replaced_string.replace_range(index .. index + old.len(), new.as_str());
+            replaced_count += 1;
+        }
+
+        replaced_string
+    }
+
+    fn strip(&self, chars: Self) -> Self {
+        self.lstrip(chars.clone()).rstrip(chars)
     }
 
     fn ljust(&self, width: usize, fill_char: char) -> Self {

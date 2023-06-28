@@ -5,7 +5,10 @@ use crate::traits::{
     create::ArrayCreate,
     manipulate::broadcast::ArrayBroadcast,
     meta::ArrayMeta,
-    types::alphanumeric::Alphanumeric,
+    types::{
+        alphanumeric::Alphanumeric,
+        tuple::tuple3::Tuple3,
+    },
 };
 
 impl <N: Alphanumeric> ArrayString<N> for Array<N> {
@@ -58,10 +61,41 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
 
     fn join(&self, sep: &Array<N>) -> Result<Array<N>, ArrayError> {
         let broadcasted = self.broadcast(sep)?;
-        let elements = self.broadcast(sep)?.into_iter()
+        let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0.join(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
+        let broadcasted = self.broadcast(sep)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| tuple.0.partition(tuple.1))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
+        let broadcasted = self.broadcast(sep)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| tuple.0.rpartition(tuple.1))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn replace(&self, old: &Array<N>, new: &Array<N>, count: Option<usize>) -> Result<Array<N>, ArrayError> {
+        let broadcasted = Self::broadcast_arrays(vec![self.clone(), old.clone(), new.clone()])?;
+        let tupled = (0 .. broadcasted[0].len()?).map(|i| {
+            Tuple3(broadcasted[0][i].clone(), broadcasted[1][i].clone(), broadcasted[2][i].clone())
+        }).collect::<Vec<Tuple3<N>>>();
+        let elements = tupled.into_iter()
+            .map(|tuple| tuple.0.replace(tuple.1, tuple.2, count))
+            .collect();
+        Array::new(elements, broadcasted[0].get_shape()?)
+    }
+
+    fn strip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
+        self.lstrip(chars.clone()).rstrip(chars)
     }
 
     fn ljust(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
@@ -128,6 +162,22 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
 
     fn join(&self, sep: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.join(sep)
+    }
+
+    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
+        self.clone()?.partition(sep)
+    }
+
+    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
+        self.clone()?.rpartition(sep)
+    }
+
+    fn replace(&self, old: &Array<N>, new: &Array<N>, count: Option<usize>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.replace(old, new, count)
+    }
+
+    fn strip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.strip(chars)
     }
 
     fn ljust(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {

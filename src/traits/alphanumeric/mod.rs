@@ -1,7 +1,10 @@
 use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
-    types::alphanumeric::Alphanumeric,
+    types::{
+        alphanumeric::Alphanumeric,
+        tuple::tuple3::Tuple3,
+    },
 };
 
 /// ArrayTrait - Alphanumeric Array operations
@@ -117,6 +120,78 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr.join(&sep));
     /// ```
     fn join(&self, sep: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Partition each element around first occurrence of sep
+    ///
+    /// # Arguments
+    ///
+    /// * `sep` - separator to split each string element
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![Tuple3("a".to_string(), "-".to_string(), "a-a".to_string()), Tuple3("b".to_string(), "-".to_string(), "b-b-b".to_string())]);
+    /// let arr = Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]);
+    /// assert_eq!(expected, arr.partition(&Array::single("-".to_string()).unwrap()));
+    /// ```
+    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError>;
+
+    /// Partition each element around last occurrence of sep
+    ///
+    /// # Arguments
+    ///
+    /// * `sep` - separator to split each string element
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![Tuple3("a-a".to_string(), "-".to_string(), "a".to_string()), Tuple3("b-b-b".to_string(), "-".to_string(), "b".to_string())]);
+    /// let arr = Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]);
+    /// assert_eq!(expected, arr.rpartition(&Array::single("-".to_string()).unwrap()));
+    /// ```
+    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError>;
+
+    /// Replaces all occurrences of <old> with <new>
+    ///
+    /// # Arguments
+    ///
+    /// * `old` - string to replace
+    /// * `new` - new string
+    /// * `count` - maximum occurrences to replace
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec!["new string".to_string()]);
+    /// let arr = Array::flat(vec!["old string".to_string()]);
+    /// let new = Array::flat(vec!["new".to_string()]).unwrap();
+    /// let old = Array::flat(vec!["old".to_string()]).unwrap();
+    /// assert_eq!(expected, arr.replace(&old, &new, None));
+    /// ```
+    fn replace(&self, old: &Array<N>, new: &Array<N>, count: Option<usize>) -> Result<Array<N>, ArrayError>;
+
+    /// Trims leading and trailing characters
+    ///
+    /// # Arguments
+    ///
+    /// * `chars` - characters to trim. defaults to whitespace
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec!["b".to_string(), "bbbb".to_string()]);
+    /// let arr = Array::flat(vec!["aaba".to_string(), "ccbbbbc".to_string()]);
+    /// assert_eq!(expected, arr.strip(Some(Array::flat(vec!["a".to_string(), "c".to_string()]).unwrap())));
+    /// ```
+    fn strip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError>;
 
     /// Left-justifies elements in a string of length of `width`
     ///

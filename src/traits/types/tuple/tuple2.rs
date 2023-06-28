@@ -5,52 +5,27 @@ use std::str::FromStr;
 use crate::traits::types::{
     ArrayElement,
     numeric::Numeric,
+    tuple::{
+        ParseTupleError,
+        TupleElement,
+    },
 };
 
-/// Generic Tuple trait for array
-pub trait TupleElement<T: ArrayElement> {
-    /// Output type for TupleElement
-    type Output;
-
-    /// parse type from tuple
-    fn from_tuple(tuple: (T, T)) -> Self::Output;
-}
-
-/// Tuple type for array
+/// Tuple2 type for array
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub struct Tuple2<T: ArrayElement>(pub T, pub T);
 
-/// Error definition for tuple parsing
-#[derive(Debug)]
-pub enum ParseTuple2Error<T: FromStr> {
-    /// Error definition for tuple parsing - Parse error
-    Parse(T::Err),
-    /// Error definition for tuple parsing - Format error
-    Format,
-}
-
-impl<T: FromStr> Display for ParseTuple2Error<T> {
-
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ParseTuple2Error::Parse(_) => write!(f, "Parse error"),
-            ParseTuple2Error::Format => write!(f, "Format error"),
-        }
-    }
-}
-
 impl<T: Numeric + FromStr> FromStr for Tuple2<T> {
-    type Err = ParseTuple2Error<T>;
+    type Err = ParseTupleError<T>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        println!("{s}");
         let s = s.trim_start_matches('(').trim_end_matches(')');
         let mut parts = s.split(", ");
-        let x = parts.next().ok_or(ParseTuple2Error::Format)?;
-        let y = parts.next().ok_or(ParseTuple2Error::Format)?;
+        let x = parts.next().ok_or(ParseTupleError::Format)?;
+        let y = parts.next().ok_or(ParseTupleError::Format)?;
 
-        let x = T::from_str(x).map_err(ParseTuple2Error::Parse)?;
-        let y = T::from_str(y).map_err(ParseTuple2Error::Parse)?;
+        let x = T::from_str(x).map_err(ParseTupleError::Parse)?;
+        let y = T::from_str(y).map_err(ParseTupleError::Parse)?;
 
         Ok(Tuple2(x, y))
     }
@@ -159,6 +134,7 @@ impl <N: Numeric> From<(N, N)> for Tuple2<N> {
 }
 
 impl <T: ArrayElement> TupleElement<T> for Tuple2<T> {
+    type Input = (T, T);
     type Output = Self;
 
     fn from_tuple(tuple: (T, T)) -> Self::Output {
