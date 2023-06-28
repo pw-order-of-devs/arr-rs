@@ -7,18 +7,18 @@ use crate::traits::types::{
     numeric::Numeric,
 };
 
-/// Numeric Tuple trait for array
-pub trait TupleNumeric<N: Numeric>: Numeric {
-    /// Output type for TupleNumeric
+/// Generic Tuple trait for array
+pub trait TupleElement<T: ArrayElement> {
+    /// Output type for TupleElement
     type Output;
 
-    /// parse numeric type from tuple
-    fn from_tuple(tuple: (N, N)) -> Self::Output;
+    /// parse type from tuple
+    fn from_tuple(tuple: (T, T)) -> Self::Output;
 }
 
-/// Numeric Tuple type for array
+/// Tuple type for array
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
-pub struct Tuple2<N: Numeric>(pub N, pub N);
+pub struct Tuple2<T: ArrayElement>(pub T, pub T);
 
 /// Error definition for tuple parsing
 #[derive(Debug)]
@@ -56,12 +56,18 @@ impl<T: Numeric + FromStr> FromStr for Tuple2<T> {
     }
 }
 
-impl <T: Numeric> ArrayElement for Tuple2<T> {}
+impl <T: ArrayElement> ArrayElement for Tuple2<T> {
+
+    fn zero() -> Self {
+        Tuple2(T::zero(), T::zero())
+    }
+
+    fn one() -> Self {
+        Tuple2(T::one(), T::one())
+    }
+}
 
 impl <N: Numeric> Numeric for Tuple2<N> {
-    const ZERO: Self = Tuple2(N::ZERO, N::ZERO);
-    const ONE: Self = Tuple2(N::ONE, N::ONE);
-
     fn rand(range: RangeInclusive<Self>) -> Self {
         let start = range.start();
         let end = range.end();
@@ -138,7 +144,7 @@ impl <N: Numeric> Numeric for Tuple2<N> {
     }
 }
 
-impl<N: Numeric> Display for Tuple2<N> {
+impl <T: ArrayElement> Display for Tuple2<T> {
 
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {})", self.0, self.1)
@@ -152,10 +158,10 @@ impl <N: Numeric> From<(N, N)> for Tuple2<N> {
     }
 }
 
-impl <N: Numeric> TupleNumeric<N> for Tuple2<N> {
+impl <T: ArrayElement> TupleElement<T> for Tuple2<T> {
     type Output = Self;
 
-    fn from_tuple(tuple: (N, N)) -> Self::Output {
+    fn from_tuple(tuple: (T, T)) -> Self::Output {
         Tuple2(tuple.0, tuple.1)
     }
 }

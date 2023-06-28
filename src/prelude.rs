@@ -1,6 +1,7 @@
 // traits traits
 pub use crate::traits::{
     errors::ArrayError,
+    alphanumeric::ArrayString,
     binary::{
         ArrayBinary,
         ArrayBinaryBits,
@@ -29,7 +30,7 @@ pub use crate::traits::{
         numeric_ops::NumericOps,
         signed_numeric::SignedNumeric,
         bool_numeric::BoolNumeric,
-        tuple_numeric::{Tuple2, TupleNumeric},
+        tuple::{Tuple2, TupleElement},
     },
 };
 

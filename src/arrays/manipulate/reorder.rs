@@ -154,16 +154,6 @@ impl <N: Numeric> ArrayReorder<N> for Array<N> {
     }
 }
 
-#[cfg(test)] mod test {
-    use crate::prelude::*;
-
-    #[test] fn test() {
-        let arr: Result<Array<i32>, _> = array!([[1, 2], [3, 4]]);
-        let res = arr.rot90(1, vec![0, 1, 2]);
-        println!("{res:?}");
-    }
-}
-
 impl <N: Numeric> ArrayReorder<N> for Result<Array<N>, ArrayError> {
 
     fn flip(&self, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {

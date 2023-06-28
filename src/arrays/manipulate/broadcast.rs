@@ -8,8 +8,8 @@ use crate::traits::{
     },
     meta::ArrayMeta,
     types::{
-        numeric::Numeric,
-        tuple_numeric::Tuple2,
+        ArrayElement,
+        tuple::Tuple2,
     },
     validators::{
         validate_has_error::ValidateHasError,
@@ -17,9 +17,9 @@ use crate::traits::{
     },
 };
 
-impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
+impl <T: ArrayElement> ArrayBroadcast<T> for Array<T> {
 
-    fn broadcast(&self, other: &Array<N>) -> Result<Array<Tuple2<N>>, ArrayError> {
+    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T>>, ArrayError> {
         self.get_shape()?.is_broadcastable(&other.get_shape()?)?;
 
         let final_shape = self.broadcast_shape(other.get_shape()?)?;
@@ -33,17 +33,17 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
                 (1, _) => inner_self.iter().cycle()
                     .zip(inner_other.iter())
                     .take(final_shape[final_shape.len() - 1])
-                    .map( | ( & a, & b) | Tuple2(a, b))
+                    .map(|(a, b) | Tuple2(a.clone(), b.clone()))
                     .collect::< Vec < _ > > (),
                 (_, 1) => inner_self.iter()
                     .zip(inner_other.iter().cycle())
                     .take(final_shape[final_shape.len() - 1])
-                    .map(| ( & a, & b) | Tuple2(a, b))
+                    .map(|(a, b) | Tuple2(a.clone(), b.clone()))
                     .collect::<Vec < _ > > (),
                 _ => inner_self.iter().cycle()
                     .zip(inner_other.iter().cycle())
                     .take(final_shape[final_shape.len() - 1])
-                    .map( |( & a, & b) | Tuple2(a, b))
+                    .map(|(a, b) | Tuple2(a.clone(), b.clone()))
                     .collect::< Vec< _ > > (),
             })
             .take(final_shape.iter().product())
@@ -52,20 +52,20 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
         Array::new(output_elements, final_shape)
     }
 
-    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
+    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
         self.get_shape()?.is_broadcastable(&shape)?;
 
         if self.get_shape()?.iter().product::<usize>() == shape.iter().product::<usize>() {
             self.reshape(shape)
         } else {
-            let output_elements: Vec<N> = self.elements
+            let output_elements: Vec<T> = self.elements
                 .chunks_exact(self.shape[self.shape.len() - 1])
                 .flat_map(|inner| {
                     let extended_inner = inner.iter()
                         .cycle()
                         .take(shape[shape.len() - 1])
-                        .copied()
-                        .collect::<Vec<N>>();
+                        .cloned()
+                        .collect::<Vec<T>>();
                     extended_inner.into_iter()
                 })
                 .cycle()
@@ -76,7 +76,7 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
         }
     }
 
-    fn broadcast_arrays(arrays: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError> {
+    fn broadcast_arrays(arrays: Vec<Array<T>>) -> Result<Vec<Array<T>>, ArrayError> {
         arrays.iter().map(|array| array.get_shape()).collect::<Vec<Result<Vec<usize>, ArrayError>>>().has_error()?;
         let shapes = arrays.iter()
             .map(|array| array.get_shape().unwrap())
@@ -97,22 +97,22 @@ impl <N: Numeric> ArrayBroadcast<N> for Array<N> {
     }
 }
 
-impl <N: Numeric> ArrayBroadcast<N> for Result<Array<N>, ArrayError> {
+impl <T: ArrayElement> ArrayBroadcast<T> for Result<Array<T>, ArrayError> {
 
-    fn broadcast(&self, other: &Array<N>) -> Result<Array<Tuple2<N>>, ArrayError> {
+    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T>>, ArrayError> {
         self.clone()?.broadcast(other)
     }
 
-    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError> {
+    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.broadcast_to(shape)
     }
 
-    fn broadcast_arrays(arrays: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError> {
+    fn broadcast_arrays(arrays: Vec<Array<T>>) -> Result<Vec<Array<T>>, ArrayError> {
         Array::broadcast_arrays(arrays)
     }
 }
 
-impl <N: Numeric> Array<N> {
+impl <T: ArrayElement> Array<T> {
 
     fn broadcast_shape(&self, shape: Vec<usize>) -> Result<Vec<usize>, ArrayError> {
         let max_dim = self.shape.len().max(shape.len());
@@ -170,7 +170,7 @@ impl <N: Numeric> Array<N> {
         else { Err(ArrayError::BroadcastShapeMismatch) }
     }
 
-    fn extract_inner_arrays(&self) -> Vec<Vec<N>> {
+    fn extract_inner_arrays(&self) -> Vec<Vec<T>> {
         match self.shape.len() {
             1 => vec![self.elements.clone()],
             _ => self.elements

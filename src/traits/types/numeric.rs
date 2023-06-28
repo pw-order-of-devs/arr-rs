@@ -9,10 +9,6 @@ use crate::traits::types::ArrayElement;
 
 /// Numeric type for array
 pub trait Numeric: ArrayElement + Clone + Copy + Display + Debug + PartialEq + PartialOrd + FromStr {
-    /// Zero constant value
-    const ZERO: Self;
-    /// One constant value
-    const ONE: Self;
 
     /// Generate random value
     fn rand(range: RangeInclusive<Self>) -> Self;
@@ -52,11 +48,18 @@ pub trait Numeric: ArrayElement + Clone + Copy + Display + Debug + PartialEq + P
 
 macro_rules! impl_numeric {
     ($t:ty) => {
-        impl ArrayElement for $t {}
+        impl ArrayElement for $t {
+
+            fn zero() -> Self {
+                0 as $t
+            }
+
+            fn one() -> Self {
+                1 as $t
+            }
+        }
 
         impl Numeric for $t {
-            const ZERO: Self = 0 as $t;
-            const ONE: Self = 1 as $t;
 
             fn rand(range: RangeInclusive<Self>) -> $t {
                 let mut rng = rand::thread_rng();
@@ -127,11 +130,18 @@ impl_numeric!(u64);
 
 macro_rules! impl_numeric_float {
     ($t:ty, $ti:ty) => {
-        impl ArrayElement for $t {}
+        impl ArrayElement for $t {
+
+            fn zero() -> Self {
+                0 as $t
+            }
+
+            fn one() -> Self {
+                1 as $t
+            }
+        }
 
         impl Numeric for $t {
-            const ZERO: Self = 0 as $t;
-            const ONE: Self = 1 as $t;
 
             fn rand(range: RangeInclusive<Self>) -> $t {
                 let mut rng = rand::thread_rng();
@@ -194,8 +204,6 @@ impl_numeric_float!(f32, i64);
 impl_numeric_float!(f64, i128);
 
 impl Numeric for bool {
-    const ZERO: Self = false;
-    const ONE: Self = true;
 
     fn rand(_: RangeInclusive<Self>) -> Self {
         let mut rng = rand::thread_rng();

@@ -1,10 +1,10 @@
 use crate::arrays::Array;
 use crate::traits::{
     create::ArrayCreate,
-    types::numeric::Numeric,
+    types::ArrayElement,
 };
 
-impl <N: Numeric> IntoIterator for Array<N> {
+impl <N: ArrayElement> IntoIterator for Array<N> {
     type Item = N;
     type IntoIter = std::vec::IntoIter<N>;
 
@@ -13,7 +13,7 @@ impl <N: Numeric> IntoIterator for Array<N> {
     }
 }
 
-impl<'a, N: Numeric> IntoIterator for &'a Array<N> {
+impl<'a, N: ArrayElement> IntoIterator for &'a Array<N> {
     type Item = &'a N;
     type IntoIter = std::slice::Iter<'a, N>;
 
@@ -22,7 +22,7 @@ impl<'a, N: Numeric> IntoIterator for &'a Array<N> {
     }
 }
 
-impl <N: Numeric> FromIterator<N> for Array<N> {
+impl <N: ArrayElement> FromIterator<N> for Array<N> {
 
     fn from_iter<T: IntoIterator<Item=N>>(iter: T) -> Self {
         Self::flat(iter.into_iter().collect()).unwrap()

@@ -14,7 +14,12 @@ pub mod numeric_ops;
 pub mod signed_numeric;
 
 /// Tuple numeric types definition
-pub mod tuple_numeric;
+pub mod tuple;
 
 /// base trait for arrays
-pub trait ArrayElement: Clone + std::fmt::Display + std::fmt::Debug {}
+pub trait ArrayElement: Clone + std::fmt::Display + std::fmt::Debug + PartialEq + PartialOrd {
+    /// Zero constant value
+    fn zero() -> Self;
+    /// One constant value
+    fn one() -> Self;
+}

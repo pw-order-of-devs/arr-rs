@@ -122,7 +122,7 @@ impl <N: Numeric> ArrayStack<N> for Array<N> {
                 else { total_cols += array.shape[1]; }
             });
 
-            let (mut new_elements, mut new_col_idx) = (vec![N::ZERO; num_rows * total_cols], 0);
+            let (mut new_elements, mut new_col_idx) = (vec![N::zero(); num_rows * total_cols], 0);
             arrs.iter().for_each(|array| {
                 let array_cols = if array.ndim().unwrap() == 1 { 1 } else { array.shape[1] };
                 (0 .. num_rows).for_each(|row| {

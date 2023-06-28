@@ -13,15 +13,15 @@ impl <N: Numeric> ArrayMath<N> for Array<N> {
     }
 
     fn product(&self) -> Result<N, ArrayError> {
-        Ok(self.elements.iter().fold(N::ONE, |acc, x| N::from(acc.to_f64() * x.to_f64())))
+        Ok(self.elements.iter().fold(N::one(), |acc, x| N::from(acc.to_f64() * x.to_f64())))
     }
 
     fn sum(&self) -> Result<N, ArrayError> {
-        Ok(self.elements.iter().fold(N::ZERO, |acc, x| N::from(acc.to_f64() + x.to_f64())))
+        Ok(self.elements.iter().fold(N::zero(), |acc, x| N::from(acc.to_f64() + x.to_f64())))
     }
 
     fn cumsum(&self) -> Result<Array<N>, ArrayError> {
-        let mut acc = N::ZERO;
+        let mut acc = N::zero();
         self.map(|&x| {
             acc = N::from(acc.to_f64() + x.to_f64());
             acc
