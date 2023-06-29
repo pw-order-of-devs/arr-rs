@@ -1,4 +1,5 @@
 use crate::arrays::Array;
+use crate::prelude::ArrayManipulate;
 use crate::traits::{
     errors::ArrayError,
     alphanumeric::ArrayString,
@@ -7,6 +8,7 @@ use crate::traits::{
     meta::ArrayMeta,
     types::{
         alphanumeric::Alphanumeric,
+        collection::List,
         tuple::tuple3::Tuple3,
     },
 };
@@ -51,6 +53,13 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
         Array::new(elements, self.get_shape()?)
     }
 
+    fn swapcase(&self) -> Result<Array<N>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|s| s.swapcase())
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
     fn center(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
         let fill_char = fill_char.unwrap_or(' ');
         let elements = self.clone().into_iter()
@@ -81,6 +90,43 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
             .map(|tuple| tuple.0.rpartition(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn split(&self, sep: Option<Array<N>>, max_split: Option<Array<usize>>) -> Result<Array<List<N>>, ArrayError> {
+        let sep = sep.unwrap_or(Array::single(N::from_str(" "))?);
+        let broadcasted = self.broadcast(&sep)?;
+        let max_split =
+            if let Some(counts) = max_split { Some(counts.broadcast_to(broadcasted.get_shape()?)?) } else { None };
+        let elements = broadcasted.clone().into_iter().enumerate()
+            .map(|(idx, tuple)| tuple.0.split(tuple.1, max_split.clone().map(|s| s[idx])))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn rsplit(&self, sep: Option<Array<N>>, max_split: Option<Array<usize>>) -> Result<Array<List<N>>, ArrayError> {
+        let sep = sep.unwrap_or(Array::single(N::from_str(" "))?);
+        let broadcasted = self.broadcast(&sep)?;
+        let max_split =
+            if let Some(counts) = max_split { Some(counts.broadcast_to(broadcasted.get_shape()?)?) } else { None };
+        let elements = broadcasted.clone().into_iter().enumerate()
+            .map(|(idx, tuple)| tuple.0.rsplit(tuple.1, max_split.clone().map(|s| s[idx])))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn splitlines(&self, keep_ends: Option<Array<bool>>) -> Result<Array<List<N>>, ArrayError> {
+        let keep_ends = keep_ends.unwrap_or(Array::single(false)?);
+        let tmp_keep_ends = Array::single(N::from_str(" ")).broadcast_to(keep_ends.get_shape()?)?;
+        let tmp_array = self.broadcast(&tmp_keep_ends)?;
+
+        let array = tmp_array.clone().into_iter()
+            .map(|t| t.0).collect::<Array<N>>()
+            .reshape(tmp_array.get_shape()?)?;
+        let keep_ends = keep_ends.broadcast_to(array.get_shape()?)?;
+        let elements = array.clone().into_iter().enumerate()
+            .map(|(idx, elem)| elem.splitlines(keep_ends[idx]))
+            .collect();
+        Array::new(elements, array.get_shape()?)
     }
 
     fn replace(&self, old: &Array<N>, new: &Array<N>, count: Option<usize>) -> Result<Array<N>, ArrayError> {
@@ -156,6 +202,10 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
         self.clone()?.upper()
     }
 
+    fn swapcase(&self) -> Result<Array<N>, ArrayError> {
+        self.clone()?.swapcase()
+    }
+
     fn center(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
         self.clone()?.center(width, fill_char)
     }
@@ -170,6 +220,18 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
 
     fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
         self.clone()?.rpartition(sep)
+    }
+
+    fn split(&self, sep: Option<Array<N>>, max_split: Option<Array<usize>>) -> Result<Array<List<N>>, ArrayError> {
+        self.clone()?.split(sep, max_split)
+    }
+
+    fn rsplit(&self, sep: Option<Array<N>>, max_split: Option<Array<usize>>) -> Result<Array<List<N>>, ArrayError> {
+        self.clone()?.rsplit(sep, max_split)
+    }
+
+    fn splitlines(&self, keep_ends: Option<Array<bool>>) -> Result<Array<List<N>>, ArrayError> {
+        self.clone()?.splitlines(keep_ends)
     }
 
     fn replace(&self, old: &Array<N>, new: &Array<N>, count: Option<usize>) -> Result<Array<N>, ArrayError> {

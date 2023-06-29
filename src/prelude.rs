@@ -35,6 +35,10 @@ pub use crate::traits::{
             tuple2::Tuple2,
             tuple3::Tuple3,
         },
+        collection::{
+            CollectionElement,
+            List,
+        },
     },
 };
 

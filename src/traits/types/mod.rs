@@ -16,8 +16,13 @@ pub mod signed_numeric;
 /// Tuple types definition
 pub mod tuple;
 
+/// Collection types definition
+pub mod collection;
+
+use std::fmt::{Debug, Display};
+
 /// base trait for arrays
-pub trait ArrayElement: Clone + std::fmt::Display + std::fmt::Debug + PartialEq + PartialOrd {
+pub trait ArrayElement: Clone + Display + Debug + PartialEq + PartialOrd {
     /// Zero constant value
     fn zero() -> Self;
     /// One constant value

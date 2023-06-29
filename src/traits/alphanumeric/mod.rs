@@ -3,6 +3,7 @@ use crate::traits::{
     errors::ArrayError,
     types::{
         alphanumeric::Alphanumeric,
+        collection::List,
         tuple::tuple3::Tuple3,
     },
 };
@@ -85,6 +86,19 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// ```
     fn upper(&self) -> Result<Array<N>, ArrayError>;
 
+    /// Swap characters case
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec!["A1a".to_string(), "2bB".to_string()]);
+    /// let arr = Array::flat(vec!["a1A".to_string(), "2Bb".to_string()]);
+    /// assert_eq!(expected, arr.swapcase());
+    /// ```
+    fn swapcase(&self) -> Result<Array<N>, ArrayError>;
+
     /// Centers elements in a string of length of `width`
     ///
     /// # Arguments
@@ -154,6 +168,59 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr.rpartition(&Array::single("-".to_string()).unwrap()));
     /// ```
     fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError>;
+
+    /// Returns a list of the words in the string, using sep as the delimiter string.
+    ///
+    /// # Arguments
+    ///
+    /// * `sep` - separator to split each string element. defaults to space
+    /// * `max_split` - at most <max_split> splits are done
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![List(vec!["a".to_string(), "a".to_string(), "a".to_string()]), List(vec!["b".to_string(), "b".to_string(), "b".to_string(), "b".to_string()])]);
+    /// let arr = Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]).unwrap();
+    /// assert_eq!(expected, ArrayString::split(&arr, Some(Array::single("-".to_string()).unwrap()), None));
+    /// ```
+    fn split(&self, sep: Option<Array<N>>, max_split: Option<Array<usize>>) -> Result<Array<List<N>>, ArrayError>;
+
+    /// Returns a list of the words in the string, using sep as the delimiter string.
+    ///
+    /// # Arguments
+    ///
+    /// * `sep` - separator to split each string element. defaults to space
+    /// * `max_split` - at most <max_split> splits are done
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![List(vec!["a".to_string(), "a".to_string(), "a".to_string()]), List(vec!["b".to_string(), "b".to_string(), "b".to_string(), "b".to_string()])]);
+    /// let arr = Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]).unwrap();
+    /// assert_eq!(expected, ArrayString::rsplit(&arr, Some(Array::single("-".to_string()).unwrap()), None));
+    /// ```
+    fn rsplit(&self, sep: Option<Array<N>>, max_split: Option<Array<usize>>) -> Result<Array<List<N>>, ArrayError>;
+
+    /// Returns a list of the words in the string, using line break character as the delimiter string.
+    ///
+    /// # Arguments
+    ///
+    /// * `keep_ends` - if true, line break character will be kept
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![List(vec!["aa".to_string(), "a".to_string()]), List(vec!["bb".to_string(), "bb".to_string()])]);
+    /// let arr = Array::flat(vec!["aa\na".to_string(), "bb\nbb".to_string()]).unwrap();
+    /// assert_eq!(expected, arr.splitlines(None));
+    /// ```
+    fn splitlines(&self, keep_ends: Option<Array<bool>>) -> Result<Array<List<N>>, ArrayError>;
 
     /// Replaces all occurrences of <old> with <new>
     ///
