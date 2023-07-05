@@ -113,9 +113,9 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec!["***aaa***".to_string(), "***bbbb**".to_string()]);
     /// let arr = Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]);
-    /// assert_eq!(expected, arr.center(9, Some('*')));
+    /// assert_eq!(expected, arr.center(&Array::single(9).unwrap(), Some(Array::single('*').unwrap())));
     /// ```
-    fn center(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError>;
+    fn center(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError>;
 
     /// Concatenate the strings in the sequence
     ///
@@ -260,24 +260,6 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// ```
     fn strip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError>;
 
-    /// Left-justifies elements in a string of length of `width`
-    ///
-    /// # Arguments
-    ///
-    /// * `width` - length of the resulting strings
-    /// * `fill_char` - padding character to use. defaults to space
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let expected = Array::flat(vec!["aaa******".to_string(), "bbbb*****".to_string()]);
-    /// let arr = Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]);
-    /// assert_eq!(expected, arr.ljust(9, Some('*')));
-    /// ```
-    fn ljust(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError>;
-
     /// Trims leading characters
     ///
     /// # Arguments
@@ -295,24 +277,6 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// ```
     fn lstrip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError>;
 
-    /// Right-justifies elements in a string of length of `width`
-    ///
-    /// # Arguments
-    ///
-    /// * `width` - length of the resulting strings
-    /// * `fill_char` - padding character to use. defaults to space
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let expected = Array::flat(vec!["******aaa".to_string(), "*****bbbb".to_string()]);
-    /// let arr = Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]);
-    /// assert_eq!(expected, arr.rjust(9, Some('*')));
-    /// ```
-    fn rjust(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError>;
-
     /// Trims trailing characters
     ///
     /// # Arguments
@@ -329,6 +293,42 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr.lstrip(Some(Array::flat(vec!["a".to_string(), "b".to_string()]).unwrap())));
     /// ```
     fn rstrip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError>;
+
+    /// Left-justifies elements in a string of length of `width`
+    ///
+    /// # Arguments
+    ///
+    /// * `width` - length of the resulting strings
+    /// * `fill_char` - padding character to use. defaults to space
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec!["aaa******".to_string(), "bbbb*****".to_string()]);
+    /// let arr = Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]);
+    /// assert_eq!(expected, arr.ljust(&Array::single(9).unwrap(), Some(Array::single('*').unwrap())));
+    /// ```
+    fn ljust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError>;
+
+    /// Right-justifies elements in a string of length of `width`
+    ///
+    /// # Arguments
+    ///
+    /// * `width` - length of the resulting strings
+    /// * `fill_char` - padding character to use. defaults to space
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec!["******aaa".to_string(), "*****bbbb".to_string()]);
+    /// let arr = Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]);
+    /// assert_eq!(expected, arr.rjust(&Array::single(9).unwrap(), Some(Array::single('*').unwrap())));
+    /// ```
+    fn rjust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError>;
 
     /// Return (self == other) element-wise
     ///

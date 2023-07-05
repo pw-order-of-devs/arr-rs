@@ -1,6 +1,3 @@
-/// Alphanumeric type definition
-pub mod alphanumeric;
-
 /// BoolNumeric type definition
 pub mod bool_numeric;
 
@@ -13,11 +10,14 @@ pub mod numeric_ops;
 /// SignedNumeric type definition
 pub mod signed_numeric;
 
-/// Tuple types definition
-pub mod tuple;
+/// Alphanumeric types definition
+pub mod alphanumeric;
 
 /// Collection types definition
 pub mod collection;
+
+/// Tuple types definition
+pub mod tuple;
 
 use std::fmt::{Debug, Display};
 

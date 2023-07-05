@@ -20,52 +20,65 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn add(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.append(tuple.1))
+            .map(|tuple| tuple.0._append(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
 
     fn multiply(&self, counts: &Array<usize>) -> Result<Array<N>, ArrayError> {
-        let arr = self.broadcast_to(counts.get_shape()?)?;
-        let counts = counts.broadcast_to(arr.get_shape()?)?;
-        let elements = arr.clone().into_iter().zip(counts)
-            .map(|tuple| tuple.0.multiply(tuple.1))
+        let tmp_counts = Array::single(N::from_str(" ")).broadcast_to(counts.get_shape()?)?;
+        let tmp_array = self.broadcast(&tmp_counts)?;
+
+        let array = tmp_array.clone().into_iter()
+            .map(|t| t.0).collect::<Array<N>>()
+            .reshape(tmp_array.get_shape()?)?;
+        let counts = counts.broadcast_to(array.get_shape()?)?;
+        let elements = array.clone().into_iter().zip(counts)
+            .map(|tuple| tuple.0._multiply(tuple.1))
             .collect();
-        Array::new(elements, arr.get_shape()?)
+        Array::new(elements, array.get_shape()?)
     }
 
     fn capitalize(&self) -> Result<Array<N>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|s| s.capitalize())
+            .map(|s| s._capitalize())
             .collect();
         Array::new(elements, self.get_shape()?)
     }
 
     fn lower(&self) -> Result<Array<N>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|s| s.lower())
+            .map(|s| s._lower())
             .collect();
         Array::new(elements, self.get_shape()?)
     }
 
     fn upper(&self) -> Result<Array<N>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|s| s.upper())
+            .map(|s| s._upper())
             .collect();
         Array::new(elements, self.get_shape()?)
     }
 
     fn swapcase(&self) -> Result<Array<N>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|s| s.swapcase())
+            .map(|s| s._swapcase())
             .collect();
         Array::new(elements, self.get_shape()?)
     }
 
-    fn center(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
-        let fill_char = fill_char.unwrap_or(' ');
-        let elements = self.clone().into_iter()
-            .map(|s| s.center(width, fill_char))
+    fn center(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
+        let fill_char = fill_char.unwrap_or(Array::single(' ')?);
+        let tmp_fill_char = Array::single(N::from_str(" ")).broadcast_to(fill_char.get_shape()?)?;
+        let tmp_width = Array::single(N::from_str(" ")).broadcast_to(width.get_shape()?)?;
+        let broadcasted = Self::broadcast_arrays(vec![self.clone(), tmp_width, tmp_fill_char])?;
+
+        let array = broadcasted[0].clone();
+        let width = width.broadcast_to(array.get_shape()?)?;
+        let fill_char = fill_char.broadcast_to(array.get_shape()?)?;
+
+        let elements = array.into_iter().enumerate()
+            .map(|(idx, s)| s._center(width[idx], fill_char[idx]))
             .collect();
         Array::new(elements, self.get_shape()?)
     }
@@ -73,7 +86,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn join(&self, sep: &Array<N>) -> Result<Array<N>, ArrayError> {
         let broadcasted = self.broadcast(sep)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.join(tuple.1))
+            .map(|tuple| tuple.0._join(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -81,7 +94,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
         let broadcasted = self.broadcast(sep)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.partition(tuple.1))
+            .map(|tuple| tuple.0._partition(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -89,7 +102,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
         let broadcasted = self.broadcast(sep)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.rpartition(tuple.1))
+            .map(|tuple| tuple.0._rpartition(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -100,7 +113,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
         let max_split =
             if let Some(counts) = max_split { Some(counts.broadcast_to(broadcasted.get_shape()?)?) } else { None };
         let elements = broadcasted.clone().into_iter().enumerate()
-            .map(|(idx, tuple)| tuple.0.split(tuple.1, max_split.clone().map(|s| s[idx])))
+            .map(|(idx, tuple)| tuple.0._split(tuple.1, max_split.clone().map(|s| s[idx])))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -111,7 +124,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
         let max_split =
             if let Some(counts) = max_split { Some(counts.broadcast_to(broadcasted.get_shape()?)?) } else { None };
         let elements = broadcasted.clone().into_iter().enumerate()
-            .map(|(idx, tuple)| tuple.0.rsplit(tuple.1, max_split.clone().map(|s| s[idx])))
+            .map(|(idx, tuple)| tuple.0._rsplit(tuple.1, max_split.clone().map(|s| s[idx])))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -126,7 +139,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
             .reshape(tmp_array.get_shape()?)?;
         let keep_ends = keep_ends.broadcast_to(array.get_shape()?)?;
         let elements = array.clone().into_iter().enumerate()
-            .map(|(idx, elem)| elem.splitlines(keep_ends[idx]))
+            .map(|(idx, elem)| elem._splitlines(keep_ends[idx]))
             .collect();
         Array::new(elements, array.get_shape()?)
     }
@@ -137,7 +150,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
             Tuple3(broadcasted[0][i].clone(), broadcasted[1][i].clone(), broadcasted[2][i].clone())
         }).collect::<Vec<Tuple3<N>>>();
         let elements = tupled.into_iter()
-            .map(|tuple| tuple.0.replace(tuple.1, tuple.2, count))
+            .map(|tuple| tuple.0._replace(tuple.1, tuple.2, count))
             .collect();
         Array::new(elements, broadcasted[0].get_shape()?)
     }
@@ -146,38 +159,54 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
         self.lstrip(chars.clone()).rstrip(chars)
     }
 
-    fn ljust(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
-        let fill_char = fill_char.unwrap_or(' ');
-        let elements = self.clone().into_iter()
-            .map(|s| s.ljust(width, fill_char))
-            .collect();
-        Array::new(elements, self.get_shape()?)
-    }
-
     fn lstrip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
         let chars = chars.unwrap_or(Array::single(N::from_str(" "))?);
         let broadcasted = self.broadcast(&chars)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.lstrip(tuple.1))
+            .map(|tuple| tuple.0._lstrip(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
-    }
-
-    fn rjust(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
-        let fill_char = fill_char.unwrap_or(' ');
-        let elements = self.clone().into_iter()
-            .map(|s| s.rjust(width, fill_char))
-            .collect();
-        Array::new(elements, self.get_shape()?)
     }
 
     fn rstrip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
         let chars = chars.unwrap_or(Array::single(N::from_str(" "))?);
         let broadcasted = self.broadcast(&chars)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.rstrip(tuple.1))
+            .map(|tuple| tuple.0._rstrip(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn ljust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
+        let fill_char = fill_char.unwrap_or(Array::single(' ')?);
+        let tmp_fill_char = Array::single(N::from_str(" ")).broadcast_to(fill_char.get_shape()?)?;
+        let tmp_width = Array::single(N::from_str(" ")).broadcast_to(width.get_shape()?)?;
+        let broadcasted = Self::broadcast_arrays(vec![self.clone(), tmp_width, tmp_fill_char])?;
+
+        let array = broadcasted[0].clone();
+        let width = width.broadcast_to(array.get_shape()?)?;
+        let fill_char = fill_char.broadcast_to(array.get_shape()?)?;
+
+        let elements = array.into_iter().enumerate()
+            .map(|(idx, s)| s._ljust(width[idx], fill_char[idx]))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn rjust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
+        let fill_char = fill_char.unwrap_or(Array::single(' ')?);
+        let tmp_fill_char = Array::single(N::from_str(" ")).broadcast_to(fill_char.get_shape()?)?;
+        let tmp_width = Array::single(N::from_str(" ")).broadcast_to(width.get_shape()?)?;
+        let broadcasted = Self::broadcast_arrays(vec![self.clone(), tmp_width, tmp_fill_char])?;
+
+        let array = broadcasted[0].clone();
+        let width = width.broadcast_to(array.get_shape()?)?;
+        let fill_char = fill_char.broadcast_to(array.get_shape()?)?;
+
+        let elements = array.into_iter().enumerate()
+            .map(|(idx, s)| s._rjust(width[idx], fill_char[idx]))
+            .collect();
+        Array::new(elements, self.get_shape()?)
     }
 
     // compare
@@ -185,7 +214,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.equal(tuple.1))
+            .map(|tuple| tuple.0._equal(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -193,7 +222,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn not_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.not_equal(tuple.1))
+            .map(|tuple| tuple.0._not_equal(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -201,7 +230,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn greater_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.greater_equal(tuple.1))
+            .map(|tuple| tuple.0._greater_equal(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -209,7 +238,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn less_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.less_equal(tuple.1))
+            .map(|tuple| tuple.0._less_equal(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -217,7 +246,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn greater(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.greater(tuple.1))
+            .map(|tuple| tuple.0._greater(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -225,7 +254,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn less(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| tuple.0.less(tuple.1))
+            .map(|tuple| tuple.0._less(tuple.1))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
@@ -253,7 +282,7 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
 
     fn count(&self, sub: &str) -> Result<Array<usize>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|item| item.count(sub))
+            .map(|item| item._count(sub))
             .collect();
         Array::new(elements, self.get_shape()?)
     }
@@ -391,7 +420,7 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
         self.clone()?.swapcase()
     }
 
-    fn center(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
+    fn center(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
         self.clone()?.center(width, fill_char)
     }
 
@@ -427,20 +456,20 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
         self.clone()?.strip(chars)
     }
 
-    fn ljust(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
-        self.clone()?.ljust(width, fill_char)
-    }
-
     fn lstrip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
         self.clone()?.lstrip(chars)
     }
 
-    fn rjust(&self, width: usize, fill_char: Option<char>) -> Result<Array<N>, ArrayError> {
-        self.clone()?.rjust(width, fill_char)
-    }
-
     fn rstrip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
         self.clone()?.rstrip(chars)
+    }
+
+    fn ljust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.ljust(width, fill_char)
+    }
+
+    fn rjust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.rjust(width, fill_char)
     }
 
     fn equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {

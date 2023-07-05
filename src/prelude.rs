@@ -30,6 +30,7 @@ pub use crate::traits::{
         numeric_ops::NumericOps,
         signed_numeric::SignedNumeric,
         bool_numeric::BoolNumeric,
+        alphanumeric::Alphanumeric,
         tuple::{
             TupleElement,
             tuple2::Tuple2,
