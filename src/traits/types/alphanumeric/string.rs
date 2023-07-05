@@ -118,13 +118,11 @@ impl Alphanumeric for String {
                         lines.push(text.drain(0 .. i).collect());
                         text.drain(0 .. 2);
                     }
+                } else if keep_ends {
+                    lines.push(text.drain(0 ..= i).collect());
                 } else {
-                    if keep_ends {
-                        lines.push(text.drain(0 ..= i).collect());
-                    } else {
-                        lines.push(text.drain(0 .. i).collect());
-                        text.drain(0 .. 1);
-                    }
+                    lines.push(text.drain(0 .. i).collect());
+                    text.drain(0 .. 1);
                 }
                 i = 0;
             } else {
