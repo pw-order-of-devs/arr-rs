@@ -475,10 +475,6 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
 
     /// Return string.len() element-wise
     ///
-    /// # Arguments
-    ///
-    /// * `sub` - substring to search for
-    ///
     /// # Examples
     ///
     /// ```
@@ -614,4 +610,108 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr.rindex("aA"));
     /// ```
     fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
+
+    /// Check if all characters in the string are alphabetic and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, false, false]);
+    /// let arr = Array::flat(vec!["abcd".to_string(), "abc12".to_string(), "".to_string()]);
+    /// assert_eq!(expected, arr.is_alpha());
+    /// ```
+    fn is_alpha(&self) -> Result<Array<bool>, ArrayError>;
+
+    /// Check if all characters in the string are alphanumeric and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, true, false]);
+    /// let arr = Array::flat(vec!["abcd".to_string(), "abc12".to_string(), "".to_string()]);
+    /// assert_eq!(expected, arr.is_alnum());
+    /// ```
+    fn is_alnum(&self) -> Result<Array<bool>, ArrayError>;
+
+    /// Check if all characters in the string are decimal and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, false, false]);
+    /// let arr = Array::flat(vec!["12345".to_string(), "abc12".to_string(), "".to_string()]);
+    /// assert_eq!(expected, arr.is_decimal());
+    /// ```
+    fn is_decimal(&self) -> Result<Array<bool>, ArrayError>;
+
+    /// Check if all characters in the string are digits and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, false, false, false, false]);
+    /// let arr = Array::flat(vec!["2".to_string(), "12345".to_string(), "a".to_string(), "abc12".to_string(), "".to_string()]);
+    /// assert_eq!(expected, arr.is_digit());
+    /// ```
+    fn is_digit(&self) -> Result<Array<bool>, ArrayError>;
+
+    /// Check if all characters in the string are numeric and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, true, false, false, false, false, false]);
+    /// let arr = Array::flat(vec!["2".to_string(), "12345".to_string(), "a".to_string(), "abc12".to_string(), "1/4".to_string(), "VIII".to_string(), "".to_string()]);
+    /// assert_eq!(expected, arr.is_numeric());
+    /// ```
+    fn is_numeric(&self) -> Result<Array<bool>, ArrayError>;
+
+    /// Check if all characters in the string are whitespace and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![false, false, false, false, true, true]);
+    /// let arr = Array::flat(vec!["2".to_string(), "12345".to_string(), "a".to_string(), "abc12".to_string(), " ".to_string(), "    ".to_string()]);
+    /// assert_eq!(expected, arr.is_space());
+    /// ```
+    fn is_space(&self) -> Result<Array<bool>, ArrayError>;
+
+    /// Check if all characters in the string are lowercase and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, true, false, false, false]);
+    /// let arr = Array::flat(vec!["a".to_string(), "abc12".to_string(), "1234".to_string(), "aBc12".to_string(), "".to_string()]);
+    /// assert_eq!(expected, arr.is_lower());
+    /// ```
+    fn is_lower(&self) -> Result<Array<bool>, ArrayError>;
+
+    /// Check if all characters in the string are uppercase and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, true, false, false, false]);
+    /// let arr = Array::flat(vec!["A".to_string(), "ABC12".to_string(), "1234".to_string(), "aBc12".to_string(), "".to_string()]);
+    /// assert_eq!(expected, arr.is_upper());
+    /// ```
+    fn is_upper(&self) -> Result<Array<bool>, ArrayError>;
 }

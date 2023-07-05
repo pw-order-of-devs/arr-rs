@@ -299,6 +299,70 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
     fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
         self.rfind(sub)
     }
+
+    // is <something>
+
+    fn is_alpha(&self) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_alphabetic()))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn is_alnum(&self) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_alphanumeric()))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn is_decimal(&self) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_ascii_digit()))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn is_digit(&self) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| item.to_string().len() == 1 && item.to_string().chars().all(|c| c.is_ascii_digit()))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn is_numeric(&self) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_numeric()))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn is_space(&self) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_whitespace()))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn is_lower(&self) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| {
+                let filtered = item.to_string().chars().filter(|c| c.is_alphabetic()).collect::<String>();
+                !filtered.is_empty() && filtered.chars().all(|c| c.is_lowercase())
+            })
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn is_upper(&self) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| {
+                let filtered = item.to_string().chars().filter(|c| c.is_alphabetic()).collect::<String>();
+                !filtered.is_empty() && filtered.chars().all(|c| c.is_uppercase())
+            })
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
 }
 
 impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
@@ -437,5 +501,37 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
 
     fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
         self.clone()?.rindex(sub)
+    }
+
+    fn is_alpha(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_alpha()
+    }
+
+    fn is_alnum(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_alnum()
+    }
+
+    fn is_decimal(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_decimal()
+    }
+
+    fn is_digit(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_digit()
+    }
+
+    fn is_numeric(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_numeric()
+    }
+
+    fn is_space(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_space()
+    }
+
+    fn is_lower(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_lower()
+    }
+
+    fn is_upper(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_upper()
     }
 }
