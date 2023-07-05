@@ -24,6 +24,7 @@ use crate::traits::{
 };
 
 impl <N: Numeric> ArrayBinary<N> for Array<N> {
+
     fn bitwise_and(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.get_shape()?.is_broadcastable(&other.get_shape()?)?;
         let broadcasted = self.broadcast(other)?;

@@ -49,7 +49,7 @@ impl <N: ArrayElement + Numeric> ArrayCreateNumeric<N> for Array<N> {
     fn rand(shape: Vec<usize>) -> Result<Self, ArrayError> {
         let size = shape.iter().product();
         let mut elements: Vec<N> = Vec::with_capacity(size);
-        (0..size).for_each(|_| elements.push(N::rand(N::ZERO..=N::ONE)));
+        (0..size).for_each(|_| elements.push(N::rand(N::zero()..=N::one())));
         Self::new(elements, shape)
     }
 
@@ -60,7 +60,7 @@ impl <N: ArrayElement + Numeric> ArrayCreateNumeric<N> for Array<N> {
         let elements = (0 .. n * m)
             .map(|i| {
                 let (row, col) = (i / m, i % m);
-                if col >= k && col - k == row { N::ONE } else { N::ZERO }
+                if col >= k && col - k == row { N::one() } else { N::zero() }
             })
             .collect();
 
@@ -70,26 +70,26 @@ impl <N: ArrayElement + Numeric> ArrayCreateNumeric<N> for Array<N> {
     fn identity(n: usize) -> Result<Self, ArrayError> {
         let elements = (0 .. n * n)
             .map(|i|
-                if i % (n + 1) == 0 { N::ONE }
-                else { N::ZERO })
+                if i % (n + 1) == 0 { N::one() }
+                else { N::zero() })
             .collect();
         Self::new(elements, vec![n, n])
     }
 
     fn zeros(shape: Vec<usize>) -> Result<Self, ArrayError> {
-        Self::new(vec![N::ZERO; shape.iter().product()], shape.clone())
+        Self::new(vec![N::zero(); shape.iter().product()], shape.clone())
     }
 
     fn zeros_like(other: &Self) -> Result<Self, ArrayError> {
-        Self::new(vec![N::ZERO; other.get_shape()?.iter().product()], other.get_shape()?)
+        Self::new(vec![N::zero(); other.get_shape()?.iter().product()], other.get_shape()?)
     }
 
     fn ones(shape: Vec<usize>) -> Result<Self, ArrayError> {
-        Self::new(vec![N::ONE; shape.iter().product()], shape.clone())
+        Self::new(vec![N::one(); shape.iter().product()], shape.clone())
     }
 
     fn ones_like(other: &Self) -> Result<Self, ArrayError> {
-        Self::new(vec![N::ONE; other.get_shape()?.iter().product()], other.get_shape()?)
+        Self::new(vec![N::one(); other.get_shape()?.iter().product()], other.get_shape()?)
     }
 
     fn full(shape: Vec<usize>, fill_value: N) -> Result<Self, ArrayError> {
@@ -103,7 +103,7 @@ impl <N: ArrayElement + Numeric> ArrayCreateNumeric<N> for Array<N> {
     // ==== from range
 
     fn arange(start: N, stop: N, step: Option<N>) -> Result<Self, ArrayError> {
-        let step = step.unwrap_or(N::ONE).to_f64();
+        let step = step.unwrap_or(N::one()).to_f64();
         let size = ((stop.to_f64() + 1. - start.to_f64()) / step).to_usize();
         let mut elements = Vec::with_capacity(size);
         let mut value = start.to_f64();
@@ -183,9 +183,9 @@ impl <N: ArrayElement + Numeric> ArrayCreateNumeric<N> for Array<N> {
     }
 
     fn geomspace(start: N, stop: N, num: Option<usize>, endpoint: Option<bool>) -> Result<Array<N>, ArrayError> {
-        if start == N::ZERO {
+        if start == N::zero() {
             return Err(ArrayError::ParameterError { param: "start", message: "geometric sequence cannot include zero" });
-        } else if stop == N::ZERO {
+        } else if stop == N::zero() {
             return Err(ArrayError::ParameterError { param: "stop", message: "geometric sequence cannot include zero" });
         }
 
@@ -231,8 +231,8 @@ impl <N: ArrayElement + Numeric> ArrayCreateNumeric<N> for Array<N> {
 
         let elements = (0..n)
             .flat_map(|i| (0..m).map(move |j|
-                if j as isize <= i as isize + k { N::ONE }
-                else { N::ZERO }
+                if j as isize <= i as isize + k { N::one() }
+                else { N::zero() }
             ))
             .collect();
 
@@ -257,12 +257,12 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
                     let (i, j) = (idx / new_shape[1], idx % new_shape[1]);
                     if k >= 0 && j == i + k as usize {
                         if i < size { data_elements[i] }
-                        else { N::ZERO }
+                        else { N::zero() }
                     } else if k < 0 && i == j + abs_k {
                         if j < size { data_elements[j] }
-                        else { N::ZERO }
+                        else { N::zero() }
                     } else {
-                        N::ZERO
+                        N::zero()
                     }
                 })
                 .collect();
@@ -364,7 +364,7 @@ impl <N: Numeric> Array<N> {
                     .map(|(idx, &value)| {
                         let i = (idx / self.shape[last_dim]) % self.shape[second_last_dim];
                         let j = idx % self.shape[last_dim];
-                        if compare(j as isize, i as isize, k) { N::ZERO } else { value }
+                        if compare(j as isize, i as isize, k) { N::zero() } else { value }
                     })
             })
             .collect();

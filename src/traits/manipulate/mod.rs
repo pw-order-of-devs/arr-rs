@@ -14,11 +14,11 @@ pub mod stack;
 use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
-    types::numeric::Numeric,
+    types::ArrayElement,
 };
 
 /// ArrayTrait - Array Manipulate functions
-pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
+pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
 
     /// Insert values along the given axis for the given indices
     ///
@@ -40,7 +40,7 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr = arr.insert(vec![1, 3], &Array::single(1.).unwrap(), None);
     /// assert_eq!(array!([1., 1., 2., 3., 1., 4.]), arr);
     /// ```
-    fn insert(&self, indices: Vec<usize>, values: &Array<N>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
+    fn insert(&self, indices: Vec<usize>, values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Delete values along the given axis
     ///
@@ -61,7 +61,7 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr = arr.delete(vec![2, 3], None);
     /// assert_eq!(array!([1., 2.]), arr);
     /// ```
-    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
+    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Append values to the end of an array
     ///
@@ -82,7 +82,7 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr = arr.append(&Array::flat(vec![1., 3.]).unwrap(), None);
     /// assert_eq!(array!([1., 2., 3., 4., 1., 3.]), arr);
     /// ```
-    fn append(&self, values: &Array<N>, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
+    fn append(&self, values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Reshapes an array
     ///
@@ -100,7 +100,7 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr = arr.reshape(vec![2, 2]);
     /// assert_eq!(array!([[1, 2], [3, 4]]), arr);
     /// ```
-    fn reshape(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError>;
+    fn reshape(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Resizes an array,
     ///
@@ -122,7 +122,7 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let array = arr.resize(vec![8]);
     /// assert_eq!(array!([1, 2, 3, 4, 1, 2, 3, 4]), array);
     /// ```
-    fn resize(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError>;
+    fn resize(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError>;
 
 
     /// Find the unique elements of an array,
@@ -141,7 +141,7 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 2, 1], vec![5]).unwrap();
     /// assert_eq!(array!([1, 2, 3]), arr.unique(None));
     /// ```
-    fn unique(&self, axis: Option<usize>) -> Result<Array<N>, ArrayError>;
+    fn unique(&self, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Return a contiguous flattened array
     ///
@@ -161,7 +161,7 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr_3 = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 2, 2]).unwrap();
     /// assert_eq!(expected, arr_3.ravel().get_shape().unwrap());
     /// ```
-    fn ravel(&self) -> Result<Array<N>, ArrayError>;
+    fn ravel(&self) -> Result<Array<T>, ArrayError>;
 
     /// Convert array to at least n dimension
     ///
@@ -178,7 +178,7 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// assert_eq!(array!([[1]]), arr.atleast(2));
     /// assert_eq!(array!([[[1]]]), arr.atleast(3));
     /// ```
-    fn atleast(&self, n: usize) -> Result<Array<N>, ArrayError>;
+    fn atleast(&self, n: usize) -> Result<Array<T>, ArrayError>;
 
     /// Trim the leading and/or trailing zeros from a 1D array
     ///
@@ -190,5 +190,5 @@ pub trait ArrayManipulate<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr = Array::flat(vec![0, 0, 1, 2, 3, 4, 0, 0]);
     /// assert_eq!(array!([1, 2, 3, 4]), arr.trim_zeros());
     /// ```
-    fn trim_zeros(&self) -> Result<Array<N>, ArrayError>;
+    fn trim_zeros(&self) -> Result<Array<T>, ArrayError>;
 }

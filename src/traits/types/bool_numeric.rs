@@ -14,5 +14,15 @@ BitAnd + BitAndAssign +
 BitOr + BitOrAssign +
 BitXor + BitXorAssign {}
 
-impl ArrayElement for bool {}
+impl ArrayElement for bool {
+
+    fn zero() -> Self {
+        false
+    }
+
+    fn one() -> Self {
+        true
+    }
+}
+
 impl BoolNumeric for bool {}

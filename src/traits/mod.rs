@@ -9,6 +9,9 @@ pub mod math;
 /// Array Metadata functions
 pub mod meta;
 
+/// Alphanumeric Array operations
+pub mod alphanumeric;
+
 /// Binary Array operations
 pub mod binary;
 
