@@ -274,7 +274,7 @@ case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".
 #[rstest(
 array, expected,
 case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec![3, 3])),
-case(Array::new(vec!["gd".to_string(), "gde".to_string(), "abc".to_string(), "ff".to_string()], vec![2, 2]), Array::new(vec![2, 3, 2, 3], vec![2, 2])),
+case(Array::new(vec!["gd".to_string(), "gde".to_string(), "abc".to_string(), "ff".to_string()], vec![2, 2]), Array::new(vec![2, 3, 3, 2], vec![2, 2])),
 )] fn test_char_str_len(array: Result<Array<String>, ArrayError>, expected: Result<Array<usize>, ArrayError>) {
     assert_eq!(expected, array.str_len())
 }
