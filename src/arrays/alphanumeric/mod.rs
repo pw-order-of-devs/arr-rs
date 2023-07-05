@@ -15,6 +15,8 @@ use crate::traits::{
 
 impl <N: Alphanumeric> ArrayString<N> for Array<N> {
 
+    // manipulation
+
     fn add(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
@@ -177,8 +179,127 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
-}
 
+    // compare
+
+    fn equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        let broadcasted = self.broadcast(other)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| tuple.0.equal(tuple.1))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn not_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        let broadcasted = self.broadcast(other)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| tuple.0.not_equal(tuple.1))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn greater_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        let broadcasted = self.broadcast(other)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| tuple.0.greater_equal(tuple.1))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn less_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        let broadcasted = self.broadcast(other)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| tuple.0.less_equal(tuple.1))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn greater(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        let broadcasted = self.broadcast(other)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| tuple.0.greater(tuple.1))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn less(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        let broadcasted = self.broadcast(other)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| tuple.0.less(tuple.1))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn compare(&self, other: &Array<N>, cmp_op: &str) -> Result<Array<bool>, ArrayError> {
+        match cmp_op {
+            "==" => self.equal(other),
+            "!=" => self.not_equal(other),
+            ">=" => self.greater_equal(other),
+            "<=" => self.less_equal(other),
+            ">" => self.greater(other),
+            "<" => self.less(other),
+            _ => Err(ArrayError::ParameterError { param: "cmp_op", message: "must be one of {“<”, “<=”, “==”, “>=”, “>”, “!=”}" })
+        }
+    }
+
+    // indexing|search
+
+    fn str_len(&self) -> Result<Array<usize>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| item.to_string().len())
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn count(&self, sub: &str) -> Result<Array<usize>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| item.count(sub))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn starts_with(&self, prefix: &str) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| item.to_string().starts_with(prefix))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn ends_with(&self, suffix: &str) -> Result<Array<bool>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| item.to_string().ends_with(suffix))
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn find(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| match item.to_string().find(sub) {
+                Some(idx) => idx as isize,
+                None => -1,
+            })
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn rfind(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+        let elements = self.clone().into_iter()
+            .map(|item| match item.to_string().rfind(sub) {
+                Some(idx) => idx as isize,
+                None => -1,
+            })
+            .collect();
+        Array::new(elements, self.get_shape()?)
+    }
+
+    fn index(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+        self.find(sub)
+    }
+
+    fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+        self.rfind(sub)
+    }
+}
 
 impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
 
@@ -256,5 +377,65 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
 
     fn rstrip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
         self.clone()?.rstrip(chars)
+    }
+
+    fn equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.equal(other)
+    }
+
+    fn not_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.not_equal(other)
+    }
+
+    fn greater_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.greater_equal(other)
+    }
+
+    fn less_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.less_equal(other)
+    }
+
+    fn greater(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.greater(other)
+    }
+
+    fn less(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.less(other)
+    }
+
+    fn compare(&self, other: &Array<N>, cmp_op: &str) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.compare(other, cmp_op)
+    }
+
+    fn str_len(&self) -> Result<Array<usize>, ArrayError> {
+        self.clone()?.str_len()
+    }
+
+    fn count(&self, sub: &str) -> Result<Array<usize>, ArrayError> {
+        self.clone()?.count(sub)
+    }
+
+    fn starts_with(&self, prefix: &str) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.starts_with(prefix)
+    }
+
+    fn ends_with(&self, suffix: &str) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.ends_with(suffix)
+    }
+
+    fn find(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+        self.clone()?.find(sub)
+    }
+
+    fn rfind(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+        self.clone()?.rfind(sub)
+    }
+
+    fn index(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+        self.clone()?.index(sub)
+    }
+
+    fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+        self.clone()?.rindex(sub)
     }
 }

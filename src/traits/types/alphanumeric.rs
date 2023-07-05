@@ -68,6 +68,27 @@ pub trait Alphanumeric: ArrayElement {
 
     /// right-strips string elements
     fn rstrip(&self, chars: Self) -> Self;
+
+    /// is equal to
+    fn equal(&self, other: Self) -> bool;
+
+    /// is not equal to
+    fn not_equal(&self, other: Self) -> bool;
+
+    /// is greater or equal to
+    fn greater_equal(&self, other: Self) -> bool;
+
+    /// is less or equal to
+    fn less_equal(&self, other: Self) -> bool;
+
+    /// is greater than
+    fn greater(&self, other: Self) -> bool;
+
+    /// is less than
+    fn less(&self, other: Self) -> bool;
+
+    /// counts non-overlapping occurrences of substring
+    fn count(&self, sub: &str) -> usize;
 }
 
 impl ArrayElement for String {
@@ -247,13 +268,32 @@ impl Alphanumeric for String {
             }
         }
     }
-}
 
-#[cfg(test)] mod test {
-    use crate::prelude::*;
+    fn equal(&self, other: Self) -> bool {
+        self.rstrip(" ".to_string()) == other.rstrip(" ".to_string())
+    }
 
-    #[test] fn test() {
-        let arr = Array::flat(vec!["aa\na".to_string(), "bb\nbb".to_string()]).unwrap();
-        println!("{}", arr.splitlines(None).unwrap());
+    fn not_equal(&self, other: Self) -> bool {
+        !self.equal(other)
+    }
+
+    fn greater_equal(&self, other: Self) -> bool {
+        self.rstrip(" ".to_string()).ge(&other.rstrip(" ".to_string()))
+    }
+
+    fn less_equal(&self, other: Self) -> bool {
+        self.rstrip(" ".to_string()).le(&other.rstrip(" ".to_string()))
+    }
+
+    fn greater(&self, other: Self) -> bool {
+        self.rstrip(" ".to_string()).gt(&other.rstrip(" ".to_string()))
+    }
+
+    fn less(&self, other: Self) -> bool {
+        self.rstrip(" ".to_string()).lt(&other.rstrip(" ".to_string()))
+    }
+
+    fn count(&self, sub: &str) -> usize {
+        self.match_indices(sub).collect::<Vec<(usize, &str)>>().len()
     }
 }

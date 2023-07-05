@@ -329,4 +329,289 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr.lstrip(Some(Array::flat(vec!["a".to_string(), "b".to_string()]).unwrap())));
     /// ```
     fn rstrip(&self, chars: Option<Array<N>>) -> Result<Array<N>, ArrayError>;
+
+    /// Return (self == other) element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, false]);
+    /// let arr = Array::flat(vec!["aaa".to_string(), "bbbxx".to_string()]);
+    /// let other = Array::flat(vec!["aaa".to_string(), "bbbbb".to_string()]).unwrap();
+    /// assert_eq!(expected, arr.equal(&other));
+    /// ```
+    fn equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
+
+    /// Return (self != other) element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![false, true]);
+    /// let arr = Array::flat(vec!["aaa".to_string(), "bbbxx".to_string()]);
+    /// let other = Array::flat(vec!["aaa".to_string(), "bbbbb".to_string()]).unwrap();
+    /// assert_eq!(expected, arr.not_equal(&other));
+    /// ```
+    fn not_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
+
+    /// Return (self >= other) element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, false, true]);
+    /// let arr = Array::flat(vec!["aaa".to_string(), "aaa".to_string(), "bbbxx".to_string()]);
+    /// let other = Array::flat(vec!["aaa".to_string(), "aba".to_string(), "bbbbb".to_string()]).unwrap();
+    /// assert_eq!(expected, arr.greater_equal(&other));
+    /// ```
+    fn greater_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
+
+    /// Return (self <= other) element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, true, false]);
+    /// let arr = Array::flat(vec!["aaa".to_string(), "aaa".to_string(), "bbbxx".to_string()]);
+    /// let other = Array::flat(vec!["aaa".to_string(), "aba".to_string(), "bbbbb".to_string()]).unwrap();
+    /// assert_eq!(expected, arr.less_equal(&other));
+    /// ```
+    fn less_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
+
+    /// Return (self > other) element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![false, false, true]);
+    /// let arr = Array::flat(vec!["aaa".to_string(), "aaa".to_string(), "bbbxx".to_string()]);
+    /// let other = Array::flat(vec!["aaa".to_string(), "aba".to_string(), "bbbbb".to_string()]).unwrap();
+    /// assert_eq!(expected, arr.greater(&other));
+    /// ```
+    fn greater(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
+
+    /// Return (self < other) element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![false, true, false]);
+    /// let arr = Array::flat(vec!["aaa".to_string(), "aaa".to_string(), "bbbxx".to_string()]);
+    /// let other = Array::flat(vec!["aaa".to_string(), "aba".to_string(), "bbbbb".to_string()]).unwrap();
+    /// assert_eq!(expected, arr.less(&other));
+    /// ```
+    fn less(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
+
+    /// Performs element-wise comparison of two string arrays using the comparison operator specified by cmp_op
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    /// * `cmp_op` - Type of comparison: {“<”, “<=”, “==”, “>=”, “>”, “!=”}
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec!["aaa".to_string(), "bbbxx".to_string()]);
+    /// let other = Array::flat(vec!["aaa".to_string(), "bbbbb".to_string()]).unwrap();
+    ///
+    /// let expected = Array::flat(vec![true, false]);
+    /// assert_eq!(expected, arr.compare(&other, "=="));
+    ///
+    /// let expected = Array::flat(vec![false, true]);
+    /// assert_eq!(expected, arr.compare(&other, "!="));
+    ///
+    /// let expected = Array::flat(vec![true, true]);
+    /// assert_eq!(expected, arr.compare(&other, ">="));
+    ///
+    /// let expected = Array::flat(vec![true, false]);
+    /// assert_eq!(expected, arr.compare(&other, "<="));
+    ///
+    /// let expected = Array::flat(vec![false, true]);
+    /// assert_eq!(expected, arr.compare(&other, ">"));
+    ///
+    /// let expected = Array::flat(vec![false, false]);
+    /// assert_eq!(expected, arr.compare(&other, "<"));
+    /// ```
+    fn compare(&self, other: &Array<N>, cmp_op: &str) -> Result<Array<bool>, ArrayError>;
+
+    /// Return string.len() element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `sub` - substring to search for
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![6, 9, 3]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaAacc".to_string(), "abc".to_string()]);
+    /// assert_eq!(expected, arr.str_len());
+    /// ```
+    fn str_len(&self) -> Result<Array<usize>, ArrayError>;
+
+    /// Returns an array with the number of non-overlapping occurrences of substring sub
+    ///
+    /// # Arguments
+    ///
+    /// * `sub` - substring to search for
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![3, 2, 1]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
+    /// assert_eq!(expected, arr.count("Aa"));
+    ///
+    /// let expected = Array::flat(vec![1]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string()]);
+    /// assert_eq!(expected, arr.count("AaAa"));
+    /// ```
+    fn count(&self, sub: &str) -> Result<Array<usize>, ArrayError>;
+
+    /// Checks if string element starts with prefix
+    ///
+    /// # Arguments
+    ///
+    /// * `prefix` - substring to search for
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, false, false]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
+    /// assert_eq!(expected, arr.starts_with("Aa"));
+    /// ```
+    fn starts_with(&self, prefix: &str) -> Result<Array<bool>, ArrayError>;
+
+    /// Checks if string element ends with suffix
+    ///
+    /// # Arguments
+    ///
+    /// * `suffix` - substring to search for
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![false, true, false]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
+    /// assert_eq!(expected, arr.ends_with("aA"));
+    /// ```
+    fn ends_with(&self, suffix: &str) -> Result<Array<bool>, ArrayError>;
+
+    /// For each element, return the lowest index in the string where substring sub is found
+    ///
+    /// # Arguments
+    ///
+    /// * `sub` - substring to search for
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![1, 0, -1]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
+    /// assert_eq!(expected, arr.find("aA"));
+    /// ```
+    fn find(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
+
+    /// For each element, return the highest index in the string where substring sub is found
+    ///
+    /// # Arguments
+    ///
+    /// * `sub` - substring to search for
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![3, 4, -1]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
+    /// assert_eq!(expected, arr.rfind("aA"));
+    /// ```
+    fn rfind(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
+
+    /// For each element, return the lowest index in the string where substring sub is found;
+    /// alias on `find`
+    ///
+    /// # Arguments
+    ///
+    /// * `sub` - substring to search for
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![1, 0, -1]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
+    /// assert_eq!(expected, arr.index("aA"));
+    /// ```
+    fn index(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
+
+    /// For each element, return the highest index in the string where substring sub is found;
+    /// alias on `rfind`
+    ///
+    /// # Arguments
+    ///
+    /// * `sub` - substring to search for
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![3, 4, -1]);
+    /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
+    /// assert_eq!(expected, arr.rindex("aA"));
+    /// ```
+    fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
 }
