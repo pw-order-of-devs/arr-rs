@@ -278,3 +278,201 @@ case(Array::new(vec!["gd".to_string(), "gde".to_string(), "abc".to_string(), "ff
 )] fn test_char_str_len(array: Result<Array<String>, ArrayError>, expected: Result<Array<usize>, ArrayError>) {
     assert_eq!(expected, array.str_len())
 }
+
+#[rstest(
+array, other, expected,
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::single("a".to_string()), Array::flat(vec![1, 0])),
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["a".to_string(), "c".to_string()]), Array::flat(vec![1, 1])),
+case(Array::new(vec!["abc".to_string(), "cde".to_string(), "abc".to_string(), "cde".to_string()], vec![2, 2]), Array::flat(vec!["a".to_string(), "c".to_string()]), Array::new(vec![1, 1, 1, 1], vec![2, 2])),
+case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_char_count(array: Result<Array<String>, ArrayError>, other: Result<Array<String>, ArrayError>, expected: Result<Array<usize>, ArrayError>) {
+    assert_eq!(expected, array.count(&other.unwrap()))
+}
+
+#[rstest(
+array, sub, expected,
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::single("a".to_string()), Array::flat(vec![true, false])),
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["a".to_string(), "c".to_string()]), Array::flat(vec![true, true])),
+case(Array::new(vec!["abc".to_string(), "cde".to_string(), "abc".to_string(), "cde".to_string()], vec![2, 2]), Array::flat(vec!["a".to_string(), "b".to_string()]), Array::new(vec![true, false, true, false], vec![2, 2])),
+case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_char_starts_with(array: Result<Array<String>, ArrayError>, sub: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.starts_with(&sub.unwrap()))
+}
+
+#[rstest(
+array, sub, expected,
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::single("c".to_string()), Array::flat(vec![true, false])),
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["c".to_string(), "e".to_string()]), Array::flat(vec![true, true])),
+case(Array::new(vec!["abc".to_string(), "cde".to_string(), "abc".to_string(), "cde".to_string()], vec![2, 2]), Array::flat(vec!["b".to_string(), "e".to_string()]), Array::new(vec![false, true, false, true], vec![2, 2])),
+case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_char_ends_with(array: Result<Array<String>, ArrayError>, sub: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.ends_with(&sub.unwrap()))
+}
+
+#[rstest(
+array, sub, expected,
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::single("a".to_string()), Array::flat(vec![0, -1])),
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["a".to_string(), "c".to_string()]), Array::flat(vec![0, 0])),
+case(Array::new(vec!["abc".to_string(), "cde".to_string(), "abc".to_string(), "cde".to_string()], vec![2, 2]), Array::flat(vec!["a".to_string(), "b".to_string()]), Array::new(vec![0, -1, 0, -1], vec![2, 2])),
+case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_char_find(array: Result<Array<String>, ArrayError>, sub: Result<Array<String>, ArrayError>, expected: Result<Array<isize>, ArrayError>) {
+    assert_eq!(expected, array.find(&sub.unwrap()))
+}
+
+#[rstest(
+array, sub, expected,
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::single("b".to_string()), Array::flat(vec![1, -1])),
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["c".to_string(), "e".to_string()]), Array::flat(vec![2, 2])),
+case(Array::new(vec!["abc".to_string(), "cde".to_string(), "abc".to_string(), "cde".to_string()], vec![2, 2]), Array::flat(vec!["b".to_string(), "f".to_string()]), Array::new(vec![1, -1, 1, -1], vec![2, 2])),
+case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_char_rfind(array: Result<Array<String>, ArrayError>, sub: Result<Array<String>, ArrayError>, expected: Result<Array<isize>, ArrayError>) {
+    assert_eq!(expected, array.rfind(&sub.unwrap()))
+}
+
+#[rstest(
+array, sub, expected,
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::single("a".to_string()), Array::flat(vec![0, -1])),
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["a".to_string(), "c".to_string()]), Array::flat(vec![0, 0])),
+case(Array::new(vec!["abc".to_string(), "cde".to_string(), "abc".to_string(), "cde".to_string()], vec![2, 2]), Array::flat(vec!["a".to_string(), "b".to_string()]), Array::new(vec![0, -1, 0, -1], vec![2, 2])),
+case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_char_index(array: Result<Array<String>, ArrayError>, sub: Result<Array<String>, ArrayError>, expected: Result<Array<isize>, ArrayError>) {
+    assert_eq!(expected, array.index(&sub.unwrap()))
+}
+
+#[rstest(
+array, sub, expected,
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::single("b".to_string()), Array::flat(vec![1, -1])),
+case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["c".to_string(), "e".to_string()]), Array::flat(vec![2, 2])),
+case(Array::new(vec!["abc".to_string(), "cde".to_string(), "abc".to_string(), "cde".to_string()], vec![2, 2]), Array::flat(vec!["b".to_string(), "f".to_string()]), Array::new(vec![1, -1, 1, -1], vec![2, 2])),
+case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+)] fn test_char_rindex(array: Result<Array<String>, ArrayError>, sub: Result<Array<String>, ArrayError>, expected: Result<Array<isize>, ArrayError>) {
+    assert_eq!(expected, array.rindex(&sub.unwrap()))
+}
+
+#[rstest(
+array, expected,
+case(Array::single("abc".to_string()), Array::single(true)),
+case(Array::single("aBc".to_string()), Array::single(true)),
+case(Array::single("ab1".to_string()), Array::single(false)),
+case(Array::single("Ab1".to_string()), Array::single(false)),
+case(Array::single(" ".to_string()), Array::single(false)),
+case(Array::single("".to_string()), Array::single(false)),
+)] fn test_char_is_alpha(array: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.is_alpha())
+}
+
+#[rstest(
+array, expected,
+case(Array::single("abc".to_string()), Array::single(true)),
+case(Array::single("aBc".to_string()), Array::single(true)),
+case(Array::single("ab1".to_string()), Array::single(true)),
+case(Array::single("Ab1".to_string()), Array::single(true)),
+case(Array::single(" ".to_string()), Array::single(false)),
+case(Array::single("".to_string()), Array::single(false)),
+)] fn test_char_is_alnum(array: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.is_alnum())
+}
+
+#[rstest(
+array, expected,
+case(Array::single("1".to_string()), Array::single(true)),
+case(Array::single("123".to_string()), Array::single(true)),
+case(Array::single("abc".to_string()), Array::single(false)),
+case(Array::single("aBc".to_string()), Array::single(false)),
+case(Array::single("ab1".to_string()), Array::single(false)),
+case(Array::single("123.32".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("VII".to_string()), Array::single(false)),
+case(Array::single(" ".to_string()), Array::single(false)),
+case(Array::single("".to_string()), Array::single(false)),
+)] fn test_char_is_decimal(array: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.is_decimal())
+}
+
+#[rstest(
+array, expected,
+case(Array::single("1".to_string()), Array::single(true)),
+case(Array::single("123".to_string()), Array::single(true)),
+case(Array::single("abc".to_string()), Array::single(false)),
+case(Array::single("aBc".to_string()), Array::single(false)),
+case(Array::single("ab1".to_string()), Array::single(false)),
+case(Array::single("123.32".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("VII".to_string()), Array::single(false)),
+case(Array::single(" ".to_string()), Array::single(false)),
+case(Array::single("".to_string()), Array::single(false)),
+)] fn test_char_is_numeric(array: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.is_numeric())
+}
+
+#[rstest(
+array, expected,
+case(Array::single("1".to_string()), Array::single(true)),
+case(Array::single("123".to_string()), Array::single(false)),
+case(Array::single("abc".to_string()), Array::single(false)),
+case(Array::single("aBc".to_string()), Array::single(false)),
+case(Array::single("ab1".to_string()), Array::single(false)),
+case(Array::single("123.32".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("VII".to_string()), Array::single(false)),
+case(Array::single(" ".to_string()), Array::single(false)),
+case(Array::single("".to_string()), Array::single(false)),
+)] fn test_char_is_digit(array: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.is_digit())
+}
+
+#[rstest(
+array, expected,
+case(Array::single(" ".to_string()), Array::single(true)),
+case(Array::single("1".to_string()), Array::single(false)),
+case(Array::single("123".to_string()), Array::single(false)),
+case(Array::single("abc".to_string()), Array::single(false)),
+case(Array::single("aBc".to_string()), Array::single(false)),
+case(Array::single("ab1".to_string()), Array::single(false)),
+case(Array::single("123.32".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("VII".to_string()), Array::single(false)),
+case(Array::single("".to_string()), Array::single(false)),
+)] fn test_char_is_space(array: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.is_space())
+}
+
+#[rstest(
+array, expected,
+case(Array::single("abc".to_string()), Array::single(true)),
+case(Array::single("ab1".to_string()), Array::single(true)),
+case(Array::single(" ".to_string()), Array::single(false)),
+case(Array::single("1".to_string()), Array::single(false)),
+case(Array::single("123".to_string()), Array::single(false)),
+case(Array::single("aBc".to_string()), Array::single(false)),
+case(Array::single("ABC".to_string()), Array::single(false)),
+case(Array::single("123.32".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("VII".to_string()), Array::single(false)),
+case(Array::single("".to_string()), Array::single(false)),
+)] fn test_char_is_lower(array: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.is_lower())
+}
+
+#[rstest(
+array, expected,
+case(Array::single("ABC".to_string()), Array::single(true)),
+case(Array::single("VII".to_string()), Array::single(true)),
+case(Array::single(" ".to_string()), Array::single(false)),
+case(Array::single("1".to_string()), Array::single(false)),
+case(Array::single("123".to_string()), Array::single(false)),
+case(Array::single("abc".to_string()), Array::single(false)),
+case(Array::single("aBc".to_string()), Array::single(false)),
+case(Array::single("ab1".to_string()), Array::single(false)),
+case(Array::single("123.32".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("123/435".to_string()), Array::single(false)),
+case(Array::single("".to_string()), Array::single(false)),
+)] fn test_char_is_upper(array: Result<Array<String>, ArrayError>, expected: Result<Array<bool>, ArrayError>) {
+    assert_eq!(expected, array.is_upper())
+}

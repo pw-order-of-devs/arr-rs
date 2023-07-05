@@ -280,52 +280,57 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
         Array::new(elements, self.get_shape()?)
     }
 
-    fn count(&self, sub: &str) -> Result<Array<usize>, ArrayError> {
-        let elements = self.clone().into_iter()
-            .map(|item| item._count(sub))
+    fn count(&self, sub: &Array<N>) -> Result<Array<usize>, ArrayError> {
+        let broadcasted = self.broadcast(sub)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|item| item.0._count(item.1.to_string().as_str()))
             .collect();
-        Array::new(elements, self.get_shape()?)
+        Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn starts_with(&self, prefix: &str) -> Result<Array<bool>, ArrayError> {
-        let elements = self.clone().into_iter()
-            .map(|item| item.to_string().starts_with(prefix))
+    fn starts_with(&self, prefix: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        let broadcasted = self.broadcast(prefix)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|item| item.0.to_string().starts_with(&item.1.to_string()))
             .collect();
-        Array::new(elements, self.get_shape()?)
+        Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn ends_with(&self, suffix: &str) -> Result<Array<bool>, ArrayError> {
-        let elements = self.clone().into_iter()
-            .map(|item| item.to_string().ends_with(suffix))
+    fn ends_with(&self, suffix: &Array<N>) -> Result<Array<bool>, ArrayError> {
+        let broadcasted = self.broadcast(suffix)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|item| item.0.to_string().ends_with(&item.1.to_string()))
             .collect();
-        Array::new(elements, self.get_shape()?)
+        Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn find(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
-        let elements = self.clone().into_iter()
-            .map(|item| match item.to_string().find(sub) {
+    fn find(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError> {
+        let broadcasted = self.broadcast(sub)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|item| match item.0.to_string().find(&item.1.to_string()) {
                 Some(idx) => idx as isize,
                 None => -1,
             })
             .collect();
-        Array::new(elements, self.get_shape()?)
+        Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn rfind(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
-        let elements = self.clone().into_iter()
-            .map(|item| match item.to_string().rfind(sub) {
+    fn rfind(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError> {
+        let broadcasted = self.broadcast(sub)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|item| match item.0.to_string().rfind(&item.1.to_string()) {
                 Some(idx) => idx as isize,
                 None => -1,
             })
             .collect();
-        Array::new(elements, self.get_shape()?)
+        Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn index(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+    fn index(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError> {
         self.find(sub)
     }
 
-    fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+    fn rindex(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError> {
         self.rfind(sub)
     }
 
@@ -352,16 +357,16 @@ impl <N: Alphanumeric> ArrayString<N> for Array<N> {
         Array::new(elements, self.get_shape()?)
     }
 
-    fn is_digit(&self) -> Result<Array<bool>, ArrayError> {
+    fn is_numeric(&self) -> Result<Array<bool>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|item| item.to_string().len() == 1 && item.to_string().chars().all(|c| c.is_ascii_digit()))
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_numeric()))
             .collect();
         Array::new(elements, self.get_shape()?)
     }
 
-    fn is_numeric(&self) -> Result<Array<bool>, ArrayError> {
+    fn is_digit(&self) -> Result<Array<bool>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_numeric()))
+            .map(|item| item.to_string().len() == 1 && item.to_string().chars().all(|c| c.is_ascii_digit()))
             .collect();
         Array::new(elements, self.get_shape()?)
     }
@@ -504,31 +509,31 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
         self.clone()?.str_len()
     }
 
-    fn count(&self, sub: &str) -> Result<Array<usize>, ArrayError> {
+    fn count(&self, sub: &Array<N>) -> Result<Array<usize>, ArrayError> {
         self.clone()?.count(sub)
     }
 
-    fn starts_with(&self, prefix: &str) -> Result<Array<bool>, ArrayError> {
+    fn starts_with(&self, prefix: &Array<N>) -> Result<Array<bool>, ArrayError> {
         self.clone()?.starts_with(prefix)
     }
 
-    fn ends_with(&self, suffix: &str) -> Result<Array<bool>, ArrayError> {
+    fn ends_with(&self, suffix: &Array<N>) -> Result<Array<bool>, ArrayError> {
         self.clone()?.ends_with(suffix)
     }
 
-    fn find(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+    fn find(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError> {
         self.clone()?.find(sub)
     }
 
-    fn rfind(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+    fn rfind(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError> {
         self.clone()?.rfind(sub)
     }
 
-    fn index(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+    fn index(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError> {
         self.clone()?.index(sub)
     }
 
-    fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError> {
+    fn rindex(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError> {
         self.clone()?.rindex(sub)
     }
 
@@ -544,12 +549,12 @@ impl <N: Alphanumeric> ArrayString<N> for Result<Array<N>, ArrayError> {
         self.clone()?.is_decimal()
     }
 
-    fn is_digit(&self) -> Result<Array<bool>, ArrayError> {
-        self.clone()?.is_digit()
-    }
-
     fn is_numeric(&self) -> Result<Array<bool>, ArrayError> {
         self.clone()?.is_numeric()
+    }
+
+    fn is_digit(&self) -> Result<Array<bool>, ArrayError> {
+        self.clone()?.is_digit()
     }
 
     fn is_space(&self) -> Result<Array<bool>, ArrayError> {

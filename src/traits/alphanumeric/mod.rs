@@ -499,13 +499,13 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec![3, 2, 1]);
     /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
-    /// assert_eq!(expected, arr.count("Aa"));
+    /// assert_eq!(expected, arr.count(&Array::single("Aa".to_string()).unwrap()));
     ///
     /// let expected = Array::flat(vec![1]);
     /// let arr = Array::flat(vec!["AaAaAa".to_string()]);
-    /// assert_eq!(expected, arr.count("AaAa"));
+    /// assert_eq!(expected, arr.count(&Array::single("AaAa".to_string()).unwrap()));
     /// ```
-    fn count(&self, sub: &str) -> Result<Array<usize>, ArrayError>;
+    fn count(&self, sub: &Array<N>) -> Result<Array<usize>, ArrayError>;
 
     /// Checks if string element starts with prefix
     ///
@@ -520,9 +520,9 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec![true, false, false]);
     /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
-    /// assert_eq!(expected, arr.starts_with("Aa"));
+    /// assert_eq!(expected, arr.starts_with(&Array::single("Aa".to_string()).unwrap()));
     /// ```
-    fn starts_with(&self, prefix: &str) -> Result<Array<bool>, ArrayError>;
+    fn starts_with(&self, prefix: &Array<N>) -> Result<Array<bool>, ArrayError>;
 
     /// Checks if string element ends with suffix
     ///
@@ -537,9 +537,9 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec![false, true, false]);
     /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
-    /// assert_eq!(expected, arr.ends_with("aA"));
+    /// assert_eq!(expected, arr.ends_with(&Array::single("aA".to_string()).unwrap()));
     /// ```
-    fn ends_with(&self, suffix: &str) -> Result<Array<bool>, ArrayError>;
+    fn ends_with(&self, suffix: &Array<N>) -> Result<Array<bool>, ArrayError>;
 
     /// For each element, return the lowest index in the string where substring sub is found
     ///
@@ -554,9 +554,9 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec![1, 0, -1]);
     /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
-    /// assert_eq!(expected, arr.find("aA"));
+    /// assert_eq!(expected, arr.find(&Array::single("aA".to_string()).unwrap()));
     /// ```
-    fn find(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
+    fn find(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError>;
 
     /// For each element, return the highest index in the string where substring sub is found
     ///
@@ -571,9 +571,9 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec![3, 4, -1]);
     /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
-    /// assert_eq!(expected, arr.rfind("aA"));
+    /// assert_eq!(expected, arr.rfind(&Array::single("aA".to_string()).unwrap()));
     /// ```
-    fn rfind(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
+    fn rfind(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError>;
 
     /// For each element, return the lowest index in the string where substring sub is found;
     /// alias on `find`
@@ -589,9 +589,9 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec![1, 0, -1]);
     /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
-    /// assert_eq!(expected, arr.index("aA"));
+    /// assert_eq!(expected, arr.index(&Array::single("aA".to_string()).unwrap()));
     /// ```
-    fn index(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
+    fn index(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError>;
 
     /// For each element, return the highest index in the string where substring sub is found;
     /// alias on `rfind`
@@ -607,9 +607,9 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec![3, 4, -1]);
     /// let arr = Array::flat(vec!["AaAaAa".to_string(), "aAaAaA".to_string(), "bbAabb".to_string()]);
-    /// assert_eq!(expected, arr.rindex("aA"));
+    /// assert_eq!(expected, arr.rindex(&Array::single("aA".to_string()).unwrap()));
     /// ```
-    fn rindex(&self, sub: &str) -> Result<Array<isize>, ArrayError>;
+    fn rindex(&self, sub: &Array<N>) -> Result<Array<isize>, ArrayError>;
 
     /// Check if all characters in the string are alphabetic and there is at least one character
     ///
@@ -650,19 +650,6 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// ```
     fn is_decimal(&self) -> Result<Array<bool>, ArrayError>;
 
-    /// Check if all characters in the string are digits and there is at least one character
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// let expected = Array::flat(vec![true, false, false, false, false]);
-    /// let arr = Array::flat(vec!["2".to_string(), "12345".to_string(), "a".to_string(), "abc12".to_string(), "".to_string()]);
-    /// assert_eq!(expected, arr.is_digit());
-    /// ```
-    fn is_digit(&self) -> Result<Array<bool>, ArrayError>;
-
     /// Check if all characters in the string are numeric and there is at least one character
     ///
     /// # Examples
@@ -675,6 +662,19 @@ pub trait ArrayString<N: Alphanumeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr.is_numeric());
     /// ```
     fn is_numeric(&self) -> Result<Array<bool>, ArrayError>;
+
+    /// Check if all characters in the string are digits and there is at least one character
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec![true, false, false, false, false]);
+    /// let arr = Array::flat(vec!["2".to_string(), "12345".to_string(), "a".to_string(), "abc12".to_string(), "".to_string()]);
+    /// assert_eq!(expected, arr.is_digit());
+    /// ```
+    fn is_digit(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Check if all characters in the string are whitespace and there is at least one character
     ///
