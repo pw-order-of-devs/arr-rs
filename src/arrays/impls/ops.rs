@@ -23,25 +23,27 @@ use crate::traits::{
     },
     meta::ArrayMeta,
     types::{
+        ArrayElement,
         numeric::Numeric,
         numeric_ops::NumericOps,
         signed_numeric::SignedNumeric,
         bool_numeric::BoolNumeric,
     },
 };
+use crate::traits::types::alphanumeric::Alphanumeric;
 
 // ==== Indexing
 
-impl <N: Numeric> Index<usize> for Array<N> {
-    type Output = N;
+impl <T: ArrayElement> Index<usize> for Array<T> {
+    type Output = T;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.elements[index]
     }
 }
 
-impl <N: Numeric> Index<&[usize]> for Array<N> {
-    type Output = N;
+impl <T: ArrayElement> Index<&[usize]> for Array<T> {
+    type Output = T;
 
     fn index(&self, coords: &[usize]) -> &Self::Output {
         let index = self.index_at(coords).unwrap_or_else(|err| panic!("{err}"));
@@ -49,14 +51,14 @@ impl <N: Numeric> Index<&[usize]> for Array<N> {
     }
 }
 
-impl <N: Numeric> IndexMut<usize> for Array<N> {
+impl <T: ArrayElement> IndexMut<usize> for Array<T> {
 
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         &mut self.elements[index]
     }
 }
 
-impl <N: Numeric> IndexMut<&[usize]> for Array<N> {
+impl <T: Alphanumeric> IndexMut<&[usize]> for Array<T> {
 
     fn index_mut(&mut self, coords: &[usize]) -> &mut Self::Output {
         let index = self.index_at(coords).unwrap_or_else(|err| panic!("{err}"));
@@ -66,7 +68,7 @@ impl <N: Numeric> IndexMut<&[usize]> for Array<N> {
 
 // ==== Compare
 
-impl <N: Numeric> PartialEq for Array<N> {
+impl <T: ArrayElement> PartialEq for Array<T> {
 
     fn eq(&self, other: &Self) -> bool {
         assert_eq!(self.get_shape(), other.get_shape());
@@ -76,7 +78,7 @@ impl <N: Numeric> PartialEq for Array<N> {
     }
 }
 
-impl <N: Numeric> PartialOrd for Array<N> {
+impl <T: ArrayElement> PartialOrd for Array<T> {
 
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         assert_eq!(self.get_shape(), other.get_shape());

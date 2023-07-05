@@ -2,13 +2,13 @@ use crate::arrays::Array;
 use crate::traits::{
     errors::ArrayError,
     types::{
-        numeric::Numeric,
-        tuple_numeric::Tuple2,
+        ArrayElement,
+        tuple::tuple2::Tuple2,
     }
 };
 
 /// ArrayTrait - Array Broadcast functions
-pub trait ArrayBroadcast<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayBroadcast<T: ArrayElement> where Self: Sized + Clone {
 
     /// Broadcast an array to a new shape
     ///
@@ -33,7 +33,7 @@ pub trait ArrayBroadcast<N: Numeric> where Self: Sized + Clone {
     /// let broadcast: Array<Tuple2<i32>> = arr_1.broadcast(&arr_2).unwrap();
     /// assert_eq!(expected, broadcast);
     /// ```
-    fn broadcast(&self, other: &Array<N>) -> Result<Array<Tuple2<N>>, ArrayError>;
+    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T>>, ArrayError>;
 
     /// Broadcast an array to a new shape
     ///
@@ -52,7 +52,7 @@ pub trait ArrayBroadcast<N: Numeric> where Self: Sized + Clone {
     /// let broadcast: Array<i32> = arr_1.broadcast_to(vec![3, 3]).unwrap();
     /// assert_eq!(expected, broadcast);
     /// ```
-    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<N>, ArrayError>;
+    fn broadcast_to(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Broadcast a list of arrays to a common shape
     ///
@@ -75,6 +75,6 @@ pub trait ArrayBroadcast<N: Numeric> where Self: Sized + Clone {
     /// let broadcast: Vec<Array<i32>> = Array::broadcast_arrays(vec![arr_1 ,arr_2]).unwrap();
     /// assert_eq!(expected, broadcast);
     /// ```
-    fn broadcast_arrays(arrays: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError>;
+    fn broadcast_arrays(arrays: Vec<Array<T>>) -> Result<Vec<Array<T>>, ArrayError>;
 }
 

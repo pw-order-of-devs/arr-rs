@@ -8,20 +8,20 @@ use crate::traits::{
     },
     meta::ArrayMeta,
     create::ArrayCreate,
-    types::numeric::Numeric,
+    types::ArrayElement,
     validators::{
         validate_compare::ValidateEqual,
         validate_unique::ValidateUnique,
     },
 };
 
-impl <N: Numeric> ArrayAxis<N> for Array<N> {
+impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
 
     fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Self, ArrayError> {
 
-        fn transpose_recursive<N: Numeric>(
-            input: &[N], input_shape: &[usize],
-            output: &mut [N], output_shape: &[usize],
+        fn transpose_recursive<T: ArrayElement>(
+            input: &[T], input_shape: &[usize],
+            output: &mut [T], output_shape: &[usize],
             current_indices: &mut [usize], current_dim: usize,
             axes: &Option<Vec<usize>>) {
             if current_dim < input_shape.len() - 1 {
@@ -38,7 +38,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
                         None => current_indices.iter().rev().cloned().collect::<Vec<usize>>(),
                     };
                     let output_index = output_shape.iter().enumerate().fold(0, |acc, (dim, size)| { acc * size + output_indices[dim] });
-                    output[output_index] = input[input_index];
+                    output[output_index] = input[input_index].clone();
                 });
             }
         }
@@ -47,7 +47,7 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
         let axes = axes.map(|axes| axes.iter()
             .map(|i| Self::normalize_axis(*i, self_ndim))
             .collect::<Vec<usize>>());
-        let mut new_elements = vec![N::ZERO; self.elements.len()];
+        let mut new_elements = vec![T::zero(); self.elements.len()];
         let new_shape: Vec<usize> = match axes.clone() {
             Some(axes) => axes.into_iter().map(|ax| self.shape[ax]).collect(),
             None => self.shape.clone().into_iter().rev().collect(),
@@ -141,29 +141,29 @@ impl <N: Numeric> ArrayAxis<N> for Array<N> {
     }
 }
 
-impl <N: Numeric> ArrayAxis<N> for Result<Array<N>, ArrayError> {
+impl <T: ArrayElement> ArrayAxis<T> for Result<Array<T>, ArrayError> {
 
-    fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {
+    fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Array<T>, ArrayError> {
         self.clone()?.transpose(axes)
     }
 
-    fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Result<Array<N>, ArrayError> {
+    fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.moveaxis(source, destination)
     }
 
-    fn rollaxis(&self, axis: isize, start: Option<isize>) -> Result<Array<N>, ArrayError> {
+    fn rollaxis(&self, axis: isize, start: Option<isize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.rollaxis(axis, start)
     }
 
-    fn swapaxes(&self, axis: isize, start: isize) -> Result<Array<N>, ArrayError> {
+    fn swapaxes(&self, axis: isize, start: isize) -> Result<Array<T>, ArrayError> {
         self.clone()?.swapaxes(axis, start)
     }
 
-    fn expand_dims(&self, axes: Vec<isize>) -> Result<Array<N>, ArrayError> {
+    fn expand_dims(&self, axes: Vec<isize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.expand_dims(axes)
     }
 
-    fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Array<N>, ArrayError> {
+    fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Array<T>, ArrayError> {
         self.clone()?.squeeze(axes)
     }
 }

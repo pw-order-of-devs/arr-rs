@@ -5,63 +5,44 @@ use std::str::FromStr;
 use crate::traits::types::{
     ArrayElement,
     numeric::Numeric,
+    tuple::{
+        ParseTupleError,
+        TupleElement,
+    },
 };
 
-/// Numeric Tuple trait for array
-pub trait TupleNumeric<N: Numeric>: Numeric {
-    /// Output type for TupleNumeric
-    type Output;
-
-    /// parse numeric type from tuple
-    fn from_tuple(tuple: (N, N)) -> Self::Output;
-}
-
-/// Numeric Tuple type for array
+/// Tuple2 type for array
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
-pub struct Tuple2<N: Numeric>(pub N, pub N);
-
-/// Error definition for tuple parsing
-#[derive(Debug)]
-pub enum ParseTuple2Error<T: FromStr> {
-    /// Error definition for tuple parsing - Parse error
-    Parse(T::Err),
-    /// Error definition for tuple parsing - Format error
-    Format,
-}
-
-impl<T: FromStr> Display for ParseTuple2Error<T> {
-
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ParseTuple2Error::Parse(_) => write!(f, "Parse error"),
-            ParseTuple2Error::Format => write!(f, "Format error"),
-        }
-    }
-}
+pub struct Tuple2<T: ArrayElement>(pub T, pub T);
 
 impl<T: Numeric + FromStr> FromStr for Tuple2<T> {
-    type Err = ParseTuple2Error<T>;
+    type Err = ParseTupleError<T>;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        println!("{s}");
         let s = s.trim_start_matches('(').trim_end_matches(')');
         let mut parts = s.split(", ");
-        let x = parts.next().ok_or(ParseTuple2Error::Format)?;
-        let y = parts.next().ok_or(ParseTuple2Error::Format)?;
+        let x = parts.next().ok_or(ParseTupleError::Format)?;
+        let y = parts.next().ok_or(ParseTupleError::Format)?;
 
-        let x = T::from_str(x).map_err(ParseTuple2Error::Parse)?;
-        let y = T::from_str(y).map_err(ParseTuple2Error::Parse)?;
+        let x = T::from_str(x).map_err(ParseTupleError::Parse)?;
+        let y = T::from_str(y).map_err(ParseTupleError::Parse)?;
 
         Ok(Tuple2(x, y))
     }
 }
 
-impl <T: Numeric> ArrayElement for Tuple2<T> {}
+impl <T: ArrayElement> ArrayElement for Tuple2<T> {
+
+    fn zero() -> Self {
+        Tuple2(T::zero(), T::zero())
+    }
+
+    fn one() -> Self {
+        Tuple2(T::one(), T::one())
+    }
+}
 
 impl <N: Numeric> Numeric for Tuple2<N> {
-    const ZERO: Self = Tuple2(N::ZERO, N::ZERO);
-    const ONE: Self = Tuple2(N::ONE, N::ONE);
-
     fn rand(range: RangeInclusive<Self>) -> Self {
         let start = range.start();
         let end = range.end();
@@ -138,7 +119,7 @@ impl <N: Numeric> Numeric for Tuple2<N> {
     }
 }
 
-impl<N: Numeric> Display for Tuple2<N> {
+impl <T: ArrayElement> Display for Tuple2<T> {
 
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {})", self.0, self.1)
@@ -152,10 +133,11 @@ impl <N: Numeric> From<(N, N)> for Tuple2<N> {
     }
 }
 
-impl <N: Numeric> TupleNumeric<N> for Tuple2<N> {
+impl <T: ArrayElement> TupleElement<T> for Tuple2<T> {
+    type Input = (T, T);
     type Output = Self;
 
-    fn from_tuple(tuple: (N, N)) -> Self::Output {
+    fn from_tuple(tuple: (T, T)) -> Self::Output {
         Tuple2(tuple.0, tuple.1)
     }
 }
