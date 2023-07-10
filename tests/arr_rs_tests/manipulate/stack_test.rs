@@ -1,6 +1,5 @@
 use rstest::rstest;
 use arr_rs::prelude::*;
-use arr_rs::traits::manipulate::stack::ArrayStack;
 
 #[rstest(
 arrs, axis, expected,

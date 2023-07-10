@@ -109,7 +109,7 @@ case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::
 case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string()]).unwrap()), Some(Array::single(2).unwrap()), Array::flat(vec![List(vec!["a".to_string(), "a-a".to_string()]), List(vec!["b".to_string(), "b.b.b".to_string()])])),
 case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string(), "&".to_string()]).unwrap()), None, Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_split(array: Result<Array<String>, ArrayError>, sep: Option<Array<String>>, max_split: Option<Array<usize>>, expected: Result<Array<List<String>>, ArrayError>) {
-    assert_eq!(expected, ArrayString::split(&array, sep, max_split))
+    assert_eq!(expected, ArrayStringManipulate::split(&array, sep, max_split))
 }
 
 #[rstest(
@@ -120,7 +120,7 @@ case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::
 case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string()]).unwrap()), Some(Array::single(2).unwrap()), Array::flat(vec![List(vec!["a-a".to_string(), "a".to_string()]), List(vec!["b.b.b".to_string(), "b".to_string()])])),
 case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string(), "&".to_string()]).unwrap()), None, Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_rsplit(array: Result<Array<String>, ArrayError>, sep: Option<Array<String>>, max_split: Option<Array<usize>>, expected: Result<Array<List<String>>, ArrayError>) {
-    assert_eq!(expected, ArrayString::rsplit(&array, sep, max_split))
+    assert_eq!(expected, ArrayStringManipulate::rsplit(&array, sep, max_split))
 }
 
 #[rstest(
@@ -130,7 +130,7 @@ case(Array::single("a\na\ra\r\na".to_string()), Some(Array::single(true).unwrap(
 case(Array::flat(vec!["a\na".to_string(), "b\nb".to_string()]), Some(Array::single(true).unwrap()), Array::flat(vec![List(vec!["a\n".to_string(), "a".to_string()]), List(vec!["b\n".to_string(), "b".to_string()])])),
 case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec![false, false, false]).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_splitlines(array: Result<Array<String>, ArrayError>, keep_ends: Option<Array<bool>>, expected: Result<Array<List<String>>, ArrayError>) {
-    assert_eq!(expected, ArrayString::splitlines(&array.unwrap(), keep_ends))
+    assert_eq!(expected, ArrayStringManipulate::splitlines(&array.unwrap(), keep_ends))
 }
 
 #[rstest(
@@ -139,7 +139,7 @@ case(Array::single("abba".to_string()), Array::single("bb".to_string()), Array::
 case(Array::single("abbddbba".to_string()), Array::single("bb".to_string()), Array::single("cc".to_string()), Some(1), Array::single("accddbba".to_string())),
 case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["aa".to_string(), "bb".to_string(), "cc".to_string()]), None, Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_replace(array: Result<Array<String>, ArrayError>, old: Result<Array<String>, ArrayError>, new: Result<Array<String>, ArrayError>, count: Option<usize>, expected: Result<Array<String>, ArrayError>) {
-    assert_eq!(expected, ArrayString::replace(&array, &old.unwrap(), &new.unwrap(), count))
+    assert_eq!(expected, ArrayStringManipulate::replace(&array, &old.unwrap(), &new.unwrap(), count))
 }
 
 #[rstest(
