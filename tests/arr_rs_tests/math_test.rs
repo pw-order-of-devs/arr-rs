@@ -80,7 +80,7 @@ case(array![-1., 0., 1.], array![-0.8414709848078965, 0., 0.8414709848078965]),
 case(array![0.5, -0.5, 0.25], array![0.479425538604203, -0.479425538604203, 0.24740395925452294]),
 case(array![1.5, -1.5, 2.0], array![0.9974949866040544, -0.9974949866040544, 0.9092974268256817]),
 )] fn test_sin(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.sin()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.sin()))
 }
 
 #[rstest(
@@ -89,7 +89,7 @@ case(array![-1., 0., 1.], array![0.5403023058681398, 1., 0.5403023058681398]),
 case(array![0.5, -0.5, 0.25], array![0.8775825618903728, 0.8775825618903728, 0.9689124217106447]),
 case(array![1.5, -1.5, 2.0], array![0.0707372016677029, 0.0707372016677029, -0.4161468365471424]),
 )] fn test_cos(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.cos()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.cos()))
 }
 
 #[rstest(
@@ -100,27 +100,27 @@ case(array![1.5, -1.5, 2.0], array![14.101419947171719, -14.101419947171719, -2.
 case(array![2.5, -2.5, 3.0], array![-0.7470222972386603, 0.7470222972386603, -0.1425465430742778]),
 case(array![0.1, -0.1, 0.75], array![0.10033467208545055, -0.10033467208545055, 0.9315964599440725]),
 )] fn test_tan(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.tan()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.tan()))
 }
 
 #[rstest(
 array, expected,
 case(array![-1., 0., 1.], array![-std::f64::consts::FRAC_PI_2, 0., std::f64::consts::FRAC_PI_2]),
-case(array![0.5, -0.5, 0.25], array![0.5235987755982989, -0.5235987755982989, 0.25268025514207865]),
+case(array![0.5, -0.5, 0.25], array![std::f64::consts::FRAC_PI_6, -std::f64::consts::FRAC_PI_6, 0.25268025514207865]),
 case(array![1.5, -1.5, 2.0], array![f64::NAN, f64::NAN, f64::NAN]),
 case(array![0.1, -0.1, 0.75], array![0.10016742116155979, -0.10016742116155979, 0.848062078981481]),
 )] fn test_asin(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.asin()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.asin()))
 }
 
 #[rstest(
 array, expected,
 case(array![-1., 0., 1.], array![std::f64::consts::PI, std::f64::consts::FRAC_PI_2, 0.]),
-case(array![0.5, -0.5, 0.25], array![1.0471975511965979, 2.0943951023931957, 1.318116071652818]),
+case(array![0.5, -0.5, 0.25], array![std::f64::consts::FRAC_PI_3, 2.0943951023931957, 1.318116071652818]),
 case(array![1.5, -1.5, 2.0], array![f64::NAN, f64::NAN, f64::NAN]),
 case(array![0.1, -0.1, 0.75], array![1.4706289056333368, 1.6709637479564565, 0.7227342478134154]),
 )] fn test_acos(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.acos()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.acos()))
 }
 
 #[rstest(
@@ -131,7 +131,7 @@ case(array![1.5, -1.5, 2.0], array![0.982793723247329, -0.982793723247329, 1.107
 case(array![2.5, -2.5, 3.0], array![1.1902899496825317, -1.1902899496825317, 1.2490457723982544]),
 case(array![0.1, -0.1, 0.75], array![0.09966865249116204, -0.09966865249116204, 0.643501109]),
 )] fn test_atan(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.atan()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.atan()))
 }
 
 #[rstest(
@@ -142,7 +142,7 @@ case(array![1.5, -1.5, 2.0], array![2.1292794550948173, -2.1292794550948173, 3.6
 case(array![2.5, -2.5, 3.0], array![6.0502044810397875, -6.0502044810397875, 10.017874927409903]),
 case(array![0.1, -0.1, 0.75], array![0.10016675001984403, -0.10016675001984403, 0.82231673193583]),
 )] fn test_sinh(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.sinh()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.sinh()))
 }
 
 #[rstest(
@@ -153,7 +153,7 @@ case(array![1.5, -1.5, 2.0], array![2.352409615243247, 2.352409615243247, 3.7621
 case(array![2.5, -2.5, 3.0], array![6.132289479663686, 6.132289479663686, 10.067661995777765]),
 case(array![0.1, -0.1, 0.75], array![1.0050041680558035, 1.0050041680558035, 1.2946832846768448]),
 )] fn test_cosh(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.cosh()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.cosh()))
 }
 
 #[rstest(
@@ -164,7 +164,7 @@ case(array![1.5, -1.5, 2.0], array![0.9051482536448664, -0.9051482536448664, 0.9
 case(array![2.5, -2.5, 3.0], array![0.9866142981514303, -0.9866142981514303, 0.9950547536867305]),
 case(array![0.1, -0.1, 0.75], array![0.09966799462495582, -0.09966799462495582, 0.6351489523872873]),
 )] fn test_tanh(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.tanh()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.tanh()))
 }
 
 #[rstest(
@@ -173,9 +173,9 @@ case(array![-1., 0., 1.], array![-0.881373587019543, 0., 0.881373587019543]),
 case(array![0.5, -0.5, 0.25], array![0.4812118251, -0.4812118251, 0.2474664615]),
 case(array![1.5, -1.5, 2.0], array![1.1947632172871093, -1.1947632172871093, 1.4436354751788103]),
 case(array![2.5, -2.5, 3.0], array![1.6472311463710957, -1.6472311463710957, 1.8184464592320668]),
-case(array![0.1, -0.1, 0.75], array![0.0998340789, -0.0998340789, 0.6931471806]),
+case(array![0.1, -0.1, 0.75], array![0.0998340789, -0.0998340789, std::f64::consts::LN_2]),
 )] fn test_asinh(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.asinh()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.asinh()))
 }
 
 #[rstest(
@@ -186,7 +186,7 @@ case(array![1.5, -1.5, 2.0], array![0.96242365, f64::NAN, 1.31695790]),
 case(array![2.5, -2.5, 3.0], array![1.56679924, f64::NAN, 1.76274717]),
 case(array![0.1, -0.1, 0.75], array![f64::NAN, f64::NAN, f64::NAN]),
 )] fn test_acosh(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.acosh()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.acosh()))
 }
 
 #[rstest(
@@ -197,5 +197,5 @@ case(array![1.5, -1.5, 2.0], array![f64::NAN, f64::NAN, f64::NAN]),
 case(array![2.5, -2.5, 3.0], array![f64::NAN, f64::NAN, f64::NAN]),
 case(array![0.1, -0.1, 0.75], array![0.10033534773107558, -0.10033534773107558, 0.9729550745276566]),
 )] fn test_atanh(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
-    assert_eq!(format!("{:.8?}", expected), format!("{:.8?}", array.atanh()))
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.atanh()))
 }
