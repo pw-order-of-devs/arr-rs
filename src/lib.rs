@@ -36,13 +36,33 @@
 #![doc(test(attr(allow(unused_variables), deny(warnings))))]
 #![cfg_attr(doc_cfg, feature(doc_cfg))]
 
+/// core functionality - common for modules
+pub mod core;
+
+/// alphanumeric module implementation
+#[cfg(feature = "alphanumeric")]
+pub mod alphanumeric;
+
+/// boolean module implementation
+#[cfg(feature = "boolean")]
+pub mod boolean;
+
+/// numeric module implementation
+#[cfg(feature = "numeric")]
+pub mod numeric;
+
+/// array error definitions
+pub mod errors;
+
+/// create array macro implementation
+#[cfg(feature = "macros")]
+pub mod macros;
+
 /// prelude module - imports facade
 pub mod prelude;
 
-/// traits modules - trait definitions
-pub mod traits;
-/// implementation modules - array implementation
-pub mod arrays;
+/// extension functions
+pub(crate) mod extensions;
 
-/// extension functions for library
-pub(crate) mod ext;
+/// array validators definitions
+pub(crate) mod validators;
