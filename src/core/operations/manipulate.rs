@@ -1,10 +1,12 @@
 use std::cmp::Ordering;
-use itertools::Itertools;
 
 use crate::{
     core::prelude::*,
     errors::prelude::*,
-    extensions::vec_ext::{VecInsertAt, VecRemoveAt},
+    extensions::{
+        iter_ext::IterSorted,
+        vec_ext::{VecInsertAt, VecRemoveAt},
+    },
     validators::prelude::*,
 };
 

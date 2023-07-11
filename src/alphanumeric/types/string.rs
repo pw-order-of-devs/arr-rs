@@ -1,9 +1,10 @@
-use itertools::Itertools;
-
 use crate::{
     alphanumeric::prelude::*,
     core::prelude::*,
-    extensions::vec_ext::VecReverse,
+    extensions::{
+        chars_ext::CharsJoin,
+        vec_ext::VecReverse,
+    },
 };
 
 impl ArrayElement for String {
