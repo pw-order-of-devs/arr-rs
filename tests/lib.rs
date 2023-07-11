@@ -1,4 +1,8 @@
 #[macro_use]
 extern crate arr_rs;
 
-mod arr_rs_tests;
+mod alphanumeric;
+mod boolean;
+mod core;
+mod macros;
+mod numeric;

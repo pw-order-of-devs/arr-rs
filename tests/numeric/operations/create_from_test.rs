@@ -29,20 +29,6 @@ case(array![[1, 2], [3, 4]], Some(-1), array!([[0, 0, 0, 0, 0], [1, 0, 0, 0, 0],
 }
 
 #[rstest(
-n, m, k, expected,
-case(2, Some(2), None, array!([[1, 0], [1, 1]])),
-case(3, Some(3), None, array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]])),
-case(3, Some(3), Some(0), array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]])),
-case(3, Some(3), Some(1), array!([[1, 1, 0], [1, 1, 1], [1, 1, 1]])),
-case(3, Some(3), Some(-1), array!([[0, 0, 0], [1, 0, 0], [1, 1, 0]])),
-case(2, Some(4), Some(0), array!([[1, 0, 0, 0], [1, 1, 0, 0]])),
-case(2, Some(4), Some(1), array!([[1, 1, 0, 0], [1, 1, 1, 0]])),
-case(2, Some(4), Some(-1), array!([[0, 0, 0, 0], [1, 0, 0, 0]])),
-)] fn test_tri(n: usize, m: Option<usize>, k: Option<isize>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, Array::tri(n, m, k))
-}
-
-#[rstest(
 array, k, expected,
 case(array_arange!(1, 8).reshape(vec![2, 4]), Some(0), array!([[1, 0, 0, 0], [5, 6, 0, 0]])),
 case(array_arange!(1, 8).reshape(vec![2, 4]), Some(1), array!([[1, 2, 0, 0], [5, 6, 7, 0]])),
