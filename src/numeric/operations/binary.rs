@@ -136,10 +136,10 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!("10".to_string(), (2 as u8).binary_repr());
-    /// assert_eq!("11".to_string(), (3 as u8).binary_repr());
-    /// assert_eq!("11111101".to_string(), (-3 as i8).binary_repr());
-    /// assert_eq!("11111111".to_string(), (255 as u8).binary_repr());
+    /// assert_eq!("10".to_string(), 2u8.binary_repr());
+    /// assert_eq!("11".to_string(), 3u8.binary_repr());
+    /// assert_eq!("11111101".to_string(), (-3i8).binary_repr());
+    /// assert_eq!("11111111".to_string(), 255u8.binary_repr());
     ///
     /// assert_eq!("10".to_string(), Array::<u8>::binary_repr(2));
     /// assert_eq!("11".to_string(), Array::<u8>::binary_repr(3));

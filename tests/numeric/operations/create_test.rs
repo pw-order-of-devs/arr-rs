@@ -2,6 +2,82 @@ use rstest::rstest;
 use arr_rs::prelude::*;
 
 #[rstest(
+shape, expected,
+case(vec![4], 4),
+case(vec![4, 4], 16),
+case(vec![4, 4, 4], 64),
+)] fn test_rand(shape: Vec<usize>, expected: usize) {
+    assert_eq!(expected, Array::<f64>::rand(shape).len().unwrap())
+}
+
+#[rstest(
+n, m, k, expected,
+case(2, Some(3), Some(0), array!([[1., 0., 0.], [0., 1., 0.]])),
+case(3, Some(2), Some(1), array!([[0., 1.], [0., 0.], [0., 0.]])),
+case(4, Some(3), Some(0), array!([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.], [0., 0., 0.]])),
+case(4, Some(3), Some(1), array!([[0., 1., 0.], [0., 0., 1.], [0., 0., 0.], [0., 0., 0.]])),
+)] fn test_eye(n: usize, m: Option<usize>, k: Option<usize>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::<f64>::eye(n, m, k))
+}
+
+#[rstest(
+n, expected,
+case(2, array!([[1., 0.], [0., 1.]])),
+case(3, array!([[1., 0., 0.], [0., 1., 0.], [0., 0., 1.]])),
+case(4, array!([[1., 0., 0., 0.], [0., 1., 0., 0.], [0., 0., 1., 0.], [0., 0., 0., 1.]])),
+)] fn test_identity(n: usize, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::<f64>::identity(n))
+}
+
+#[rstest(
+shape, expected,
+case(vec![4], array!([0, 0, 0, 0])),
+case(vec![2, 2], array!([[0, 0], [0, 0]])),
+)] fn test_zeros(shape: Vec<usize>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::<f64>::zeros(shape))
+}
+
+#[rstest(
+other, expected,
+case(array!(1, 2, 3, 4), array!([0., 0., 0., 0.])),
+case(array!([[1, 2], [1, 2]]), array!([[0., 0.], [0., 0.]])),
+)] fn test_zeros_like(other: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::<f64>::zeros_like(&other.unwrap()))
+}
+
+#[rstest(
+shape, expected,
+case(vec![4], array!([1., 1., 1., 1.])),
+case(vec![2, 2], array!([[1., 1.], [1., 1.]])),
+)] fn test_ones(shape: Vec<usize>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::<f64>::ones(shape))
+}
+
+#[rstest(
+other, expected,
+case(array!(1, 2, 3, 4), array!([1., 1., 1., 1.])),
+case(array!([[1, 2], [1, 2]]), array!([[1., 1.], [1., 1.]])),
+)] fn test_ones_like(other: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::<f64>::ones_like(&other.unwrap()))
+}
+
+#[rstest(
+shape, fill_value, expected,
+case(vec![4], 2., array!([2., 2., 2., 2.])),
+case(vec![2, 2], 2., array!([[2., 2.], [2., 2.]])),
+)] fn test_full(shape: Vec<usize>, fill_value: f64, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::<f64>::full(shape, fill_value))
+}
+
+#[rstest(
+other, fill_value, expected,
+case(array!(1, 2, 3, 4), 2., array!([2., 2., 2., 2.])),
+case(array!([[1, 2], [1, 2]]), 2., array!([[2., 2.], [2., 2.]])),
+)] fn test_full_like(other: Result<Array<f64>, ArrayError>, fill_value: f64, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, Array::<f64>::full_like(&other.unwrap(), fill_value))
+}
+
+#[rstest(
 start, stop, step, expected,
 case(0, 4, None, array!([0, 1, 2, 3, 4])),
 case(0, 4, Some(1), array!([0, 1, 2, 3, 4])),
@@ -76,4 +152,18 @@ case(&array!([1., 2.]), &array!([5., 6.]), Some(5), Some(false), array!([[1., 2.
 case(&array!([0., 2.]), &array!([0., 6.]), Some(5), Some(false), Err(ArrayError::ParameterError { param: "start", message: "geometric sequence cannot include zero" })),
 )] fn test_geomspace_a(start: &Result<Array<f64>, ArrayError>, stop: &Result<Array<f64>, ArrayError>, num: Option<usize>, endpoint: Option<bool>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(&expected, &Array::geomspace_a(start.as_ref().unwrap(), stop.as_ref().unwrap(), num, endpoint))
+}
+
+#[rstest(
+n, m, k, expected,
+case(2, Some(2), None, array!([[1, 0], [1, 1]])),
+case(3, Some(3), None, array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]])),
+case(3, Some(3), Some(0), array!([[1, 0, 0], [1, 1, 0], [1, 1, 1]])),
+case(3, Some(3), Some(1), array!([[1, 1, 0], [1, 1, 1], [1, 1, 1]])),
+case(3, Some(3), Some(-1), array!([[0, 0, 0], [1, 0, 0], [1, 1, 0]])),
+case(2, Some(4), Some(0), array!([[1, 0, 0, 0], [1, 1, 0, 0]])),
+case(2, Some(4), Some(1), array!([[1, 1, 0, 0], [1, 1, 1, 0]])),
+case(2, Some(4), Some(-1), array!([[0, 0, 0, 0], [1, 0, 0, 0]])),
+)] fn test_tri(n: usize, m: Option<usize>, k: Option<isize>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, Array::tri(n, m, k))
 }

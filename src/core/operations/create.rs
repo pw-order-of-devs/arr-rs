@@ -74,8 +74,6 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
 
 impl <T: ArrayElement> ArrayCreate<T> for Array<T> {
 
-    // ==== from data
-
     fn new(elements: Vec<T>, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
         shape.matches_values_len(&elements)?;
         Ok(Self { elements, shape, })
