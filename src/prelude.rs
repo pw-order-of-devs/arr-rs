@@ -1,61 +1,15 @@
-// traits traits
-pub use crate::traits::{
-    errors::ArrayError,
-    alphanumeric::ArrayString,
-    binary::{
-        ArrayBinary,
-        ArrayBinaryBits,
-        BitOrder,
-    },
-    create::{
-        ArrayCreate,
-        ArrayCreateFrom,
-        ArrayCreateNumeric,
-    },
-    indexing::ArrayIndexing,
-    manipulate::{
-        ArrayManipulate,
-        axis::ArrayAxis,
-        broadcast::ArrayBroadcast,
-        iter::ArrayIter,
-        reorder::ArrayReorder,
-        split::ArraySplit,
-        stack::ArrayStack,
-    },
-    math::ArrayMath,
-    meta::ArrayMeta,
-    types::{
-        ArrayElement,
-        numeric::Numeric,
-        numeric_ops::NumericOps,
-        signed_numeric::SignedNumeric,
-        bool_numeric::BoolNumeric,
-        alphanumeric::Alphanumeric,
-        tuple::{
-            TupleElement,
-            tuple2::Tuple2,
-            tuple3::Tuple3,
-        },
-        collection::{
-            CollectionElement,
-            List,
-        },
-    },
-};
+pub use crate::core::prelude::*;
 
-// implementations
-pub use crate::arrays::Array;
+#[cfg(feature = "alphanumeric")]
+pub use crate::alphanumeric::prelude::*;
 
-// macros
+#[cfg(feature = "boolean")]
+pub use crate::boolean::prelude::*;
+
+#[cfg(feature = "numeric")]
+pub use crate::numeric::prelude::*;
+
+pub use crate::errors::prelude::*;
+
 #[cfg(feature = "macros")]
-pub use crate::{
-    array,
-    array_arange,
-    array_rand,
-    array_flat,
-    array_eye,
-    array_identity,
-    array_zeros,
-    array_ones,
-    array_full,
-};
+pub use crate::macros::prelude::*;

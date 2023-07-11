@@ -15,7 +15,7 @@ include = [
 ]
 
 [package.metadata.docs.rs]
-features = ["macros"]
+features = ["numeric", "alphanumeric", "boolean", "macros"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [lib]
@@ -23,15 +23,17 @@ name = "arr_rs"
 path = "src/lib.rs"
 
 [features]
-default = ["macros"]
-macros = []
+default = ["numeric", "alphanumeric", "boolean", "macros"]
+numeric = []
+alphanumeric = []
+boolean = ["numeric"]
+macros = ["numeric"]
 
 [dependencies]
-itertools = "0.11"
 rand = "0.8"
 
 [dev-dependencies]
-rstest = "0.17"
+rstest = "0.18"
 criterion = { version = "0.5", features = ["html_reports"] }
 
 [[bench]]
