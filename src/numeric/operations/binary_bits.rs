@@ -32,7 +32,7 @@ pub trait ArrayBinaryBits where Self: Sized + Clone {
     ///
     /// # Arguments
     ///
-    /// * `axis` - the dimension over which bit-unpacking is done. if none, array is flattened
+    /// * `axis` - the dimension over which bit-packing is done. if none, array is flattened
     /// * `bit_order` - the order of the returned bits. defaults to `Big`
     ///
     /// # Examples

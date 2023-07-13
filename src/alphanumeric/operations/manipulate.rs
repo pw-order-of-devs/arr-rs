@@ -340,13 +340,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
     }
 
     fn multiply(&self, counts: &Array<usize>) -> Result<Array<N>, ArrayError> {
-        let tmp_counts = Array::single(N::from_str(" ")).broadcast_to(counts.get_shape()?)?;
-        let tmp_array = self.broadcast(&tmp_counts)?;
-
-        let array = tmp_array.clone().into_iter()
-            .map(|t| t.0).collect::<Array<N>>()
-            .reshape(tmp_array.get_shape()?)?;
-        let counts = counts.broadcast_to(array.get_shape()?)?;
+        let (array, counts) = self.broadcast_h2(&counts)?;
         let elements = array.clone().into_iter().zip(counts)
             .map(|tuple| tuple.0._multiply(tuple.1))
             .collect();
@@ -383,13 +377,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
 
     fn center(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
         let fill_char = fill_char.unwrap_or(Array::single(' ')?);
-        let tmp_fill_char = Array::single(N::from_str(" ")).broadcast_to(fill_char.get_shape()?)?;
-        let tmp_width = Array::single(N::from_str(" ")).broadcast_to(width.get_shape()?)?;
-        let broadcasted = Self::broadcast_arrays(vec![self.clone(), tmp_width, tmp_fill_char])?;
-
-        let array = broadcasted[0].clone();
-        let width = width.broadcast_to(array.get_shape()?)?;
-        let fill_char = fill_char.broadcast_to(array.get_shape()?)?;
+        let (array, width, fill_char) = self.broadcast_h3(&width, &fill_char)?;
 
         let elements = array.into_iter().enumerate()
             .map(|(idx, s)| s._center(width[idx], fill_char[idx]))
@@ -445,13 +433,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
 
     fn splitlines(&self, keep_ends: Option<Array<bool>>) -> Result<Array<List<N>>, ArrayError> {
         let keep_ends = keep_ends.unwrap_or(Array::single(false)?);
-        let tmp_keep_ends = Array::single(N::from_str(" ")).broadcast_to(keep_ends.get_shape()?)?;
-        let tmp_array = self.broadcast(&tmp_keep_ends)?;
-
-        let array = tmp_array.clone().into_iter()
-            .map(|t| t.0).collect::<Array<N>>()
-            .reshape(tmp_array.get_shape()?)?;
-        let keep_ends = keep_ends.broadcast_to(array.get_shape()?)?;
+        let (array, keep_ends) = self.broadcast_h2(&keep_ends)?;
         let elements = array.clone().into_iter().enumerate()
             .map(|(idx, elem)| elem._splitlines(keep_ends[idx]))
             .collect();
@@ -493,13 +475,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
 
     fn ljust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
         let fill_char = fill_char.unwrap_or(Array::single(' ')?);
-        let tmp_fill_char = Array::single(N::from_str(" ")).broadcast_to(fill_char.get_shape()?)?;
-        let tmp_width = Array::single(N::from_str(" ")).broadcast_to(width.get_shape()?)?;
-        let broadcasted = Self::broadcast_arrays(vec![self.clone(), tmp_width, tmp_fill_char])?;
-
-        let array = broadcasted[0].clone();
-        let width = width.broadcast_to(array.get_shape()?)?;
-        let fill_char = fill_char.broadcast_to(array.get_shape()?)?;
+        let (array, width, fill_char) = self.broadcast_h3(&width, &fill_char)?;
 
         let elements = array.into_iter().enumerate()
             .map(|(idx, s)| s._ljust(width[idx], fill_char[idx]))

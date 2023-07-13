@@ -196,17 +196,17 @@ impl <T: ArrayElement> ArrayIter<T> for Array<T> {
     }
 
     fn map<F: FnMut(&T) -> T>(&self, f: F) -> Result<Array<T>, ArrayError> {
-        let result = self.elements.iter()
+        self.elements.iter()
             .map(f)
-            .collect();
-        Ok(result)
+            .collect::<Array<T>>()
+            .reshape(self.get_shape()?)
     }
 
     fn map_e<F: FnMut(usize, &T) -> T>(&self, mut f: F) -> Result<Array<T>, ArrayError> {
-        let result = self.elements.iter().enumerate()
+        self.elements.iter().enumerate()
             .map(|(idx, item)| f(idx, item))
-            .collect();
-        Ok(result)
+            .collect::<Array<T>>()
+            .reshape(self.get_shape()?)
     }
 
     fn filter<F: FnMut(&T) -> bool>(&self, mut f: F) -> Result<Array<T>, ArrayError> {

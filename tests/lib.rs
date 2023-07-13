@@ -5,4 +5,5 @@ mod alphanumeric;
 mod boolean;
 mod core;
 mod macros;
+mod math;
 mod numeric;
