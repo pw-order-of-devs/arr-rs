@@ -9,10 +9,6 @@ pub trait ArrayFolding<N: Numeric> where Self: Sized + Clone {
 
     /// Multiplication of array elements
     ///
-    /// # Arguments
-    ///
-    /// * `axis` - the axis along which to execute the function. optional. if negative, counts from last to first axis. if None, array is raveled
-    ///
     /// # Examples
     ///
     /// ```
