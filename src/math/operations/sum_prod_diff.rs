@@ -6,8 +6,8 @@ use crate::{
     validators::prelude::*,
 };
 
-/// ArrayTrait - Array Folding functions
-pub trait ArrayFolding<N: Numeric> where Self: Sized + Clone {
+/// ArrayTrait - Array Sum, Product, Diff functions
+pub trait ArraySumProdDiff<N: Numeric> where Self: Sized + Clone {
 
     /// Multiplication of array elements
     ///
@@ -138,11 +138,11 @@ pub trait ArrayFolding<N: Numeric> where Self: Sized + Clone {
     fn nancumsum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError>;
 }
 
-impl <N: Numeric> ArrayFolding<N> for Array<N> {
+impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
 
     fn prod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.folding_internal(axis, |arr| arr.prod(None))
+            self.spd_internal(axis, |arr| arr.prod(None))
         } else {
             Array::single(self.elements.iter().fold(N::one(), |acc, x| N::from(acc.to_f64() * x.to_f64())))
         }
@@ -150,7 +150,7 @@ impl <N: Numeric> ArrayFolding<N> for Array<N> {
 
     fn sum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.folding_internal(axis, |arr| arr.sum(None))
+            self.spd_internal(axis, |arr| arr.sum(None))
         } else {
             Array::single(self.elements.iter().fold(N::zero(), |acc, x| N::from(acc.to_f64() + x.to_f64())))
         }
@@ -158,7 +158,7 @@ impl <N: Numeric> ArrayFolding<N> for Array<N> {
 
     fn nanprod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.folding_internal(axis, |arr| arr.nanprod(None))
+            self.spd_internal(axis, |arr| arr.nanprod(None))
         } else {
             Array::single(self.elements.iter().fold(N::one(), |acc, x| {
                 let x = if x.to_f64().is_nan() { 1. } else { x.to_f64() };
@@ -169,7 +169,7 @@ impl <N: Numeric> ArrayFolding<N> for Array<N> {
 
     fn nansum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.folding_internal(axis, |arr| arr.nansum(None))
+            self.spd_internal(axis, |arr| arr.nansum(None))
         } else {
             Array::single(self.elements.iter().fold(N::zero(), |acc, x| {
                 let x = if x.to_f64().is_nan() { 0. } else { x.to_f64() };
@@ -180,7 +180,7 @@ impl <N: Numeric> ArrayFolding<N> for Array<N> {
 
     fn cumprod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.folding_internal_cum(axis, |arr| arr.cumprod(None))
+            self.spd_cum_internal(axis, |arr| arr.cumprod(None))
         } else {
             let mut acc = N::one();
             self.ravel()?.map(|&x| {
@@ -192,7 +192,7 @@ impl <N: Numeric> ArrayFolding<N> for Array<N> {
 
     fn cumsum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.folding_internal_cum(axis, |arr| arr.cumsum(None))
+            self.spd_cum_internal(axis, |arr| arr.cumsum(None))
         } else {
             let mut acc = N::zero();
             self.ravel()?.map(|&x| {
@@ -204,7 +204,7 @@ impl <N: Numeric> ArrayFolding<N> for Array<N> {
 
     fn nancumprod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.folding_internal_cum(axis, |arr| arr.nancumprod(None))
+            self.spd_cum_internal(axis, |arr| arr.nancumprod(None))
         } else {
             let mut acc = N::one();
             self.ravel()?.map(|&x| {
@@ -217,7 +217,7 @@ impl <N: Numeric> ArrayFolding<N> for Array<N> {
 
     fn nancumsum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.folding_internal_cum(axis, |arr| arr.nancumsum(None))
+            self.spd_cum_internal(axis, |arr| arr.nancumsum(None))
         } else {
             let mut acc = N::zero();
             self.ravel()?.map(|&x| {
@@ -229,7 +229,7 @@ impl <N: Numeric> ArrayFolding<N> for Array<N> {
     }
 }
 
-impl <N: Numeric> ArrayFolding<N> for Result<Array<N>, ArrayError> {
+impl <N: Numeric> ArraySumProdDiff<N> for Result<Array<N>, ArrayError> {
 
     fn prod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         self.clone()?.prod(axis)
@@ -266,28 +266,28 @@ impl <N: Numeric> ArrayFolding<N> for Result<Array<N>, ArrayError> {
 
 impl <N: Numeric> Array<N> {
 
-    fn folding_internal<F: FnMut(&Array<N>) -> Result<Array<N>, ArrayError>>(&self, axis: isize, f: F) -> Result<Array<N>, ArrayError> {
+    fn spd_internal<F: FnMut(&Array<N>) -> Result<Array<N>, ArrayError>>(&self, axis: isize, f: F) -> Result<Array<N>, ArrayError> {
         let axis = Self::normalize_axis(axis, self.ndim()?);
         let new_shape = self.get_shape()?.remove_at(axis);
         let parts = self.get_shape()?.remove_at(axis).into_iter().product();
         let partial = self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?;
-        Array::folding_partial(&partial, parts, f)
+        Array::spd_internal_partial(&partial, parts, f)
             .reshape(new_shape.clone())
     }
 
-    fn folding_internal_cum<F>(&self, axis: isize, f: F) -> Result<Array<N>, ArrayError>
+    fn spd_cum_internal<F>(&self, axis: isize, f: F) -> Result<Array<N>, ArrayError>
         where F: FnMut(&Array<N>) -> Result<Array<N>, ArrayError> {
         let axis = Self::normalize_axis(axis, self.ndim()?);
         let parts = self.get_shape()?.remove_at(axis).into_iter().product();
         let partial = self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?;
-        let partial = Array::folding_partial(&partial, parts, f)
+        let partial = Array::spd_internal_partial(&partial, parts, f)
             .reshape(partial.get_shape()?);
         if axis == 0 { partial.rollaxis((self.ndim()? - 1) as isize, None) }
         else { partial.moveaxis(vec![axis as isize], vec![self.ndim()? as isize]) }
             .reshape(self.get_shape()?)
     }
 
-    fn folding_partial<F>(partial: &Array<N>, parts: usize, mut f: F) -> Result<Array<N>, ArrayError>
+    fn spd_internal_partial<F>(partial: &Array<N>, parts: usize, mut f: F) -> Result<Array<N>, ArrayError>
         where F: FnMut(&Array<N>) -> Result<Array<N>, ArrayError> {
         let result = partial
             .ravel()

@@ -1,5 +1,5 @@
-/// array folding functions
-pub mod folding;
+/// array sum, product, diff functions
+pub mod sum_prod_diff;
 
 /// array hyperbolic functions
 pub mod hyperbolic;
