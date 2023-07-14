@@ -103,7 +103,7 @@ pub trait ArrayRounding<N: Numeric> where Self: Sized + Clone {
 impl <N: Numeric> ArrayRounding<N> for Array<N> {
 
     fn round(&self, decimals: &Array<isize>) -> Result<Array<N>, ArrayError> {
-        let (array, other) = self.broadcast_h2(&decimals)?;
+        let (array, other) = self.broadcast_h2(decimals)?;
         let elements = array.clone().into_iter().zip(&other)
             .map(|tuple| {
                 let multiplier = 10_f64.powi(*tuple.1 as i32);

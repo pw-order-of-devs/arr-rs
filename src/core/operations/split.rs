@@ -1,7 +1,7 @@
 use crate::{
     core::prelude::*,
     errors::prelude::*,
-    extensions::vec_ext::VecInsertAt,
+    extensions::prelude::*,
     validators::prelude::*,
 };
 

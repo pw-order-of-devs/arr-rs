@@ -3,6 +3,8 @@ use std::str::FromStr;
 
 use crate::core::prelude::*;
 
+pub(crate) type TupleH3 <T, S, Q> = (Array<T>, Array<S>, Array<Q>);
+
 /// Tuple2 type for array
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub struct Tuple3<T: ArrayElement>(pub T, pub T, pub T);

@@ -1,7 +1,7 @@
 use crate::{
     core::prelude::*,
     errors::prelude::*,
-    extensions::vec_ext::VecRemoveAt,
+    extensions::prelude::*,
     numeric::prelude::*,
     validators::prelude::*,
 };
@@ -180,7 +180,7 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
 
     fn cumprod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.spd_cum_internal(axis, |arr| arr.cumprod(None))
+            self.spd_arr_internal(axis, |arr| arr.cumprod(None))
         } else {
             let mut acc = N::one();
             self.ravel()?.map(|&x| {
@@ -192,7 +192,7 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
 
     fn cumsum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.spd_cum_internal(axis, |arr| arr.cumsum(None))
+            self.spd_arr_internal(axis, |arr| arr.cumsum(None))
         } else {
             let mut acc = N::zero();
             self.ravel()?.map(|&x| {
@@ -204,7 +204,7 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
 
     fn nancumprod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.spd_cum_internal(axis, |arr| arr.nancumprod(None))
+            self.spd_arr_internal(axis, |arr| arr.nancumprod(None))
         } else {
             let mut acc = N::one();
             self.ravel()?.map(|&x| {
@@ -217,7 +217,7 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
 
     fn nancumsum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
-            self.spd_cum_internal(axis, |arr| arr.nancumsum(None))
+            self.spd_arr_internal(axis, |arr| arr.nancumsum(None))
         } else {
             let mut acc = N::zero();
             self.ravel()?.map(|&x| {
@@ -272,10 +272,10 @@ impl <N: Numeric> Array<N> {
         let parts = self.get_shape()?.remove_at(axis).into_iter().product();
         let partial = self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?;
         Array::spd_internal_partial(&partial, parts, f)
-            .reshape(new_shape.clone())
+            .reshape(new_shape)
     }
 
-    fn spd_cum_internal<F>(&self, axis: isize, f: F) -> Result<Array<N>, ArrayError>
+    fn spd_arr_internal<F>(&self, axis: isize, f: F) -> Result<Array<N>, ArrayError>
         where F: FnMut(&Array<N>) -> Result<Array<N>, ArrayError> {
         let axis = Self::normalize_axis(axis, self.ndim()?);
         let parts = self.get_shape()?.remove_at(axis).into_iter().product();

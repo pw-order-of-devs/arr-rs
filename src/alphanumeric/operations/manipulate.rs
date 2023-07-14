@@ -340,7 +340,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
     }
 
     fn multiply(&self, counts: &Array<usize>) -> Result<Array<N>, ArrayError> {
-        let (array, counts) = self.broadcast_h2(&counts)?;
+        let (array, counts) = self.broadcast_h2(counts)?;
         let elements = array.clone().into_iter().zip(counts)
             .map(|tuple| tuple.0._multiply(tuple.1))
             .collect();
@@ -377,7 +377,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
 
     fn center(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
         let fill_char = fill_char.unwrap_or(Array::single(' ')?);
-        let (array, width, fill_char) = self.broadcast_h3(&width, &fill_char)?;
+        let (array, width, fill_char) = self.broadcast_h3(width, &fill_char)?;
 
         let elements = array.into_iter().enumerate()
             .map(|(idx, s)| s._center(width[idx], fill_char[idx]))
@@ -475,7 +475,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
 
     fn ljust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
         let fill_char = fill_char.unwrap_or(Array::single(' ')?);
-        let (array, width, fill_char) = self.broadcast_h3(&width, &fill_char)?;
+        let (array, width, fill_char) = self.broadcast_h3(width, &fill_char)?;
 
         let elements = array.into_iter().enumerate()
             .map(|(idx, s)| s._ljust(width[idx], fill_char[idx]))

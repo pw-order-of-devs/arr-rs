@@ -26,3 +26,8 @@ pub use crate::core::{
         },
     },
 };
+
+pub(crate) use crate::core::types::tuple::{
+    tuple2::TupleH2,
+    tuple3::TupleH3,
+};

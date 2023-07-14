@@ -3,10 +3,7 @@ use std::cmp::Ordering;
 use crate::{
     core::prelude::*,
     errors::prelude::*,
-    extensions::{
-        iter_ext::IterSorted,
-        vec_ext::{VecInsertAt, VecRemoveAt},
-    },
+    extensions::prelude::*,
     validators::prelude::*,
 };
 
