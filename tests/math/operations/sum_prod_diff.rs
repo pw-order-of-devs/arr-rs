@@ -121,3 +121,35 @@ case(array_arange!(0., 23.).reshape(vec![2, 3, 4]), Some(2), array!([[[0., 1., 3
 )] fn test_nancumsum(array: Result<Array<f64>, ArrayError>, axis: Option<isize>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.nancumsum(axis))
 }
+
+#[rstest(
+array, n, axis, prepend, append, expected,
+case(array![1., 2., 4., 4., 7.], 0, None, None, None, Array::empty()),
+case(array![1., 2., 4., 4., 7.], 1, None, None, None, array_flat!(1., 2., 0., 3.)),
+case(array![1., 2., 4., 4., 7.], 2, None, None, None, array_flat!(1., -2., 3.)),
+case(array!([[1., 2., 4.], [4., 7., 0.]]), 1, Some(0), Some(array!([[1., 1., 1.]]).unwrap()), None, array!([[0., 1., 3.], [3., 5., -4.]])),
+case(array!([[1., 2., 4.], [4., 7., 0.]]), 2, Some(0), None, Some(array!([[1., 1., 1.]]).unwrap()), array!([[-6., -11., 5.]])),
+case(array!([[1., 2., 4.], [4., 7., 0.]]), 2, Some(0), None, Some(array!([[1., 1., 1.], [1., 1., 1.]]).unwrap()), array!([[-6., -11., 5.], [3., 6., -1.]])),
+case(array!([[1., 2., 4.], [4., 7., 0.]]), 1, Some(1), Some(array!([[1.], [1.]]).unwrap()), None, array!([[0., 1., 2.], [3., 3., -7.]])),
+case(array!([[1., 2., 4.], [4., 7., 0.]]), 2, Some(1), None, Some(array!([[1.], [1.]]).unwrap()), array!([[1., -5.], [-10., 8.]])),
+case(array!([[1., 2., 4.], [4., 7., 0.]]), 2, Some(1), None, Some(array!([[1., 1., 1.], [1., 1., 1.]]).unwrap()), array!([[1., -5., 3., 0.], [-10., 8., -1., 0.]])),
+case(array_arange!(0., 23.).reshape(vec![2, 3, 4]), 1, Some(0), Some(array_arange!(0., 11.).reshape(vec![1, 3, 4]).unwrap()), None, array!([[[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]], [[12., 12., 12., 12.], [12., 12., 12., 12.], [12., 12., 12., 12.]]])),
+case(array_arange!(0., 23.).reshape(vec![2, 3, 4]), 2, Some(0), Some(array_arange!(0., 11.).reshape(vec![1, 3, 4]).unwrap()), None, array!([[[12., 12., 12., 12.], [12., 12., 12., 12.], [12., 12., 12., 12.]]])),
+case(array_arange!(0., 23.).reshape(vec![2, 3, 4]), 1, Some(1), Some(array_arange!(0., 7.).reshape(vec![2, 1, 4]).unwrap()), None, array!([[[0., 0., 0., 0.], [4., 4., 4., 4.], [4., 4., 4., 4.]], [[8., 8., 8., 8.], [4., 4., 4., 4.], [4., 4., 4., 4.]]])),
+case(array_arange!(0., 23.).reshape(vec![2, 3, 4]), 2, Some(1), Some(array_arange!(0., 7.).reshape(vec![2, 1, 4]).unwrap()), None, array!([[[4., 4., 4., 4.], [0., 0., 0., 0.]], [[-4., -4., -4., -4.], [0., 0., 0., 0.]]])),
+case(array_arange!(0., 23.).reshape(vec![2, 3, 4]), 1, Some(2), Some(array_arange!(0., 5.).reshape(vec![2, 3, 1]).unwrap()), None, array!([[[0., 1., 1., 1.], [3., 1., 1., 1.], [6., 1., 1., 1.]], [[9., 1., 1., 1.], [12., 1., 1., 1.], [15., 1., 1., 1.]]])),
+case(array_arange!(0., 23.).reshape(vec![2, 3, 4]), 2, Some(2), Some(array_arange!(0., 5.).reshape(vec![2, 3, 1]).unwrap()), None, array!([[[1., 0., 0.], [-2., 0., 0.], [-5., 0., 0.]], [[-8., 0., 0.], [-11., 0., 0.], [-14., 0., 0.]]])),
+)] fn test_diff(array: Result<Array<f64>, ArrayError>, n: usize, axis: Option<isize>, prepend: Option<Array<f64>>, append: Option<Array<f64>>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, array.diff(n, axis, prepend, append))
+}
+
+#[rstest(
+array, to_end, to_begin, expected,
+case(array![1., 2., 4., 4., 7.], None, None, array_flat!(1., 2., 0., 3.)),
+case(array!([[1., 2., 4.], [4., 7., 0.]]), None, None, array_flat!(1., 2., 0., 3., -7.)),
+case(array![1., 2., 4., 4., 7.], None, Some(Array::single(-99.).unwrap()), array_flat!(-99., 1., 2., 0., 3.)),
+case(array![1., 2., 4., 4., 7.], Some(Array::flat(vec![98., 99.]).unwrap()), None, array_flat!(1., 2., 0., 3., 98., 99.)),
+case(array![1., 2., 4., 4., 7.], Some(Array::flat(vec![98., 99.]).unwrap()), Some(Array::single(-99.).unwrap()), array_flat!(-99., 1., 2., 0., 3., 98., 99.)),
+)] fn test_ediff1d(array: Result<Array<f64>, ArrayError>, to_end: Option<Array<f64>>, to_begin: Option<Array<f64>>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, array.ediff1d(to_end, to_begin))
+}

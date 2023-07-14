@@ -7,7 +7,7 @@ use crate::{
 };
 
 /// ArrayTrait - Array Sum, Product, Diff functions
-pub trait ArraySumProdDiff<N: Numeric> where Self: Sized + Clone {
+pub trait ArraySumProdDiff<N: NumericOps> where Self: Sized + Clone {
 
     /// Multiplication of array elements
     ///
@@ -84,7 +84,7 @@ pub trait ArraySumProdDiff<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::flat(vec![1, 2, 3, 4]).unwrap();
+    /// let arr = Array::flat(vec![1, 2, 3, 4]);
     /// assert_eq!(Array::flat(vec![1, 2, 6, 24]), arr.cumprod(None));
     /// ```
     fn cumprod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError>;
@@ -100,7 +100,7 @@ pub trait ArraySumProdDiff<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::flat(vec![1, 2, 3, 4]).unwrap();
+    /// let arr = Array::flat(vec![1, 2, 3, 4]);
     /// assert_eq!(Array::flat(vec![1, 3, 6, 10]), arr.cumsum(None));
     /// ```
     fn cumsum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError>;
@@ -116,7 +116,7 @@ pub trait ArraySumProdDiff<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::flat(vec![1., 2., 3., 4., f64::NAN]).unwrap();
+    /// let arr = Array::flat(vec![1., 2., 3., 4., f64::NAN]);
     /// assert_eq!(Array::flat(vec![1., 2., 6., 24., 24.]), arr.nancumprod(None));
     /// ```
     fn nancumprod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError>;
@@ -132,19 +132,54 @@ pub trait ArraySumProdDiff<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::flat(vec![1., 2., 3., 4., f64::NAN]).unwrap();
+    /// let arr = Array::flat(vec![1., 2., 3., 4., f64::NAN]);
     /// assert_eq!(Array::flat(vec![1., 3., 6., 10., 10.]), arr.nancumsum(None));
     /// ```
     fn nancumsum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError>;
+
+    /// The differences between consecutive elements of an array
+    ///
+    /// # Arguments
+    ///
+    /// * `n` - number of times values are differenced
+    /// * `axis` - the axis along which to execute the function. optional. defaults to last axis
+    /// * `append` - number(s) to append at the end along axis prior to performing the difference
+    /// * `prepend` - number(s) to append at the beginning along axis prior to performing the difference
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1., 2., 4., 4., 7.]);
+    /// assert_eq!(Array::flat(vec![1., 2., 0., 3.]), arr.diff(1, None, None, None));
+    fn diff(&self, n: usize, axis: Option<isize>, prepend: Option<Array<N>>, append: Option<Array<N>>) -> Result<Array<N>, ArrayError>;
+
+    /// The differences between consecutive elements of an array
+    ///
+    /// # Arguments
+    ///
+    /// * `to_end` - number(s) to append at the end of the returned differences
+    /// * `to_begin` - number(s) to append at the beginning of the returned differences
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1., 2., 4., 4., 7.]);
+    /// assert_eq!(Array::flat(vec![1., 2., 0., 3.]), arr.ediff1d(None, None));
+    /// ```
+    fn ediff1d(&self, to_end: Option<Array<N>>, to_begin: Option<Array<N>>) -> Result<Array<N>, ArrayError>;
 }
 
-impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
+impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
 
     fn prod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         if let Some(axis) = axis {
             self.spd_internal(axis, |arr| arr.prod(None))
         } else {
-            Array::single(self.elements.iter().fold(N::one(), |acc, x| N::from(acc.to_f64() * x.to_f64())))
+            Array::single(self.elements.iter().fold(N::one(), |acc, &x| acc * x))
         }
     }
 
@@ -152,7 +187,7 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
         if let Some(axis) = axis {
             self.spd_internal(axis, |arr| arr.sum(None))
         } else {
-            Array::single(self.elements.iter().fold(N::zero(), |acc, x| N::from(acc.to_f64() + x.to_f64())))
+            Array::single(self.elements.iter().fold(N::zero(), |acc, &x| acc + x))
         }
     }
 
@@ -160,10 +195,9 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
         if let Some(axis) = axis {
             self.spd_internal(axis, |arr| arr.nanprod(None))
         } else {
-            Array::single(self.elements.iter().fold(N::one(), |acc, x| {
-                let x = if x.to_f64().is_nan() { 1. } else { x.to_f64() };
-                N::from(acc.to_f64() * x)
-            }))
+            Array::single(self.elements.iter().fold(N::one(), |acc, &x|
+                acc * if x.to_f64().is_nan() { N::one() } else { x }
+            ))
         }
     }
 
@@ -171,10 +205,9 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
         if let Some(axis) = axis {
             self.spd_internal(axis, |arr| arr.nansum(None))
         } else {
-            Array::single(self.elements.iter().fold(N::zero(), |acc, x| {
-                let x = if x.to_f64().is_nan() { 0. } else { x.to_f64() };
-                N::from(acc.to_f64() + x)
-            }))
+            Array::single(self.elements.iter().fold(N::zero(), |acc, &x|
+                acc + if x.to_f64().is_nan() { N::zero() } else { x }
+            ))
         }
     }
 
@@ -184,7 +217,7 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
         } else {
             let mut acc = N::one();
             self.ravel()?.map(|&x| {
-                acc = N::from(acc.to_f64() * x.to_f64());
+                acc *= x;
                 acc
             })
         }
@@ -196,7 +229,7 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
         } else {
             let mut acc = N::zero();
             self.ravel()?.map(|&x| {
-                acc = N::from(acc.to_f64() + x.to_f64());
+                acc += x;
                 acc
             })
         }
@@ -208,8 +241,7 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
         } else {
             let mut acc = N::one();
             self.ravel()?.map(|&x| {
-                let x = if x.to_f64().is_nan() { 1. } else { x.to_f64() };
-                acc = N::from(acc.to_f64() * x);
+                acc *= if x.to_f64().is_nan() { N::one() } else { x };
                 acc
             })
         }
@@ -221,15 +253,84 @@ impl <N: Numeric> ArraySumProdDiff<N> for Array<N> {
         } else {
             let mut acc = N::zero();
             self.ravel()?.map(|&x| {
-                let x = if x.to_f64().is_nan() { 0. } else { x.to_f64() };
-                acc = N::from(acc.to_f64() + x);
+                acc += if x.to_f64().is_nan() { N::zero() } else { x };
                 acc
             })
         }
     }
+
+    fn diff(&self, n: usize, axis: Option<isize>, prepend: Option<Array<N>>, append: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
+        if n == 0 { return Array::empty() }
+        if self.ndim()? == 1 {
+            let mut elements = prepend.unwrap_or(Array::empty()?).get_elements()?;
+            elements.extend_from_slice(&self.get_elements()?);
+            elements.extend_from_slice(&append.unwrap_or(Array::empty()?).get_elements()?);
+            for _ in 0 .. n { elements = Array::flat(elements.clone()).ediff1d(None, None).get_elements()? }
+            Array::flat(elements)
+        } else {
+            let axis = axis.unwrap_or(-1);
+            let axis = Self::normalize_axis(axis, self.ndim()?);
+
+            let parts = self.get_shape()?.remove_at(axis).into_iter().product();
+            let mut partial = self
+                .moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?
+                .ravel().split(parts, None)?;
+
+            fn prepare_p_partial<N: NumericOps>(array: &Array<N>, other: &Array<N>, axis: usize) -> Result<Vec<Array<N>>, ArrayError> {
+                array.ndim()?.is_equal(&other.ndim()?)?;
+                array.get_shape()?.remove_at(axis).is_equal(&other.get_shape()?.remove_at(axis))?;
+                other
+                    .moveaxis(vec![axis as isize], vec![array.ndim()? as isize])
+                    .ravel().split(other.clone().get_shape()?.remove_at(axis).into_iter().product(), None)
+            }
+
+            fn prepare_partial<N: NumericOps>(array: Vec<Array<N>>, other: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError> {
+                let result = array.into_iter().zip(&other).map(|(arr, other)| {
+                    let mut elements = other.elements.clone();
+                    elements.extend_from_slice(&arr.elements);
+                    Array::flat(elements).unwrap()
+                }).collect::<Vec<Array<N>>>();
+                Ok(result)
+            }
+
+            if let Some(prepend) = prepend {
+                let p_partial = prepare_p_partial(self, &prepend, axis)?;
+                partial = prepare_partial(partial, p_partial)?;
+            }
+            if let Some(append) = append {
+                let p_partial = prepare_p_partial(self, &append, axis)?;
+                partial = prepare_partial(p_partial, partial)?;
+            }
+
+            let mut new_shape = self.get_shape()?;
+            new_shape[axis] = partial[0].len()? - n;
+
+            let mut tmp_shape = new_shape.clone();
+            let tmp_to_push = tmp_shape.remove(axis);
+            tmp_shape.push(tmp_to_push);
+            let result = partial.into_iter()
+                .map(|arr| arr.diff(n, None, None, None))
+                .collect::<Vec<Result<Array<N>, _>>>()
+                .has_error()?.into_iter()
+                .flat_map(|arr| arr.unwrap())
+                .collect::<Array<N>>()
+                .reshape(tmp_shape)?;
+            self.spd_reshape_result(axis, &result, Some(new_shape))
+        }
+    }
+
+    fn ediff1d(&self, to_end: Option<Array<N>>, to_begin: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
+        let array = self.ravel()?;
+        let (to_end, to_begin) = (to_end.unwrap_or(Array::empty()?), to_begin.unwrap_or(Array::empty()?));
+        let diffs = (1 .. array.len()?).map(|i| array[i] - array[i - 1]).collect::<Vec<N>>();
+        let mut result = to_begin.get_elements()?;
+        result.extend_from_slice(&diffs);
+        result.extend_from_slice(&to_end.get_elements()?);
+        Array::flat(result)
+    }
 }
 
-impl <N: Numeric> ArraySumProdDiff<N> for Result<Array<N>, ArrayError> {
+impl <N: NumericOps> ArraySumProdDiff<N> for Result<Array<N>, ArrayError> {
 
     fn prod(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         self.clone()?.prod(axis)
@@ -262,6 +363,14 @@ impl <N: Numeric> ArraySumProdDiff<N> for Result<Array<N>, ArrayError> {
     fn nancumsum(&self, axis: Option<isize>) -> Result<Array<N>, ArrayError> {
         self.clone()?.nancumsum(axis)
     }
+
+    fn diff(&self, n: usize, axis: Option<isize>, prepend: Option<Array<N>>, append: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.diff(n, axis, prepend, append)
+    }
+
+    fn ediff1d(&self, to_end: Option<Array<N>>, to_begin: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.ediff1d(to_end, to_begin)
+    }
 }
 
 impl <N: Numeric> Array<N> {
@@ -281,10 +390,14 @@ impl <N: Numeric> Array<N> {
         let parts = self.get_shape()?.remove_at(axis).into_iter().product();
         let partial = self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?;
         let partial = Array::spd_internal_partial(&partial, parts, f)
-            .reshape(partial.get_shape()?);
+            .reshape(partial.get_shape()?)?;
+        self.spd_reshape_result(axis, &partial, None)
+    }
+
+    fn spd_reshape_result(&self, axis: usize, partial: &Array<N>, new_shape: Option<Vec<usize>>) -> Result<Array<N>, ArrayError> {
         if axis == 0 { partial.rollaxis((self.ndim()? - 1) as isize, None) }
         else { partial.moveaxis(vec![axis as isize], vec![self.ndim()? as isize]) }
-            .reshape(self.get_shape()?)
+            .reshape(if let Some(ns) = new_shape { ns } else { self.get_shape()? })
     }
 
     fn spd_internal_partial<F>(partial: &Array<N>, parts: usize, mut f: F) -> Result<Array<N>, ArrayError>
