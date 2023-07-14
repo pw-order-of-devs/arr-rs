@@ -276,31 +276,8 @@ impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
                 .moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?
                 .ravel().split(parts, None)?;
 
-            fn prepare_p_partial<N: NumericOps>(array: &Array<N>, other: &Array<N>, axis: usize) -> Result<Vec<Array<N>>, ArrayError> {
-                array.ndim()?.is_equal(&other.ndim()?)?;
-                array.get_shape()?.remove_at(axis).is_equal(&other.get_shape()?.remove_at(axis))?;
-                other
-                    .moveaxis(vec![axis as isize], vec![array.ndim()? as isize])
-                    .ravel().split(other.clone().get_shape()?.remove_at(axis).into_iter().product(), None)
-            }
-
-            fn prepare_partial<N: NumericOps>(array: Vec<Array<N>>, other: Vec<Array<N>>) -> Result<Vec<Array<N>>, ArrayError> {
-                let result = array.into_iter().zip(&other).map(|(arr, other)| {
-                    let mut elements = other.elements.clone();
-                    elements.extend_from_slice(&arr.elements);
-                    Array::flat(elements).unwrap()
-                }).collect::<Vec<Array<N>>>();
-                Ok(result)
-            }
-
-            if let Some(prepend) = prepend {
-                let p_partial = prepare_p_partial(self, &prepend, axis)?;
-                partial = prepare_partial(partial, p_partial)?;
-            }
-            if let Some(append) = append {
-                let p_partial = prepare_p_partial(self, &append, axis)?;
-                partial = prepare_partial(p_partial, partial)?;
-            }
+            partial = self.diff_extend_partial(partial, prepend, axis, false)?;
+            partial = self.diff_extend_partial(partial, append, axis, true)?;
 
             let mut new_shape = self.get_shape()?;
             new_shape[axis] = partial[0].len()? - n;
@@ -308,12 +285,7 @@ impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
             let mut tmp_shape = new_shape.clone();
             let tmp_to_push = tmp_shape.remove(axis);
             tmp_shape.push(tmp_to_push);
-            let result = partial.into_iter()
-                .map(|arr| arr.diff(n, None, None, None))
-                .collect::<Vec<Result<Array<N>, _>>>()
-                .has_error()?.into_iter()
-                .flat_map(|arr| arr.unwrap())
-                .collect::<Array<N>>()
+            let result = Array::spd_internal_collect(partial, |arr| arr.diff(n, None, None, None))
                 .reshape(tmp_shape)?;
             self.spd_reshape_result(axis, &result, Some(new_shape))
         }
@@ -389,7 +361,7 @@ impl <N: Numeric> Array<N> {
         let axis = Self::normalize_axis(axis, self.ndim()?);
         let parts = self.get_shape()?.remove_at(axis).into_iter().product();
         let partial = self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?;
-        let partial = Array::spd_internal_partial(&partial, parts, f)
+        let partial = partial.spd_internal_partial(parts, f)
             .reshape(partial.get_shape()?)?;
         self.spd_reshape_result(axis, &partial, None)
     }
@@ -400,16 +372,40 @@ impl <N: Numeric> Array<N> {
             .reshape(if let Some(ns) = new_shape { ns } else { self.get_shape()? })
     }
 
-    fn spd_internal_partial<F>(partial: &Array<N>, parts: usize, mut f: F) -> Result<Array<N>, ArrayError>
+    fn spd_internal_partial<F>(&self, parts: usize, f: F) -> Result<Array<N>, ArrayError>
         where F: FnMut(&Array<N>) -> Result<Array<N>, ArrayError> {
-        let result = partial
+        let result = self
             .ravel()
-            .split(parts, None)?.into_iter()
+            .split(parts, None)?;
+        Array::spd_internal_collect(result, f)
+    }
+
+    fn spd_internal_collect<F>(partial: Vec<Array<N>>, mut f: F) -> Result<Array<N>, ArrayError>
+        where F: FnMut(&Array<N>) -> Result<Array<N>, ArrayError> {
+        let result = partial.into_iter()
             .map(|arr| f(&arr))
             .collect::<Vec<Result<Array<N>, _>>>()
             .has_error()?.into_iter()
             .flat_map(|arr| arr.unwrap())
             .collect::<Array<N>>();
+        Ok(result)
+    }
+
+    fn diff_extend_partial(&self, partial: Vec<Array<N>>, other: Option<Array<N>>, axis: usize, rev: bool) -> Result<Vec<Array<N>>, ArrayError> {
+        if other.is_none() {return Ok(partial) }
+        let other = other.unwrap();
+        self.ndim()?.is_equal(&other.ndim()?)?;
+        self.get_shape()?.remove_at(axis).is_equal(&other.get_shape()?.remove_at(axis))?;
+        let p_partial = other
+            .moveaxis(vec![axis as isize], vec![self.ndim()? as isize])
+            .ravel().split(other.get_shape()?.remove_at(axis).into_iter().product(), None)?;
+        let mut tmp_v = vec![partial, p_partial];
+        if rev { tmp_v.reverse() };
+        let result = tmp_v[0].clone().into_iter().zip(&tmp_v[1]).map(|(arr, other)| {
+            let mut elements = other.elements.clone();
+            elements.extend_from_slice(&arr.elements);
+            Array::flat(elements).unwrap()
+        }).collect::<Vec<Array<N>>>();
         Ok(result)
     }
 }
