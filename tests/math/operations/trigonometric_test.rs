@@ -116,3 +116,27 @@ case(array![45., 60., 90.], array![std::f64::consts::FRAC_PI_4, std::f64::consts
 )] fn test_deg2rad(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.deg2rad()))
 }
+
+fn array_unwrap_3d() -> Result<Array<f64>, ArrayError> {
+    array!([
+ [[1.2, 2.4, 3.5, 4.8], [5.1, 6.3, 7.4, 8.7], [9.2, 10.5, 11.7, 12.9]],
+ [[13.1, 14.4, 15.6, 16.8], [17.2, 18.5, 19.7, 20.9], [21.3, 22.6, 23.8, 24.1]]
+    ])
+}
+
+#[rstest(
+array, discont, axis, period, expected,
+case(array_flat![0.5, 1.5, 3.2, 6.8, 5.9], None, None, None, array![0.5, 1.5, 3.2, 0.51681469, -0.38318531]),
+case(array!([[0.5, 1.5], [3.2, 6.8], [5.9, 7.2]]), None, None, None, array!([[0.5, 1.5], [3.2, 0.51681469], [5.9, 7.2]])),
+case(array!([[0.5, 1.5], [3.2, 6.8], [5.9, 7.2]]), Some(array!([[std::f64::consts::PI * 2.], [std::f64::consts::PI], [std::f64::consts::FRAC_PI_2]]).unwrap()), None, None, array!([[0.5, 1.5], [3.2, 0.51681469], [5.9, 7.2]])),
+case(array!([[0.5, 1.5], [3.2, 6.8], [5.9, 7.2]]), None, Some(0), None, array!([[0.5, 1.5], [3.2, 0.51681469], [5.9, 0.91681469]])),
+case(array!([[0.5, 1.5], [3.2, 6.8], [5.9, 7.2]]), None, Some(1), None, array!([[0.5, 1.5], [3.2, 0.51681469], [5.9, 7.2]])),
+case(array!([[0.5, 1.5], [3.2, 6.8], [5.9, 7.2]]), None, Some(-1), None, array!([[0.5, 1.5], [3.2, 0.51681469], [5.9, 7.2]])),
+case(array_unwrap_3d(), None, None, None, array_unwrap_3d()),
+case(array_unwrap_3d(), Some(array!([[[1.], [2.], [1.]], [[2.], [3.], [1.]]]).unwrap()), None, Some(array!([[[2.], [3.], [2.]], [[1.], [2.], [2.]]]).unwrap()), array!([[[1.2, 0.4, -0.5, -1.2], [5.1, 6.3, 7.4, 8.7], [9.2, 8.5, 7.7, 6.9]], [[13.1, 14.4, 15.6, 16.8], [17.2, 18.5, 19.7, 20.9], [21.3, 20.6, 19.8, 20.1]]])),
+case(array_unwrap_3d(), None, Some(0), None, array!([[[1.2, 2.4, 3.5, 4.8], [5.1, 6.3, 7.4, 8.7], [9.2, 10.5, 11.7, 12.9]], [[0.53362939, 1.83362939, 3.03362939, 4.23362939], [4.63362939, 5.93362939, 7.13362939, 8.33362939], [8.73362939, 10.03362939, 11.23362939, 11.53362939]]])),
+case(array_unwrap_3d(), None, Some(1), None, array!([[[1.2, 2.4, 3.5, 4.8], [-1.18318531, 0.01681469, 1.11681469, 2.41681469], [-3.36637061, -2.06637061, -0.86637061, 0.33362939]], [[13.1, 14.4, 15.6, 16.8], [10.91681469, 12.21681469, 13.41681469, 14.61681469], [8.73362939, 10.03362939, 11.23362939, 11.53362939]]])),
+case(array_unwrap_3d(), None, Some(2), None, array_unwrap_3d()),
+)] fn test_unwrap(array: Result<Array<f64>, ArrayError>, discont: Option<Array<f64>>, axis: Option<isize>, period: Option<Array<f64>>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", array.unwrap_phase(discont, axis, period)))
+}

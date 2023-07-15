@@ -49,3 +49,12 @@ case(array!([[1, 2], [3, 4]]), array!([[2, 2], [3, 3]]), array!([[1, 4], [27, 64
 )] fn test_power(array: Result<Array<i32>, ArrayError>, pow: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.power(&pow.unwrap()))
 }
+
+#[rstest(
+array, expected,
+case(array![1, 2, 3, 4], array![1, 2, 3, 4]),
+case(array![1, -2, 3, -4], array![1, 2, 3, 4]),
+case(array!([[1, -2], [3, -4]]), array!([[1, 2], [3, 4]])),
+)] fn test_abs(array: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.abs())
+}

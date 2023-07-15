@@ -1,11 +1,13 @@
 use crate::{
     core::prelude::*,
     errors::prelude::*,
+    extensions::prelude::*,
     numeric::prelude::*,
+    validators::prelude::*,
 };
 
 /// ArrayTrait - Array Trigonometric functions
-pub trait ArrayTrigonometric<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayTrigonometric<N: NumericOps> where Self: Sized + Clone {
 
     /// Compute the sine of array elements
     ///
@@ -164,9 +166,28 @@ pub trait ArrayTrigonometric<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", arr.deg2rad()));
     /// ```
     fn deg2rad(&self) -> Result<Array<N>, ArrayError>;
+
+    /// Unwrap by taking the complement of large deltas with respect to the period
+    ///
+    /// # Arguments
+    ///
+    /// * `discont` - Maximum discontinuity between values, default is period/2. Values below period/2 are treated as if they were period/2.
+    /// * `axis` - Axis along which unwrap will operate, default is the last axis.
+    /// * `period` - Size of the range over which the input wraps, default is 2 pi.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![0.5, 1.5, 3.2, 6.8, 5.9]).unwrap();
+    /// let expected = Array::flat(vec![0.5, 1.5, 3.2, 0.51681469, -0.38318531]);
+    /// assert_eq!(format!("{expected:.8?}"), format!("{:.8?}", arr.unwrap_phase(None, None, None)));
+    /// ```
+    fn unwrap_phase(&self, discont: Option<Array<f64>>, axis: Option<isize>, period: Option<Array<f64>>) -> Result<Array<N>, ArrayError>;
 }
 
-impl <N: Numeric> ArrayTrigonometric<N> for Array<N> {
+impl <N: NumericOps> ArrayTrigonometric<N> for Array<N> {
 
     fn sin(&self) -> Result<Array<N>, ArrayError> {
         self.map(|i| N::from(i.to_f64().sin()))
@@ -223,9 +244,80 @@ impl <N: Numeric> ArrayTrigonometric<N> for Array<N> {
     fn deg2rad(&self) -> Result<Array<N>, ArrayError> {
         self.radians()
     }
+
+    fn unwrap_phase(&self, discont: Option<Array<f64>>, axis: Option<isize>, period: Option<Array<f64>>) -> Result<Array<N>, ArrayError> {
+
+        fn parse_parameter<N: Numeric>(array: &Array<N>, parameter: &Array<N>) -> Result<Array<N>, ArrayError> {
+            let self_len = array.len()? - 1;
+            parameter.len()?.is_one_of(vec![&1, &self_len])?;
+            let result =
+                if parameter.len()? == self_len { parameter.clone() }
+                else { Array::flat(vec![parameter[0]; self_len])? };
+            Ok(result)
+        }
+
+        let period = period.unwrap_or(Array::single(std::f64::consts::PI * 2.)?);
+        let discont = discont.unwrap_or((period.clone() / 2.)?);
+        let (mut discont, mut period) = (discont.to_array_num()?, period.to_array_num()?);
+
+        if self.ndim()? == 1 {
+            period = parse_parameter(self, &period)?;
+            discont = parse_parameter(self, &discont)?;
+
+            let mut unwrapped_phase = self.get_elements()?;
+            unwrapped_phase.clone()
+                .windows(2)
+                .enumerate()
+                .filter(|(idx, window)| N::from((window[1] - window[0]).to_f64().abs()) > discont[*idx])
+                .for_each(|(i, _)| {
+                    let diff = (unwrapped_phase[i + 1] - unwrapped_phase[i]).to_f64();
+                    unwrapped_phase[i + 1..].iter_mut().for_each(|val| *val -= N::from(diff.signum() * ((diff.abs() / period[i].to_f64()).ceil() * period[i].to_f64())));
+                });
+            Array::new(unwrapped_phase, self.get_shape()?)
+        } else {
+            let axis = axis.unwrap_or(-1);
+            let axis = Self::normalize_axis(axis, self.ndim()?);
+
+            let mut b_shape = self.get_shape()?;
+            b_shape[axis] = 1;
+            let period = period.broadcast_to(b_shape.clone())?;
+            let discont = discont.broadcast_to(b_shape)?;
+
+            let parts = self.get_shape()?.remove_at(axis).into_iter().product();
+            let partial = self
+                .moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?
+                .ravel().split(parts, None)?;
+
+            let parameter_parts = period.get_shape()?.remove_at(axis).into_iter().product();
+            let period_partial = period
+                .moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?
+                .ravel().split(parameter_parts, None)?;
+            let discont_partial = discont
+                .moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?
+                .ravel().split(parameter_parts, None)?;
+
+            let mut results = vec![];
+            for i in 0 .. partial.len() {
+                let discont_p = Some(discont_partial[i].to_array_f64()?);
+                let period_p = Some(period_partial[i].to_array_f64()?);
+                results.push(partial[i].unwrap_phase(discont_p, None, period_p)?);
+            };
+            let mut tmp_shape = self.get_shape()?;
+            let tmp_to_push = tmp_shape.remove(axis);
+            tmp_shape.push(tmp_to_push);
+
+            let result = results.into_iter()
+                .flatten()
+                .collect::<Array<N>>()
+                .reshape(tmp_shape);
+            if axis == 0 { result.rollaxis((self.ndim()? - 1) as isize, None) }
+            else { result.moveaxis(vec![axis as isize], vec![self.ndim()? as isize]) }
+                .reshape(self.get_shape()?)
+        }
+    }
 }
 
-impl <N: Numeric> ArrayTrigonometric<N> for Result<Array<N>, ArrayError> {
+impl <N: NumericOps> ArrayTrigonometric<N> for Result<Array<N>, ArrayError> {
 
     fn sin(&self) -> Result<Array<N>, ArrayError> {
         self.clone()?.sin()
@@ -273,5 +365,9 @@ impl <N: Numeric> ArrayTrigonometric<N> for Result<Array<N>, ArrayError> {
 
     fn deg2rad(&self) -> Result<Array<N>, ArrayError> {
         self.clone()?.deg2rad()
+    }
+
+    fn unwrap_phase(&self, discont: Option<Array<f64>>, axis: Option<isize>, period: Option<Array<f64>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.unwrap_phase(discont, axis, period)
     }
 }

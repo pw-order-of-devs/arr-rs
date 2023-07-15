@@ -82,6 +82,18 @@ pub trait ArrayMathMisc<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::flat(vec![1, 4, 9, 16]).unwrap(), arr.power(&Array::single(2).unwrap()).unwrap());
     /// ```
     fn power(&self, value: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Computes absolute value of array elements
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1, -2, 3, -4]);
+    /// assert_eq!(Array::flat(vec![1, 2, 3, 4]), arr.abs());
+    /// ```
+    fn abs(&self) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: Numeric> ArrayMathMisc<N> for Array<N> {
@@ -117,6 +129,10 @@ impl <N: Numeric> ArrayMathMisc<N> for Array<N> {
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
+
+    fn abs(&self) -> Result<Array<N>, ArrayError> {
+        self.map(|i| N::from(i.to_f64().abs()))
+    }
 }
 
 impl <N: Numeric> ArrayMathMisc<N> for Result<Array<N>, ArrayError> {
@@ -143,5 +159,9 @@ impl <N: Numeric> ArrayMathMisc<N> for Result<Array<N>, ArrayError> {
 
     fn power(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.power(value)
+    }
+
+    fn abs(&self) -> Result<Array<N>, ArrayError> {
+        self.clone()?.abs()
     }
 }
