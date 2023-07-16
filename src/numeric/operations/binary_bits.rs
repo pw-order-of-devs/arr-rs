@@ -3,7 +3,6 @@ use crate::{
     errors::prelude::*,
     extensions::prelude::*,
     numeric::prelude::*,
-    validators::prelude::*,
 };
 
 /// ArrayTrait - Binary Array bits operations
@@ -66,37 +65,8 @@ impl ArrayBinaryBits for Array<u8> {
                 else { result.slice(0 .. self.len()? - count as usize) }
             },
             Some(axis) => {
-                let axis = Self::normalize_axis(axis, self.ndim()?);
-                let mut new_shape = self.get_shape()?;
-                new_shape[axis] *= 8;
-
-                if axis < self.ndim()? - 1 {
-                    let (parts, shape_last) = (self.get_shape()?.iter().product::<usize>(), self.ndim()? - 1);
-                    let result = self.unpack_bits(None, count, Some(bit_order))?;
-                    if self.shape[shape_last] == 1 { result }
-                    else {
-                        result.split(parts / shape_last, None)?
-                            .into_iter()
-                            .flat_map(|arr| (0..8)
-                                .flat_map(move |i| (0..shape_last).map(move |ii| i + 8 * ii))
-                                .map(move |index| arr[index]))
-                            .collect::<Array<u8>>()
-                    }
-                } else {
-                    let (parts, shape_first) = (self.get_shape()?.iter().product(), self.get_shape()?[0]);
-                    let split = self.split(self.shape[axis], Some(axis))?.into_iter()
-                        .map(|arr| arr.unpack_bits(None, count, Some(bit_order)))
-                        .collect::<Vec<Result<Array<u8>, _>>>()
-                        .has_error()?.into_iter()
-                        .map(|arr| arr.unwrap())
-                        .collect::<Vec<Array<u8>>>()
-                        .into_iter().flatten().collect::<Array<u8>>()
-                        .split(parts, None)?;
-                    (0 .. shape_first)
-                        .flat_map(|i| (0 .. parts / shape_first).map(move |ii| i + shape_first * ii))
-                        .flat_map(|index| split[index].elements.clone())
-                        .collect()
-                }.reshape(new_shape)
+                let axis = self.normalize_axis(axis);
+                self.apply_along_axis(axis, |arr| arr.unpack_bits(None, count, Some(bit_order)))
             }
         }
     }
@@ -121,24 +91,8 @@ impl ArrayBinaryBits for Array<u8> {
                 Ok(result)
             },
             Some(axis) => {
-                let mut new_shape = self.get_shape()?;
-                let parts = self.get_shape()?.into_iter().rev().collect::<Vec<usize>>();
-                let axis = Self::normalize_axis(axis, self.ndim()?);
-                new_shape[axis] = 1;
-                let split = if axis == self.ndim()? - 1 {
-                    self.split(parts[axis], Some(self.ndim()? - 1 - axis))?
-                } else {
-                    let parts = self.get_shape()?.remove_at(axis).into_iter().product();
-                    self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])
-                        .ravel().split(parts, None)?
-                };
-                split.into_iter()
-                    .map(|arr| arr.pack_bits(None, Some(bit_order)).get_elements())
-                    .collect::<Vec<Result<Vec<u8>, _>>>()
-                    .has_error()?.into_iter()
-                    .flat_map(|arr| arr.unwrap())
-                    .collect::<Array<u8>>()
-                    .reshape(new_shape)
+                let axis = self.normalize_axis(axis);
+                self.apply_along_axis(axis, |arr| arr.pack_bits(None, Some(bit_order)))
             },
         }
     }

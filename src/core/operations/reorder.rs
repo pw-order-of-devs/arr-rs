@@ -98,9 +98,8 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
                 Array::new(flipped_elements, self.get_shape()?)
             },
             Some(axes) => {
-                let self_ndim = self.ndim()?;
                 let self_shape = self.shape.clone();
-                let axes = axes.into_iter().map(|i| Self::normalize_axis(i, self_ndim)).collect::<Vec<usize>>();
+                let axes = axes.into_iter().map(|i| self.normalize_axis(i)).collect::<Vec<usize>>();
 
                 let mut elements = self.elements.clone();
                 for ax in axes {
@@ -109,7 +108,7 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
                         if ax == 0 { flatten
                             .split(self_shape[0], Some(0))?.reverse_ext().into_iter()
                             .flatten().collect::<Vec<T>>()
-                        } else if ax == self_ndim - 1 { flatten
+                        } else if ax == self.ndim()? - 1 { flatten
                             .split(self_shape[0 .. ax].iter().product(), None)?.iter_mut()
                             .flat_map(|arr| arr.elements.reverse_ext())
                             .collect::<Vec<T>>()
@@ -143,11 +142,10 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
         let array = if axes.is_none() { self.ravel()? } else { self.clone() };
         let axes = axes.unwrap_or(vec![0]);
 
-        let self_ndim = array.ndim()?;
         let broadcasted = Array::flat(shift).broadcast(&Array::flat(axes)?)?;
         if broadcasted.ndim()? > 1 { return Err(ArrayError::ParameterError { param: "'shift' and 'axis'", message: "should be 1D" }); }
         let broadcasted = broadcasted.into_iter().map(|a| (
-            Self::normalize_axis(a.1, self_ndim),
+            self.normalize_axis(a.1),
             a.0,
         )).collect::<Vec<(usize, isize)>>();
 
@@ -157,7 +155,7 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
         });
 
         let mut elements = array.get_elements()?;
-        match self_ndim {
+        match array.ndim()? {
             0 => Array::empty(),
             1 => {
                 shifts.iter().for_each(|(_, &sh)| {
@@ -174,7 +172,7 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
                         if sh >= 0 { split.rotate_right(sh as usize); }
                         else { split.rotate_left(sh.unsigned_abs()); }
                         split.into_iter().flatten().collect()
-                    } else if ax == self_ndim - 1 { flatten
+                    } else if ax == array.ndim()? - 1 { flatten
                         .split(self.shape[0 .. ax].iter().product(), None)?.iter()
                         .flat_map(|item| {
                             let mut tmp_item = item.elements.clone();
@@ -211,7 +209,7 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
         if k == 0 { return Ok(self.clone()) }
         if k == 2 { return self.flip(Some(vec![axes[1]])).flip(Some(vec![axes[0]])) }
 
-        let axes = axes.into_iter().map(|i| Self::normalize_axis(i, self_ndim as usize)).collect::<Vec<usize>>();
+        let axes = axes.into_iter().map(|i| self.normalize_axis(i)).collect::<Vec<usize>>();
         let mut axes_list = (0 .. self_ndim).collect::<Vec<isize>>();
         (axes_list[axes[0]], axes_list[axes[1]]) = (axes_list[axes[1]], axes_list[axes[0]]);
 

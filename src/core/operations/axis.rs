@@ -8,6 +8,16 @@ use crate::{
 /// ArrayTrait - Array Axis functions
 pub trait ArrayAxis<T: ArrayElement> where Array<T>: Sized + Clone {
 
+    /// Applies given function along an axis
+    ///
+    /// # Arguments
+    ///
+    /// * `axis` - axis along which the function will be applied
+    /// * `f` - function to apply
+    ///
+    fn apply_along_axis<F>(&self, axis: usize, f: F) -> Result<Array<T>, ArrayError>
+        where F: FnMut(&Array<T>) -> Result<Array<T>, ArrayError>;
+
     /// Returns an array with axes transposed
     ///
     /// # Arguments
@@ -122,6 +132,28 @@ pub trait ArrayAxis<T: ArrayElement> where Array<T>: Sized + Clone {
 
 impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
 
+    fn apply_along_axis<F>(&self, axis: usize, mut f: F) -> Result<Array<T>, ArrayError>
+        where F: FnMut(&Array<T>) -> Result<Array<T>, ArrayError> {
+        let parts = self.get_shape()?.remove_at(axis).into_iter().product();
+        let array = self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?;
+        let partial = array
+            .ravel()
+            .split(parts, None)?.into_iter()
+            .map(|arr| f(&arr))
+            .collect::<Vec<Result<Array<T>, _>>>()
+            .has_error()?.into_iter()
+            .map(|arr| arr.unwrap())
+            .collect::<Vec<Array<T>>>();
+        let partial_len = partial[0].len()?;
+        let partial = partial.into_iter().flatten().collect::<Array<T>>();
+
+        let mut new_shape = array.get_shape()?;
+        new_shape[self.ndim()? - 1] = partial_len;
+        let partial = partial.reshape(new_shape);
+        if axis == 0 { partial.rollaxis((self.ndim()? - 1) as isize, None) }
+        else { partial.moveaxis(vec![axis as isize], vec![(self.ndim()? - 1) as isize]) }
+    }
+
     fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Self, ArrayError> {
 
         fn transpose_recursive<T: ArrayElement>(
@@ -148,9 +180,8 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
             }
         }
 
-        let self_ndim = self.ndim()?;
         let axes = axes.map(|axes| axes.iter()
-            .map(|i| Self::normalize_axis(*i, self_ndim))
+            .map(|i| self.normalize_axis(*i))
             .collect::<Vec<usize>>());
         let mut new_elements = vec![T::zero(); self.elements.len()];
         let new_shape: Vec<usize> = match axes.clone() {
@@ -171,9 +202,8 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
     fn moveaxis(&self, source: Vec<isize>, destination: Vec<isize>) -> Result<Self, ArrayError> {
         source.is_unique()?;
         source.len().is_equal(&destination.len())?;
-        let self_ndim = self.ndim()?;
-        let source = source.iter().map(|i| Self::normalize_axis(*i, self_ndim)).collect::<Vec<usize>>();
-        let destination = destination.iter().map(|i| Self::normalize_axis(*i, self_ndim)).collect::<Vec<usize>>();
+        let source = source.iter().map(|i| self.normalize_axis(*i)).collect::<Vec<usize>>();
+        let destination = destination.iter().map(|i| self.normalize_axis(*i)).collect::<Vec<usize>>();
         source.is_unique()?;
         destination.is_unique()?;
 
@@ -191,8 +221,8 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
     }
 
     fn rollaxis(&self, axis: isize, start: Option<isize>) -> Result<Self, ArrayError> {
-        let axis = Self::normalize_axis(axis, self.ndim()?);
-        let start = if let Some(start) = start { Self::normalize_axis(start, self.ndim()?) } else { 0 };
+        let axis = self.normalize_axis(axis);
+        let start = if let Some(ax) = start { self.normalize_axis(ax) } else { 0 };
 
         let mut new_axes = (0 .. self.ndim()?).collect::<Vec<usize>>();
         let axis_to_move = new_axes.remove(axis);
@@ -202,8 +232,8 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
     }
 
     fn swapaxes(&self, axis_1: isize, axis_2: isize) -> Result<Self, ArrayError> {
-        let axis_1 = Self::normalize_axis(axis_1, self.ndim()?);
-        let axis_2 = Self::normalize_axis(axis_2, self.ndim()?);
+        let axis_1 = self.normalize_axis(axis_1);
+        let axis_2 = self.normalize_axis(axis_2);
 
         let mut new_axes = (0 .. self.ndim()?).collect::<Vec<usize>>();
         new_axes.swap(axis_1, axis_2);
@@ -212,9 +242,8 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
     }
 
     fn expand_dims(&self, axes: Vec<isize>) -> Result<Self, ArrayError> {
-        let self_ndim = self.ndim()?;
         let axes = axes.iter()
-            .map(|&i| Self::normalize_axis(i, self_ndim + axes.len()))
+            .map(|&i| self.normalize_axis_dim(i, axes.len()))
             .sorted()
             .collect::<Vec<usize>>();
         let mut new_shape = self.get_shape()?;
@@ -224,10 +253,9 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
     }
 
     fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Self, ArrayError> {
-        let self_ndim = self.ndim()?;
         if let Some(axes) = axes {
             let axes = axes.iter()
-                .map(|&i| Self::normalize_axis(i, self_ndim))
+                .map(|&i| self.normalize_axis(i))
                 .sorted()
                 .rev()
                 .collect::<Vec<usize>>();
@@ -247,6 +275,11 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
 }
 
 impl <T: ArrayElement> ArrayAxis<T> for Result<Array<T>, ArrayError> {
+
+    fn apply_along_axis<F>(&self, axis: usize, f: F) -> Result<Array<T>, ArrayError>
+        where F: FnMut(&Array<T>) -> Result<Array<T>, ArrayError> {
+        self.clone()?.apply_along_axis(axis, f)
+    }
 
     fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Array<T>, ArrayError> {
         self.clone()?.transpose(axes)

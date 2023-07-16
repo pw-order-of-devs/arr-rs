@@ -115,11 +115,11 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     fn resize(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError>;
 
 
-    /// Find the unique elements of an array,
+    /// Find the unique elements of an array
     ///
     /// # Arguments
     ///
-    /// * `shape` - vector representing new array shape
+    /// * `axis` - the axis along which to split. optional, if None, array will be flattened
     ///
     /// # Examples
     ///
@@ -131,7 +131,7 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 2, 1], vec![5]).unwrap();
     /// assert_eq!(array!([1, 2, 3]), arr.unique(None));
     /// ```
-    fn unique(&self, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
+    fn unique(&self, axis: Option<isize>) -> Result<Array<T>, ArrayError>;
 
     /// Return a contiguous flattened array
     ///
@@ -323,23 +323,10 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
             .reshape(shape)
     }
 
-    fn unique(&self, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn unique(&self, axis: Option<isize>) -> Result<Array<T>, ArrayError> {
         if let Some(axis) = axis {
-            let split = self.split(self.shape[axis], Some(axis))?;
-            let mut parts = split.into_iter()
-                .sorted_by(|a, b| a.partial_cmp(b).unwrap_or(Ordering::Equal))
-                .collect::<Vec<Self>>();
-            parts.dedup();
-            let flat_parts = parts.clone().into_iter().flatten().collect::<Vec<T>>();
-            if flat_parts.len() == self.len()? { Ok(self.clone()) }
-            else {
-                let new_shape = self.get_shape()?
-                    .remove_at(axis)
-                    .insert_at(axis, parts.len());
-                let result = Array::new(flat_parts, new_shape)?;
-                if !(axis > 0 && axis < self.ndim()? - 1) { Ok(result) }
-                else { result.rollaxis(axis as isize, None) }
-            }
+            let axis = self.normalize_axis(axis);
+            self.apply_along_axis(axis, |arr| arr.unique(None))
         } else {
             let mut new_elements = self.get_elements()?.into_iter()
                 .sorted_by(|a, b| a.clone().partial_cmp(b).unwrap_or(Ordering::Equal))
@@ -400,7 +387,7 @@ impl <T: ArrayElement> ArrayManipulate<T> for Result<Array<T>, ArrayError> {
         self.clone()?.resize(shape)
     }
 
-    fn unique(&self, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn unique(&self, axis: Option<isize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.unique(axis)
     }
 
@@ -450,8 +437,13 @@ impl <T: ArrayElement> Array<T> {
 
 impl <T: ArrayElement> Array<T> {
 
-    pub(crate) fn normalize_axis(axis: isize, ndim: usize) -> usize {
-        if axis < 0 { (axis + ndim as isize) as usize }
+    pub(crate) fn normalize_axis(&self, axis: isize) -> usize {
+        if axis < 0 { (axis + self.ndim().unwrap() as isize) as usize }
+        else { axis as usize }
+    }
+
+    pub(crate) fn normalize_axis_dim(&self, axis: isize, ndim: usize) -> usize {
+        if axis < 0 { (self.ndim().unwrap() as isize + axis + ndim as isize) as usize }
         else { axis as usize }
     }
 }

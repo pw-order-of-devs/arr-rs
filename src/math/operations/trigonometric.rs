@@ -276,7 +276,7 @@ impl <N: NumericOps> ArrayTrigonometric<N> for Array<N> {
             Array::new(unwrapped_phase, self.get_shape()?)
         } else {
             let axis = axis.unwrap_or(-1);
-            let axis = Self::normalize_axis(axis, self.ndim()?);
+            let axis = self.normalize_axis(axis);
 
             let mut b_shape = self.get_shape()?;
             b_shape[axis] = 1;

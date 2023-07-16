@@ -143,6 +143,16 @@ case(array_arange!(0., 23.).reshape(vec![2, 3, 4]), 2, Some(2), Some(array_arang
     assert_eq!(expected, array.diff(n, axis, prepend, append))
 }
 
+#[test] fn test_diff_x() {
+    let n = 1;
+    let axis = Some(0);
+    let prepend = Some(array_arange!(0., 11.).reshape(vec![1, 3, 4]).unwrap());
+    let append = None;
+    let expected: Result<Array<f64>, _> = array!([[[0., 0., 0., 0.], [0., 0., 0., 0.], [0., 0., 0., 0.]], [[12., 12., 12., 12.], [12., 12., 12., 12.], [12., 12., 12., 12.]]]);
+    let array: Result<Array<f64>, _> = array_arange!(0., 23.).reshape(vec![2, 3, 4]);
+    assert_eq!(expected, array.diff(n, axis, prepend, append))
+}
+
 #[rstest(
 array, to_end, to_begin, expected,
 case(array![1., 2., 4., 4., 7.], None, None, array_flat!(1., 2., 0., 3.)),

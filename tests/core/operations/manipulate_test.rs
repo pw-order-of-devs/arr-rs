@@ -110,7 +110,7 @@ case(array!([[[1, 2], [3, 4], [1, 2]], [[5, 6], [7, 8], [5, 6]]]), Some(0), arra
 case(array!([[[1, 2], [3, 4], [1, 2]], [[5, 6], [7, 8], [5, 6]]]), Some(1), array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]])),
 case(array!([[[1, 2], [3, 4], [1, 2]], [[5, 6], [7, 8], [5, 6]]]), Some(2), array!([[[1, 2], [3, 4], [1, 2]], [[5, 6], [7, 8], [5, 6]]])),
 case(array!([[[1, 1], [3, 3], [1, 1]], [[2, 2], [4, 4], [2, 2]]]), Some(2), array!([[[1], [3], [1]], [[2], [4], [2]]])),
-)] fn test_unique(array: Result<Array<i32>, ArrayError>, axis: Option<usize>, expected: Result<Array<i32>, ArrayError>) {
+)] fn test_unique(array: Result<Array<i32>, ArrayError>, axis: Option<isize>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.unique(axis))
 }
 
