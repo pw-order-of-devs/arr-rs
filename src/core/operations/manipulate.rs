@@ -243,38 +243,19 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
     }
 
     fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+        let mut indices = indices;
+        indices.sort();
+        indices.dedup();
+        indices = indices.reverse_ext();
+
         if let Some(axis) = axis {
             self.axis_in_bounds(axis)?;
-            let mut sorted_indices = indices;
-            sorted_indices.sort();
-            sorted_indices.dedup();
-
-            let new_shape = self.shape.iter()
-                .enumerate()
-                .map(|(i, &dim)| if i == axis { dim.saturating_sub(sorted_indices.len()) } else { dim })
-                .collect::<Vec<usize>>();
-
-            if self.elements.iter()
-                .enumerate()
-                .any(|(idx, _)| self.index_to_coord(idx).is_err()) {
-                return Err(ArrayError::ParameterError { param: "idx", message: "index must be smaller than array length", });
-            }
-
-            let new_elements = self.elements.iter()
-                .enumerate()
-                .filter_map(|(idx, elem)| {
-                    let current_coords = self.index_to_coord(idx).unwrap();
-                    if !sorted_indices.iter().any(|&i| i == current_coords[axis]) { Some(elem.clone()) }
-                    else { None }
-                }).collect::<Vec<T>>();
-
-            Self::new(new_elements, new_shape)
+            self.apply_along_axis(axis, |arr| arr.delete(indices.clone(), None))
         } else {
-            let mut new_elements = self.get_elements()?;
-            if indices.iter().any(|&i| i >= new_elements.len()) { return Err(ArrayError::OutOfBounds { value: "index", }) }
-            indices.iter().rev().for_each(|&i| { new_elements.remove(i); });
-
-            Self::flat(new_elements)
+            let mut elements = self.get_elements()?;
+            if indices.iter().any(|&i| i >= elements.len()) { return Err(ArrayError::OutOfBounds { value: "index", }) }
+            indices.iter().for_each(|&i| { elements.remove(i); });
+            Self::flat(elements)
         }
     }
 
