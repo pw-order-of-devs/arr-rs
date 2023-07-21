@@ -16,7 +16,7 @@ pub(crate) trait VecInsertAt<N> {
     fn insert_at(&mut self, index: usize, value: N) -> Self;
 }
 
-impl <N: Clone> VecInsertAt<N> for Vec<N> {
+impl <N: Clone + std::fmt::Debug> VecInsertAt<N> for Vec<N> {
 
     fn insert_at(&mut self, index: usize, value: N) -> Self {
         self.insert(index, value);
