@@ -147,8 +147,7 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
         let partial_len = partial[0].len()?;
         let partial = partial.into_iter().flatten().collect::<Array<T>>();
 
-        let mut new_shape = array.get_shape()?;
-        new_shape[self.ndim()? - 1] = partial_len;
+        let new_shape = array.get_shape()?.update_at(self.ndim()? - 1, partial_len);
         let partial = partial.reshape(new_shape);
         if axis == 0 { partial.rollaxis((self.ndim()? - 1) as isize, None) }
         else { partial.moveaxis(vec![axis as isize], vec![(self.ndim()? - 1) as isize]) }

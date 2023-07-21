@@ -24,6 +24,19 @@ impl <N: Clone> VecInsertAt<N> for Vec<N> {
     }
 }
 
+pub(crate) trait VecUpdateAt<N> {
+
+    fn update_at(&mut self, index: usize, value: N) -> Self;
+}
+
+impl <N: Clone> VecUpdateAt<N> for Vec<N> {
+
+    fn update_at(&mut self, index: usize, value: N) -> Self {
+        self[index] = value;
+        self.clone()
+    }
+}
+
 pub(crate) trait VecReverse<N> {
 
     fn reverse_ext(&mut self) -> Self;

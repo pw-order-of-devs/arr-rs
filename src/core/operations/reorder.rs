@@ -92,11 +92,7 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
 
     fn flip(&self, axes: Option<Vec<isize>>) -> Result<Array<T>, ArrayError> {
         match axes {
-            None => {
-                let mut flipped_elements = self.get_elements()?;
-                flipped_elements.reverse();
-                Array::new(flipped_elements, self.get_shape()?)
-            },
+            None => Array::new(self.get_elements()?.reverse_ext(), self.get_shape()?),
             Some(axes) => {
                 let self_shape = self.shape.clone();
                 let axes = axes.into_iter().map(|i| self.normalize_axis(i)).collect::<Vec<usize>>();

@@ -278,8 +278,7 @@ impl <N: NumericOps> ArrayTrigonometric<N> for Array<N> {
             let axis = axis.unwrap_or(-1);
             let axis = self.normalize_axis(axis);
 
-            let mut b_shape = self.get_shape()?;
-            b_shape[axis] = 1;
+            let b_shape = self.get_shape()?.update_at(axis, 1);
             let period = period.broadcast_to(b_shape.clone())?;
             let discont = discont.broadcast_to(b_shape)?;
 

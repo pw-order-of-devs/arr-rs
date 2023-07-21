@@ -5,8 +5,8 @@ use crate::{
     validators::prelude::*,
 };
 
-/// ArrayTrait - Array Stack functions
-pub trait ArrayStack<T: ArrayElement> where Self: Sized + Clone {
+/// ArrayTrait - Array Joining functions
+pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
 
     /// Join a sequence of arrays along an existing axis
     ///
@@ -161,7 +161,7 @@ pub trait ArrayStack<T: ArrayElement> where Self: Sized + Clone {
     fn row_stack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
 }
 
-impl <T: ArrayElement> ArrayStack<T> for Array<T> {
+impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
 
     fn concatenate(arrs: Vec<Self>, axis: Option<usize>) -> Result<Self, ArrayError> {
         if arrs.is_empty() { Self::empty() }
@@ -169,8 +169,15 @@ impl <T: ArrayElement> ArrayStack<T> for Array<T> {
             if let Some(axis) = axis { arrs.validate_stack_shapes(axis, axis)?; }
 
             let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
+            println!("{initial:?}");
             let result = arrs.remove_at(0).into_iter()
-                .fold(initial, |a, b| a.append(&b, axis).unwrap());
+                .fold(initial, |a, b| {
+                    println!();
+                    println!("{a:?}");
+                    println!("{b:?}");
+                    println!("{axis:?}");
+                    a.append(&b, axis).unwrap()
+                });
             Ok(result)
         }
     }

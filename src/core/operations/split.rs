@@ -50,6 +50,26 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<T>>, ArrayError>;
 
+    /// Split an array into multiple sub-arrays of equal size by axis
+    ///
+    /// # Arguments
+    ///
+    /// * `axis` - the axis along which to split
+    ///
+    /// # Examples
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = array_arange!(0, 3).reshape(vec![2, 2]);
+    /// let split = arr.split_axis(0).unwrap();
+    /// assert_eq!(vec![array_flat!(0, 1).unwrap(), array_flat!(2, 3).unwrap()], split);
+    ///
+    /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]);
+    /// let split = arr.split_axis(1).unwrap();
+    /// assert_eq!(vec![array!([[0, 1], [4, 5]]).unwrap(), array!([[2, 3], [6, 7]]).unwrap()], split);
+    /// ```
+    fn split_axis(&self, axis: usize) -> Result<Vec<Array<T>>, ArrayError>;
+
     /// Split an array into multiple sub-arrays horizontally (column-wise)
     ///
     /// # Arguments
@@ -158,6 +178,12 @@ impl <T: ArrayElement> ArraySplit<T> for Array<T> {
         }
     }
 
+    fn split_axis(&self, axis: usize) -> Result<Vec<Array<T>>, ArrayError> {
+        self.axis_in_bounds(axis)?;
+        if self.is_empty()? || self.ndim()? == 1 { Ok(vec![self.clone()]) }
+        else { self.array_split(self.shape[axis], Some(axis)) }
+    }
+
     fn hsplit(&self, parts: usize) -> Result<Vec<Array<T>>, ArrayError> {
         self.is_dim_unsupported(&[0])?;
         if parts == 0 {
@@ -197,6 +223,10 @@ impl <T: ArrayElement> ArraySplit<T> for Result<Array<T>, ArrayError> {
 
     fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<T>>, ArrayError> {
         self.clone()?.split(parts, axis)
+    }
+
+    fn split_axis(&self, axis: usize) -> Result<Vec<Array<T>>, ArrayError> {
+        self.clone()?.split_axis(axis)
     }
 
     fn hsplit(&self, parts: usize) -> Result<Vec<Array<T>>, ArrayError> {

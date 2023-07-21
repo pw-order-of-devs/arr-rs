@@ -1,4 +1,7 @@
-use crate::core::prelude::*;
+use crate::{
+    core::prelude::*,
+    extensions::prelude::*,
+};
 
 impl <T: ArrayElement> std::fmt::Display for Array<T> {
 
@@ -13,8 +16,7 @@ fn build_string<T: ArrayElement>(arr: &Array<T>, precision: Option<usize>, alter
     } else if arr.len().unwrap_or(0) == 1 {
         format!("[{}]", arr.get_elements().unwrap()[0])
     } else {
-        let mut shape = arr.get_shape().unwrap();
-        shape.reverse();
+        let shape = arr.get_shape().unwrap().reverse_ext();
         let multiply = shape.iter().enumerate()
             .map(|(idx, _)| shape[0..=idx].iter().product())
             .collect::<Vec<usize>>();

@@ -49,6 +49,27 @@ case(array_arange!(0, 7), 3, Some(2), Err(ArrayError::AxisOutOfBounds)),
 }
 
 #[rstest(
+array, axis, expected,
+case(Array::empty(), 0, Ok(vec![Array::empty()])),
+case(array!(1), 0, Ok(vec![array!(1)])),
+case(array!([[2], [3], [5]]), 0, Ok(vec![array!([[2]]), array!([[3]]), array!([[5]])])),
+case(array_arange!(0, 7), 0, Ok(vec![array_arange!(0, 7)])),
+case(array_arange!(0, 7).reshape(vec![4, 2]), 0, Ok(vec![array!([[0, 1]]), array!([[2, 3]]), array!([[4, 5]]), array!([[6, 7]])])),
+case(array_arange!(0, 8).reshape(vec![3, 3]), 1, Ok(vec![array!([[0], [3], [6]]), array!([[1], [4], [7]]), array!([[2], [5], [8]])])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 0, Ok(vec![array!([[[0, 1], [2, 3]]]), array!([[[4, 5], [6, 7]]])])),
+case(array_arange!(0, 7).reshape(vec![2, 2, 2]), 2, Ok(vec![array!([[[0], [2]], [[4], [6]]]), array!([[[1], [3]], [[5], [7]]])])),
+case(array_arange!(0, 7), 2, Err(ArrayError::AxisOutOfBounds)),
+)] fn test_split_axis(array: Result<Array<i32>, ArrayError>, axis: usize, expected: Result<Vec<Result<Array<i32>, ArrayError>>, ArrayError>) {
+    match expected {
+        Ok(expected) => {
+            let expected = expected.iter().map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Array<i32>>>();
+            assert_eq!(Ok(expected), array.split_axis(axis))
+        },
+        Err(err) => assert_eq!(Err(err), array.split_axis(axis)),
+    }
+}
+
+#[rstest(
 array, parts, expected,
 case(array_arange!(0, 5), 3, vec![array!([0, 1]), array!([2, 3]), array!([4, 5])]),
 case(array_arange!(0, 5).reshape(vec![3, 2]), 2, vec![array!([[0], [2], [4]]), array!([[1], [3], [5]])]),
