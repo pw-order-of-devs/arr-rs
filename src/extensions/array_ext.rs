@@ -1,5 +1,24 @@
 use crate::prelude::*;
 
+pub(crate) trait ArrayCreateExt<T: ArrayElement> {
+
+    fn to_array(&self) -> Result<Array<T>, ArrayError>;
+}
+
+impl <T: ArrayElement> ArrayCreateExt<T> for T {
+    
+    fn to_array(&self) -> Result<Array<T>, ArrayError> {
+        Array::single(self.clone())
+    }
+}
+
+impl <T: ArrayElement> ArrayCreateExt<T> for Vec<T> {
+    
+    fn to_array(&self) -> Result<Array<T>, ArrayError> {
+        Array::flat(self.clone())
+    }
+}
+
 pub(crate) trait ArrayExt<N: Numeric> {
 
     fn to_array_num<S: Numeric>(&self) -> Result<Array<S>, ArrayError>;
