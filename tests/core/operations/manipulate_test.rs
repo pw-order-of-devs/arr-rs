@@ -155,3 +155,14 @@ case(array!([[1, 2]]), Err(ArrayError::UnsupportedDimension { supported: vec![1]
 )] fn test_trim_zeros(arr: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, arr.trim_zeros())
 }
+
+#[rstest(
+arr, n, expected,
+case(array!([1, 2, 3, 4]), 0, Array::empty()),
+case(array!([1, 2, 3, 4]), 2, array!([1, 2])),
+case(array!([1, 2, 3, 4]), 4, array!([1, 2, 3, 4])),
+case(array!([[1, 2], [3, 4]]), 2, array!([1, 2])),
+case(array!([[1, 2], [3, 4]]), 4, array!([1, 2, 3, 4])),
+)] fn test_cycle_take(arr: Result<Array<i32>, ArrayError>, n: usize, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, arr.cycle_take(n))
+}
