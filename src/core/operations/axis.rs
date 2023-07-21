@@ -234,8 +234,9 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
         let axis_1 = self.normalize_axis(axis_1);
         let axis_2 = self.normalize_axis(axis_2);
 
-        let mut new_axes = (0 .. self.ndim()?).collect::<Vec<usize>>();
-        new_axes.swap(axis_1, axis_2);
+        let new_axes = (0 .. self.ndim()?)
+            .collect::<Vec<usize>>()
+            .swap_ext(axis_1, axis_2);
 
         self.transpose(Some(new_axes.iter().map(|&i| i as isize).collect()))
     }

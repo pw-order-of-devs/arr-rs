@@ -181,6 +181,22 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// assert_eq!(array!([1, 2, 3, 4]), arr.trim_zeros());
     /// ```
     fn trim_zeros(&self) -> Result<Array<T>, ArrayError>;
+
+    /// Performs cycle().take(n), returning flattened array
+    ///
+    /// # Arguments
+    ///
+    /// n: number of elements to take
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1, 2, 3, 4]);
+    /// assert_eq!(array!([1, 2]), arr.cycle_take(2));
+    /// ```
+    fn cycle_take(&self, n: usize) -> Result<Array<T>, ArrayError>;
 }
 
 impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
@@ -253,9 +269,9 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
             self.apply_along_axis(axis, |arr| arr.delete(indices.clone(), None))
         } else {
             let mut elements = self.get_elements()?;
-            if indices.iter().any(|&i| i >= elements.len()) { return Err(ArrayError::OutOfBounds { value: "index", }) }
+            if indices.iter().any(|&i| i >= elements.len()) { return Err(ArrayError::OutOfBounds { value: "index" }) }
             indices.iter().for_each(|&i| { elements.remove(i); });
-            Self::flat(elements)
+            elements.to_array()
         }
     }
 
@@ -294,7 +310,7 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
 
     fn reshape(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
         shape.matches_values_len(&self.get_elements()?)?;
-        Self::new(self.elements.clone(), shape)
+        Array::new(self.elements.clone(), shape)
     }
 
     fn resize(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
@@ -313,12 +329,12 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
                 .sorted_by(|a, b| a.clone().partial_cmp(b).unwrap_or(Ordering::Equal))
                 .collect::<Vec<T>>();
             new_elements.dedup();
-            Array::flat(new_elements)
+            new_elements.to_array()
         }
     }
 
     fn ravel(&self) -> Result<Array<T>, ArrayError> {
-        Self::flat(self.elements.clone())
+        self.elements.to_array()
     }
 
     fn atleast(&self, n: usize) -> Result<Array<T>, ArrayError> {
@@ -334,15 +350,18 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
     fn trim_zeros(&self) -> Result<Array<T>, ArrayError> {
         self.is_dim_supported(&[1])?;
 
-        let new_elements = self.get_elements()?
+        self.get_elements()?
             .into_iter().rev()
             .skip_while(|e| e.clone() == T::zero())
             .collect::<Vec<_>>()
             .into_iter().rev()
             .skip_while(|e| e.clone() == T::zero())
-            .collect::<Vec<_>>();
+            .collect::<Vec<_>>()
+            .to_array()
+    }
 
-        Self::flat(new_elements)
+    fn cycle_take(&self, n: usize) -> Result<Array<T>, ArrayError> {
+        Ok(self.into_iter().cycle().take(n).cloned().collect::<Array<T>>())
     }
 }
 
@@ -382,6 +401,10 @@ impl <T: ArrayElement> ArrayManipulate<T> for Result<Array<T>, ArrayError> {
 
     fn trim_zeros(&self) -> Result<Array<T>, ArrayError> {
         self.clone()?.trim_zeros()
+    }
+
+    fn cycle_take(&self, n: usize) -> Result<Array<T>, ArrayError> {
+        self.clone()?.cycle_take(n)
     }
 }
 

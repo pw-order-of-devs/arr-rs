@@ -312,12 +312,11 @@ impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
             let mut new_shape = self.get_shape()?;
             if let Some(p) = prepend { new_shape[axis] += p.get_shape()?[axis] };
             if let Some(a) = append { new_shape[axis] += a.get_shape()?[axis] };
-            new_shape.swap(axis, self.ndim()? - 1);
 
             let array = partial.into_iter()
                 .flatten()
                 .collect::<Array<N>>()
-                .reshape(new_shape);
+                .reshape(new_shape.swap_ext(axis, self.ndim()? - 1));
             let array =
                 if axis == 0 { array.transpose(None) }
                 else { array.moveaxis(vec![axis as isize], vec![self.ndim()? as isize]) };

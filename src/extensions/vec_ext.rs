@@ -49,3 +49,16 @@ impl <N: Clone> VecReverse<N> for Vec<N> {
         self.clone()
     }
 }
+
+pub(crate) trait VecSwap<N> {
+
+    fn swap_ext(&mut self, idx_1: usize, idx_2: usize) -> Self;
+}
+
+impl <N: Clone> VecSwap<N> for Vec<N> {
+
+    fn swap_ext(&mut self, idx_1: usize, idx_2: usize) -> Self {
+        self.swap(idx_1, idx_2);
+        self.clone()
+    }
+}

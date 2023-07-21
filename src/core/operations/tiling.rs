@@ -34,8 +34,7 @@ impl <T: ArrayElement> ArrayTiling<T> for Array<T> {
             let repeats = repeats.to_array()?.broadcast_to(vec![self.get_shape()?[axis]]).get_elements()?;
             let new_axis_len = repeats.clone().into_iter().sum();
             let new_shape = self.get_shape()?.update_at(axis, new_axis_len);
-            let mut tmp_shape = new_shape.clone();
-            tmp_shape.swap(0, axis);
+            let tmp_shape = new_shape.clone().swap_ext(0, axis);
             let partial = self.split(self.get_shape()?[axis], Some(axis))?.into_iter()
                 .zip(&repeats)
                 .flat_map(|(el, &rep)| vec![el; rep])
