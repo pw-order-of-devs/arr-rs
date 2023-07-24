@@ -18,11 +18,11 @@ pub trait ArrayTiling<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array!(3);
-    /// assert_eq!(array![3, 3, 3, 3], arr.repeat(&array!(4).unwrap(), None));
+    /// let arr = Array::<i32>::single(3);
+    /// assert_eq!(array![3, 3, 3, 3], arr.repeat(&vec![4], None));
     ///
-    /// let arr = array!([[1, 2], [3, 4]]);
-    /// assert_eq!(array!([[1, 2], [3, 4], [3, 4]]), arr.repeat(&array!([1, 2]).unwrap(), Some(0)));
+    /// let arr = Array::<i32>::new(vec![1, 2, 3, 4], vec![2, 2]);
+    /// assert_eq!(array!([[1, 2], [3, 4], [3, 4]]), arr.repeat(&vec![1, 2], Some(0)));
     /// ```
     fn repeat(&self, repeats: &Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 }

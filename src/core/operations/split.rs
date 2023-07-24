@@ -62,11 +62,11 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     ///
     /// let arr = array_arange!(0, 3).reshape(vec![2, 2]);
     /// let split = arr.split_axis(0).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1).unwrap(), array_flat!(2, 3).unwrap()], split);
+    /// assert_eq!(vec![array!([[0, 1]]).unwrap(), array!([[2, 3]]).unwrap()], split);
     ///
     /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]);
     /// let split = arr.split_axis(1).unwrap();
-    /// assert_eq!(vec![array!([[0, 1], [4, 5]]).unwrap(), array!([[2, 3], [6, 7]]).unwrap()], split);
+    /// assert_eq!(vec![array!([[[0, 1]], [[4, 5]]]).unwrap(), array!([[[2, 3]], [[6, 7]]]).unwrap()], split);
     /// ```
     fn split_axis(&self, axis: usize) -> Result<Vec<Array<T>>, ArrayError>;
 

@@ -24,7 +24,7 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
     ///
     /// let arr = Array::new(vec![1, 2, 3, 4], vec![2, 2]).unwrap();
     /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
-    /// assert_eq!("[[1, 2], \n [3, 4]]", format!("{arr:#}"));
+    /// assert_eq!("[[1, 2],\n [3, 4]]", format!("{arr:#}"));
     /// ```
     fn new(elements: Vec<T>, shape: Vec<usize>) -> Result<Self, ArrayError>;
 
@@ -45,11 +45,11 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
     ///
     /// let arr = Array::create(vec![1, 2, 3, 4], vec![2, 2], Some(1)).unwrap();
     /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
-    /// assert_eq!("[[1, 2], \n [3, 4]]", format!("{arr:#}"));
+    /// assert_eq!("[[1, 2],\n [3, 4]]", format!("{arr:#}"));
     ///
     /// let arr = Array::create(vec![1, 2, 3, 4], vec![2, 2], Some(3)).unwrap();
     /// assert_eq!("[[[1, 2], [3, 4]]]", format!("{arr}"));
-    /// assert_eq!("[[[1, 2], \n [3, 4]]]", format!("{arr:#}"));
+    /// assert_eq!("[[[1, 2],\n  [3, 4]]]", format!("{arr:#}"));
     /// ```
     fn create(elements: Vec<T>, shape: Vec<usize>, ndmin: Option<usize>) -> Result<Self, ArrayError>;
 
