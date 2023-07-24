@@ -1,5 +1,20 @@
 # 📑 Changelog
 
+## [v0.4.0](https://github.com/pw-order-of-devs/arr-rs/compare/v0.3.0...v0.4.0)
+
+### 🚀 Enhancements
+
+- String arrays operations [\#105](https://github.com/pw-order-of-devs/arr-rs/issues/105)
+- String|char support [\#102](https://github.com/pw-order-of-devs/arr-rs/issues/102)
+- Binary operations [\#101](https://github.com/pw-order-of-devs/arr-rs/issues/101)
+- [partial] Math operations [\#109](https://github.com/pw-order-of-devs/arr-rs/issues/109)
+
+**Closed issues:**
+
+- Rework library architecture [\#107](https://github.com/pw-order-of-devs/arr-rs/issues/107)
+Structure of library was heavily reworked to better match the modules.
+Modules are introduced as features.
+
 ## [v0.3.0](https://github.com/pw-order-of-devs/arr-rs/compare/v0.2.0...v0.3.0)
 
 ### 🚀 Enhancements
