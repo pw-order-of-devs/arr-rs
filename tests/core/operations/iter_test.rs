@@ -13,7 +13,7 @@ case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), array!([[[3, 6], [
     let iterated = array.unwrap().into_iter()
         .map(|i| i * 3)
         .collect::<Array<i32>>()
-        .reshape(shape);
+        .reshape(&shape);
     assert_eq!(expected, iterated)
 }
 

@@ -50,6 +50,13 @@ pub enum ArrayError {
         /// value 2
         value2: String,
     },
+    /// Values must be one of
+    MustBeOneOf {
+        /// value 1
+        value1: String,
+        /// value 2
+        value2: String,
+    },
     /// Function is not implemented
     NotImplemented,
 }
@@ -70,6 +77,7 @@ impl std::fmt::Display for ArrayError {
             ArrayError::UnsupportedDimension { supported } => write!(f, "supported dimensions are: {supported:?}"),
             ArrayError::MustBeUnique { value } => write!(f, "`{value}` must be unique"),
             ArrayError::MustBeEqual { value1, value2 } => write!(f, "`{value1}` and `{value2}` must be equal"),
+            ArrayError::MustBeOneOf { value1, value2 } => write!(f, "`{value1}` must be one of `{value2}`"),
             ArrayError::NotImplemented => write!(f, "not implemented"),
         }
     }

@@ -5,7 +5,6 @@ pub use crate::numeric::{
         binary_bits::ArrayBinaryBits,
         create::ArrayCreateNumeric,
         create_from::ArrayCreateFrom,
-        math::ArrayMath,
     },
     types::{
         binary::BitOrder,

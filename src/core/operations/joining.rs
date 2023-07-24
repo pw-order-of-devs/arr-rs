@@ -1,12 +1,12 @@
 use crate::{
     core::prelude::*,
     errors::prelude::*,
-    extensions::vec_ext::{VecInsertAt, VecRemoveAt},
+    extensions::prelude::*,
     validators::prelude::*,
 };
 
-/// ArrayTrait - Array Stack functions
-pub trait ArrayStack<T: ArrayElement> where Self: Sized + Clone {
+/// ArrayTrait - Array Joining functions
+pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
 
     /// Join a sequence of arrays along an existing axis
     ///
@@ -161,7 +161,7 @@ pub trait ArrayStack<T: ArrayElement> where Self: Sized + Clone {
     fn row_stack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
 }
 
-impl <T: ArrayElement> ArrayStack<T> for Array<T> {
+impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
 
     fn concatenate(arrs: Vec<Self>, axis: Option<usize>) -> Result<Self, ArrayError> {
         if arrs.is_empty() { Self::empty() }
@@ -169,8 +169,15 @@ impl <T: ArrayElement> ArrayStack<T> for Array<T> {
             if let Some(axis) = axis { arrs.validate_stack_shapes(axis, axis)?; }
 
             let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
+            println!("{initial:?}");
             let result = arrs.remove_at(0).into_iter()
-                .fold(initial, |a, b| a.append(&b, axis).unwrap());
+                .fold(initial, |a, b| {
+                    println!();
+                    println!("{a:?}");
+                    println!("{b:?}");
+                    println!("{axis:?}");
+                    a.append(&b, axis).unwrap()
+                });
             Ok(result)
         }
     }
@@ -187,7 +194,7 @@ impl <T: ArrayElement> ArrayStack<T> for Array<T> {
             let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
             arrs.remove_at(0).into_iter()
                 .fold(initial, |a, b| a.append(&b, Some(axis)).unwrap())
-                .reshape(new_shape)
+                .reshape(&new_shape)
         }
     }
 
@@ -201,7 +208,7 @@ impl <T: ArrayElement> ArrayStack<T> for Array<T> {
             else { new_shape[0] = arrs.iter().fold(0, |a, b| a + b.shape[0]); }
 
             match Self::concatenate(arrs, Some(0)) {
-                Ok(c) => c.reshape(new_shape),
+                Ok(c) => c.reshape(&new_shape),
                 Err(e) => Err(e),
             }
         }
@@ -224,7 +231,7 @@ impl <T: ArrayElement> ArrayStack<T> for Array<T> {
             new_shape[1] = arrs.iter().fold(0, |a, b| a + b.shape[1]);
 
             match Self::concatenate(arrs, Some(1)) {
-                Ok(c) => c.reshape(new_shape),
+                Ok(c) => c.reshape(&new_shape),
                 Err(e) => Err(e),
             }
         }
@@ -245,7 +252,7 @@ impl <T: ArrayElement> ArrayStack<T> for Array<T> {
             new_shape[2] = arrs.iter().fold(0, |a, b| a + b.shape[2]);
 
             match Self::concatenate(arrs, Some(2)) {
-                Ok(c) => c.reshape(new_shape),
+                Ok(c) => c.reshape(&new_shape),
                 Err(e) => Err(e),
             }
         }

@@ -6,6 +6,9 @@ pub use crate::alphanumeric::prelude::*;
 #[cfg(feature = "boolean")]
 pub use crate::boolean::prelude::*;
 
+#[cfg(feature = "math")]
+pub use crate::math::prelude::*;
+
 #[cfg(feature = "numeric")]
 pub use crate::numeric::prelude::*;
 

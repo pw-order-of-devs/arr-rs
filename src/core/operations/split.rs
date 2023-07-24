@@ -1,7 +1,7 @@
 use crate::{
     core::prelude::*,
     errors::prelude::*,
-    extensions::vec_ext::VecInsertAt,
+    extensions::prelude::*,
     validators::prelude::*,
 };
 
@@ -50,6 +50,26 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<T>>, ArrayError>;
 
+    /// Split an array into multiple sub-arrays of equal size by axis
+    ///
+    /// # Arguments
+    ///
+    /// * `axis` - the axis along which to split
+    ///
+    /// # Examples
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = array_arange!(0, 3).reshape(&[2, 2]);
+    /// let split = arr.split_axis(0).unwrap();
+    /// assert_eq!(vec![array!([[0, 1]]).unwrap(), array!([[2, 3]]).unwrap()], split);
+    ///
+    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]);
+    /// let split = arr.split_axis(1).unwrap();
+    /// assert_eq!(vec![array!([[[0, 1]], [[4, 5]]]).unwrap(), array!([[[2, 3]], [[6, 7]]]).unwrap()], split);
+    /// ```
+    fn split_axis(&self, axis: usize) -> Result<Vec<Array<T>>, ArrayError>;
+
     /// Split an array into multiple sub-arrays horizontally (column-wise)
     ///
     /// # Arguments
@@ -60,7 +80,7 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]).unwrap();
+    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.hsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0, 1]], [[4, 5]]]).unwrap(), array!([[[2, 3]], [[6, 7]]]).unwrap()], split);
     /// ```
@@ -76,7 +96,7 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]).unwrap();
+    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.vsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0, 1], [2, 3]]]).unwrap(), array!([[[4, 5], [6, 7]]]).unwrap()], split);
     /// ```
@@ -92,7 +112,7 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]).unwrap();
+    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.dsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0], [2]], [[4], [6]]]).unwrap(), array!([[[1], [3]], [[5], [7]]]).unwrap()], split);
     /// ```
@@ -134,7 +154,7 @@ impl <T: ArrayElement> ArraySplit<T> for Array<T> {
                     else {
                         let mut new_shape = self.get_shape()?;
                         new_shape[axis] /= parts;
-                        m.reshape(new_shape)
+                        m.reshape(&new_shape)
                     }
                 })
                 .collect::<Vec<Result<Self, _>>>();
@@ -156,6 +176,12 @@ impl <T: ArrayElement> ArraySplit<T> for Array<T> {
             if n_total % parts != 0 { Err(ArrayError::ParameterError { param: "parts", message: "array split does not result in an equal division", }) }
             else { self.array_split(parts, axis) }
         }
+    }
+
+    fn split_axis(&self, axis: usize) -> Result<Vec<Array<T>>, ArrayError> {
+        self.axis_in_bounds(axis)?;
+        if self.is_empty()? || self.ndim()? == 1 { Ok(vec![self.clone()]) }
+        else { self.array_split(self.shape[axis], Some(axis)) }
     }
 
     fn hsplit(&self, parts: usize) -> Result<Vec<Array<T>>, ArrayError> {
@@ -197,6 +223,10 @@ impl <T: ArrayElement> ArraySplit<T> for Result<Array<T>, ArrayError> {
 
     fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<T>>, ArrayError> {
         self.clone()?.split(parts, axis)
+    }
+
+    fn split_axis(&self, axis: usize) -> Result<Vec<Array<T>>, ArrayError> {
+        self.clone()?.split_axis(axis)
     }
 
     fn hsplit(&self, parts: usize) -> Result<Vec<Array<T>>, ArrayError> {

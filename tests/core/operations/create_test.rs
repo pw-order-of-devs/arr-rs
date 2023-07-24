@@ -12,6 +12,19 @@ case(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![10], Err(ArrayError::ShapeMustMatchValue
 }
 
 #[rstest(
+elements, shape, ndmin, expected,
+case(vec![1, 2, 3, 4], vec![4], None, array!([1, 2, 3, 4])),
+case(vec![1, 2, 3, 4], vec![2, 2], Some(2), array!([[1, 2], [3, 4]])),
+case(vec![1, 2, 3, 4], vec![2, 2], Some(3), array!([[[1, 2], [3, 4]]])),
+case(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2], Some(2), array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]])),
+case(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2], Some(3), array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]])),
+case(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2], Some(5), array!([[[[[1, 2], [3, 4]], [[1, 2], [3, 4]]]]])),
+case(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![10], None, Err(ArrayError::ShapeMustMatchValuesLength)),
+)] fn test_create(elements: Vec<i32>, shape: Vec<usize>, ndmin: Option<usize>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, Array::create(elements, shape, ndmin))
+}
+
+#[rstest(
 element, expected,
 case(2, array!([2])),
 case(4, array!([4])),

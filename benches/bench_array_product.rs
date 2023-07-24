@@ -21,7 +21,7 @@ pub(crate) fn config<'a>(c: &'a mut Criterion, name: &'a str) -> BenchmarkGroup<
 pub(crate) fn array_product_1d_1m_benchmark(c: &mut Criterion) {
     let mut criterion = config(c, "array product");
     let arr = Array::<f64>::rand(vec![1000000]);
-    criterion.bench_function("dim: 1D, elements: 1M", |b| b.iter(|| arr.product()));
+    criterion.bench_function("dim: 1D, elements: 1M", |b| b.iter(|| arr.prod(None)));
     criterion.finish();
 }
 
@@ -29,7 +29,7 @@ pub(crate) fn array_product_1d_1m_benchmark(c: &mut Criterion) {
 pub(crate) fn array_product_1d_10m_benchmark(c: &mut Criterion) {
     let mut criterion = config(c, "array product");
     let arr = Array::<f64>::rand(vec![10000000]);
-    criterion.bench_function("dim: 1D, elements: 10M", |b| b.iter(|| arr.product()));
+    criterion.bench_function("dim: 1D, elements: 10M", |b| b.iter(|| arr.prod(None)));
     criterion.finish();
 }
 
@@ -37,7 +37,7 @@ pub(crate) fn array_product_1d_10m_benchmark(c: &mut Criterion) {
 pub(crate) fn array_product_5d_1m_benchmark(c: &mut Criterion) {
     let mut criterion = config(c, "array product");
     let arr = Array::<f64>::rand(vec![16; 5]);
-    criterion.bench_function("dim: 5D, elements: 1M", |b| b.iter(|| arr.product()));
+    criterion.bench_function("dim: 5D, elements: 1M", |b| b.iter(|| arr.prod(None)));
     criterion.finish();
 }
 
@@ -45,7 +45,7 @@ pub(crate) fn array_product_5d_1m_benchmark(c: &mut Criterion) {
 pub(crate) fn array_product_5d_10m_benchmark(c: &mut Criterion) {
     let mut criterion = config(c, "array product");
     let arr = Array::<f64>::rand(vec![25; 5]);
-    criterion.bench_function("dim: 5D, elements: 10M", |b| b.iter(|| arr.product()));
+    criterion.bench_function("dim: 5D, elements: 10M", |b| b.iter(|| arr.prod(None)));
     criterion.finish();
 }
 
@@ -53,7 +53,7 @@ pub(crate) fn array_product_5d_10m_benchmark(c: &mut Criterion) {
 pub(crate) fn array_product_10d_1m_benchmark(c: &mut Criterion) {
     let mut criterion = config(c, "array product");
     let arr = Array::<f64>::rand(vec![4; 10]);
-    criterion.bench_function("dim: 10D, elements: 1M", |b| b.iter(|| arr.product()));
+    criterion.bench_function("dim: 10D, elements: 1M", |b| b.iter(|| arr.prod(None)));
     criterion.finish();
 }
 
@@ -61,6 +61,6 @@ pub(crate) fn array_product_10d_1m_benchmark(c: &mut Criterion) {
 pub(crate) fn array_product_10d_10m_benchmark(c: &mut Criterion) {
     let mut criterion = config(c, "array product");
     let arr = Array::<f64>::rand(vec![5; 10]);
-    criterion.bench_function("dim: 10D, elements: 10M", |b| b.iter(|| arr.product()));
+    criterion.bench_function("dim: 10D, elements: 10M", |b| b.iter(|| arr.prod(None)));
     criterion.finish();
 }

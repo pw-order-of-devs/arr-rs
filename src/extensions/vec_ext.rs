@@ -16,10 +16,23 @@ pub(crate) trait VecInsertAt<N> {
     fn insert_at(&mut self, index: usize, value: N) -> Self;
 }
 
-impl <N: Clone> VecInsertAt<N> for Vec<N> {
+impl <N: Clone + std::fmt::Debug> VecInsertAt<N> for Vec<N> {
 
     fn insert_at(&mut self, index: usize, value: N) -> Self {
         self.insert(index, value);
+        self.clone()
+    }
+}
+
+pub(crate) trait VecUpdateAt<N> {
+
+    fn update_at(&mut self, index: usize, value: N) -> Self;
+}
+
+impl <N: Clone> VecUpdateAt<N> for Vec<N> {
+
+    fn update_at(&mut self, index: usize, value: N) -> Self {
+        self[index] = value;
         self.clone()
     }
 }
@@ -33,6 +46,19 @@ impl <N: Clone> VecReverse<N> for Vec<N> {
 
     fn reverse_ext(&mut self) -> Self {
         self.reverse();
+        self.clone()
+    }
+}
+
+pub(crate) trait VecSwap<N> {
+
+    fn swap_ext(&mut self, idx_1: usize, idx_2: usize) -> Self;
+}
+
+impl <N: Clone> VecSwap<N> for Vec<N> {
+
+    fn swap_ext(&mut self, idx_1: usize, idx_2: usize) -> Self {
+        self.swap(idx_1, idx_2);
         self.clone()
     }
 }
