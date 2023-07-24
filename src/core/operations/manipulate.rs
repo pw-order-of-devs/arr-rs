@@ -24,13 +24,13 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.insert(vec![1], &Array::single(1.).unwrap(), None);
+    /// let arr = arr.insert(&[1], &Array::single(1.).unwrap(), None);
     /// assert_eq!(array!([1., 1., 2., 3., 4.]), arr);
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.insert(vec![1, 3], &Array::single(1.).unwrap(), None);
+    /// let arr = arr.insert(&[1, 3], &Array::single(1.).unwrap(), None);
     /// assert_eq!(array!([1., 1., 2., 3., 1., 4.]), arr);
     /// ```
-    fn insert(&self, indices: Vec<usize>, values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
+    fn insert(&self, indices: &[usize], values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Delete values along the given axis
     ///
@@ -45,13 +45,13 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.delete(vec![1], None);
+    /// let arr = arr.delete(&[1], None);
     /// assert_eq!(array!([1., 3., 4.]), arr);
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.delete(vec![2, 3], None);
+    /// let arr = arr.delete(&[2, 3], None);
     /// assert_eq!(array!([1., 2.]), arr);
     /// ```
-    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
+    fn delete(&self, indices: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Append values to the end of an array
     ///
@@ -87,10 +87,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     ///
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
     /// assert_eq!(array!([1, 2, 3, 4]).unwrap(), arr);
-    /// let arr = arr.reshape(vec![2, 2]);
+    /// let arr = arr.reshape(&[2, 2]);
     /// assert_eq!(array!([[1, 2], [3, 4]]), arr);
     /// ```
-    fn reshape(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError>;
+    fn reshape(&self, shape: &[usize]) -> Result<Array<T>, ArrayError>;
 
     /// Resizes an array,
     ///
@@ -105,14 +105,14 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     ///
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
     /// assert_eq!(array!([1, 2, 3, 4]).unwrap(), arr);
-    /// let array = arr.resize(vec![2, 2]);
+    /// let array = arr.resize(&[2, 2]);
     /// assert_eq!(array!([[1, 2], [3, 4]]), array);
-    /// let array = arr.resize(vec![4]);
+    /// let array = arr.resize(&[4]);
     /// assert_eq!(array!([1, 2, 3, 4]), array);
-    /// let array = arr.resize(vec![8]);
+    /// let array = arr.resize(&[8]);
     /// assert_eq!(array!([1, 2, 3, 4, 1, 2, 3, 4]), array);
     /// ```
-    fn resize(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError>;
+    fn resize(&self, shape: &[usize]) -> Result<Array<T>, ArrayError>;
 
 
     /// Find the unique elements of an array
@@ -201,7 +201,7 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
 
 impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
 
-    fn insert(&self, indices: Vec<usize>, values: &Self, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn insert(&self, indices: &[usize], values: &Self, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
         if indices.iter().any(|&i| i > self.shape[axis.unwrap_or(0)]) { return Err(ArrayError::OutOfBounds { value: "index" }) }
         values.ndim()?.is_dim_supported(&(1 ..= self.ndim()?).collect::<Vec<usize>>())?;
 
@@ -209,7 +209,7 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
             vec![indices.len()].is_broadcastable(&self.get_shape()?)?;
             let mut arrays = self.split_axis(axis)?;
             let self_rem = self.get_shape()?.remove_at(axis);
-            let self_rem_len = self_rem.clone().into_iter().product::<usize>();
+            let self_rem_len = self_rem.into_iter().product::<usize>();
             let mut values = values.to_array_ndim(self.ndim()?)?;
             let values_shape_tmp = values.get_shape()?.swap_ext(0, axis);
 
@@ -219,22 +219,22 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
                     return Err(ArrayError::BroadcastShapeMismatch)
                 } else if values_shape_tmp[i] < self_shape_at_i {
                     values = values
-                        .repeat(&vec![self_shape_at_i / values_shape_tmp[i]], Some(0))?
+                        .repeat(&[self_shape_at_i / values_shape_tmp[i]], Some(0))?
                         .to_array_ndim(self.ndim()?)?;
                 }
             };
 
-            let values =
+            let mut values =
                 if indices.len() > 1 {
                     let values =
-                        if values.len()? == self_rem_len { values.repeat(&vec![indices.len()], Some(0))? }
+                        if values.len()? == self_rem_len { values.repeat(&[indices.len()], Some(0))? }
                         else { values };
                     values.moveaxis(vec![axis as isize], vec![0])
                         .ravel()
                         .split(indices.len(), None)?
                 } else { vec![values] };
 
-            for (i, v) in indices.clone().reverse_ext().into_iter().zip(values.clone().reverse_ext()) {
+            for (i, v) in indices.to_vec().reverse_ext().into_iter().zip(values.reverse_ext()) {
                 arrays.insert(i, v.clone())
             }
 
@@ -247,12 +247,12 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
             let new_shape = self.get_shape()?
                 .update_at(axis, partial.len()? / self_rem_len)
                 .swap_ext(0, axis);
-            let partial = partial.reshape(new_shape)?;
+            let partial = partial.reshape(&new_shape)?;
             let transpose_shape = (1 .. self.ndim()? as isize).collect::<Vec<isize>>().insert_at(axis, 0);
             partial.transpose(Some(transpose_shape))
         } else {
             values.ndim()?.is_dim_supported(&[1])?;
-            let (indices, values) = Array::broadcast_h2(&Array::flat(indices)?, &values.ravel()?)?;
+            let (indices, values) = Array::broadcast_h2(&Array::flat(indices.to_vec())?, &values.ravel()?)?;
             let values = values.get_elements()?;
             let mut elements = self.get_elements()?;
 
@@ -264,15 +264,15 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
         }
     }
 
-    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
-        let mut indices = indices;
+    fn delete(&self, indices: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+        let mut indices = indices.to_vec();
         indices.sort();
         indices.dedup();
         indices = indices.reverse_ext();
 
         if let Some(axis) = axis {
             self.axis_in_bounds(axis)?;
-            self.apply_along_axis(axis, |arr| arr.delete(indices.clone(), None))
+            self.apply_along_axis(axis, |arr| arr.delete(&indices, None))
         } else {
             let mut elements = self.get_elements()?;
             if indices.iter().any(|&i| i >= elements.len()) { return Err(ArrayError::OutOfBounds { value: "index" }) }
@@ -299,7 +299,7 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
             let new_shape = self.get_shape()?.update_at(axis, array.len()? / self_rem_len);
             let tmp_shape = new_shape.clone().swap_ext(0, axis);
             let transpose_shape = (1 .. self.ndim()? as isize).collect::<Vec<isize>>().insert_at(axis, 0);
-            array.reshape(tmp_shape).transpose(Some(transpose_shape)).reshape(new_shape)
+            array.reshape(&tmp_shape).transpose(Some(transpose_shape)).reshape(&new_shape)
         } else {
             let mut elements = self.get_elements()?;
             elements.extend_from_slice(&values.get_elements()?);
@@ -307,12 +307,12 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
         }
     }
 
-    fn reshape(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
-        shape.matches_values_len(&self.get_elements()?)?;
-        Array::new(self.elements.clone(), shape)
+    fn reshape(&self, shape: &[usize]) -> Result<Array<T>, ArrayError> {
+        shape.to_vec().matches_values_len(&self.get_elements()?)?;
+        Array::new(self.elements.clone(), shape.to_vec())
     }
 
-    fn resize(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
+    fn resize(&self, shape: &[usize]) -> Result<Array<T>, ArrayError> {
         self.get_elements()?.into_iter().cycle()
             .take(shape.iter().product::<usize>())
             .collect::<Self>()
@@ -366,11 +366,11 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
 
 impl <T: ArrayElement> ArrayManipulate<T> for Result<Array<T>, ArrayError> {
 
-    fn insert(&self, indices: Vec<usize>, values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn insert(&self, indices: &[usize], values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.insert(indices, values, axis)
     }
 
-    fn delete(&self, indices: Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn delete(&self, indices: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.delete(indices, axis)
     }
 
@@ -378,11 +378,11 @@ impl <T: ArrayElement> ArrayManipulate<T> for Result<Array<T>, ArrayError> {
         self.clone()?.append(values, axis)
     }
 
-    fn reshape(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
+    fn reshape(&self, shape: &[usize]) -> Result<Array<T>, ArrayError> {
         self.clone()?.reshape(shape)
     }
 
-    fn resize(&self, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
+    fn resize(&self, shape: &[usize]) -> Result<Array<T>, ArrayError> {
         self.clone()?.resize(shape)
     }
 
@@ -411,16 +411,16 @@ impl <T: ArrayElement> Array<T> {
 
     fn atleast_1d(&self) -> Result<Array<T>, ArrayError> {
         if !self.ndim()? >= 1 { Ok(self.clone()) }
-        else { self.reshape(vec![1]) }
+        else { self.reshape(&[1]) }
     }
 
     fn atleast_2d(&self) -> Result<Array<T>, ArrayError> {
         if self.ndim()? >= 2 { Ok(self.clone()) }
         else {
             match self.ndim()? {
-                0 => self.reshape(vec![1, 1]),
-                1 => self.reshape(vec![1, self.get_shape()?[0]]),
-                _ => self.reshape(vec![self.get_shape()?[0], 1]),
+                0 => self.reshape(&[1, 1]),
+                1 => self.reshape(&[1, self.get_shape()?[0]]),
+                _ => self.reshape(&[self.get_shape()?[0], 1]),
             }
         }
     }
@@ -429,9 +429,9 @@ impl <T: ArrayElement> Array<T> {
         if self.ndim()? >= 3 { Ok(self.clone()) }
         else {
             match self.ndim()? {
-                0 => self.reshape(vec![1, 1, 1]),
-                1 => self.reshape(vec![1, self.get_shape()?[0], 1]),
-                2 => self.reshape(vec![self.get_shape()?[0], self.get_shape()?[1], 1]),
+                0 => self.reshape(&[1, 1, 1]),
+                1 => self.reshape(&[1, self.get_shape()?[0], 1]),
+                2 => self.reshape(&[self.get_shape()?[0], self.get_shape()?[1], 1]),
                 _ => Ok(self.clone()),
             }
         }

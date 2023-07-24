@@ -114,7 +114,7 @@ impl <T: ArrayElement> ArrayBroadcast<T> for Array<T> {
         self.get_shape()?.is_broadcastable(&shape)?;
 
         if self.get_shape()?.iter().product::<usize>() == shape.iter().product::<usize>() {
-            self.reshape(shape)
+            self.reshape(&shape)
         } else {
             let output_elements: Vec<T> = self.elements
                 .chunks_exact(self.shape[self.shape.len() - 1])
@@ -244,7 +244,7 @@ impl <T: ArrayElement> Array<T> {
 
         let array = tmp_array.clone().into_iter()
             .map(|t| t.0).collect::<Array<T>>()
-            .reshape(tmp_array.get_shape()?)?;
+            .reshape(&tmp_array.get_shape()?)?;
         let other = other.broadcast_to(array.get_shape()?)?;
 
         Ok((array, other))

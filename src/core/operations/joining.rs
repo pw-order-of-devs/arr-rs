@@ -194,7 +194,7 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
             let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
             arrs.remove_at(0).into_iter()
                 .fold(initial, |a, b| a.append(&b, Some(axis)).unwrap())
-                .reshape(new_shape)
+                .reshape(&new_shape)
         }
     }
 
@@ -208,7 +208,7 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
             else { new_shape[0] = arrs.iter().fold(0, |a, b| a + b.shape[0]); }
 
             match Self::concatenate(arrs, Some(0)) {
-                Ok(c) => c.reshape(new_shape),
+                Ok(c) => c.reshape(&new_shape),
                 Err(e) => Err(e),
             }
         }
@@ -231,7 +231,7 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
             new_shape[1] = arrs.iter().fold(0, |a, b| a + b.shape[1]);
 
             match Self::concatenate(arrs, Some(1)) {
-                Ok(c) => c.reshape(new_shape),
+                Ok(c) => c.reshape(&new_shape),
                 Err(e) => Err(e),
             }
         }
@@ -252,7 +252,7 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
             new_shape[2] = arrs.iter().fold(0, |a, b| a + b.shape[2]);
 
             match Self::concatenate(arrs, Some(2)) {
-                Ok(c) => c.reshape(new_shape),
+                Ok(c) => c.reshape(&new_shape),
                 Err(e) => Err(e),
             }
         }

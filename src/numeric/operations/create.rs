@@ -410,7 +410,7 @@ impl <N: Numeric> ArrayCreateNumeric<N> for Array<N> {
             .map(|(a, b)| Self::linspace(a, b, num, endpoint).get_elements())
             .collect::<Vec<Result<Vec<N>, ArrayError>>>().has_error()?.iter()
             .map(|a| a.as_ref().unwrap().clone()).collect::<Vec<Vec<N>>>();
-        let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(new_shape);
+        let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(&new_shape);
         if let Err(error) = reshaped { Err(error) }
         else { reshaped?.transpose(None) }
     }
@@ -449,7 +449,7 @@ impl <N: Numeric> ArrayCreateNumeric<N> for Array<N> {
             .has_error()?.iter()
             .map(|a| a.as_ref().unwrap().clone())
             .collect::<Vec<Vec<N>>>();
-        let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(new_shape);
+        let reshaped = Self::flat(values.into_iter().flatten().collect()).reshape(&new_shape);
         if let Err(error) = reshaped { Err(error) }
         else { reshaped.unwrap().transpose(None) }
     }
@@ -492,7 +492,7 @@ impl <N: Numeric> ArrayCreateNumeric<N> for Array<N> {
             .map(|a| a.unwrap())
             .collect::<Vec<Vec<N>>>();
         Self::flat(values.into_iter().flatten().collect())
-            .reshape(new_shape)?
+            .reshape(&new_shape)?
             .transpose(None)
     }
 

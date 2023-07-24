@@ -35,7 +35,7 @@ macro_rules! impl_op {
 
             fn $op_func(self, other: N) -> Self::Output {
                 self.map(|i| i.$op_func(other))
-                    .reshape(self.shape)
+                    .reshape(&self.shape)
             }
         }
 

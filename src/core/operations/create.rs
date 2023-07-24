@@ -110,7 +110,7 @@ impl <T: ArrayElement> ArrayCreate<T> for Array<T> {
         if ndmin > shape.len() {
             let mut new_shape = vec![1; ndmin - shape.len()];
             new_shape.extend_from_slice(&shape);
-            array.reshape(new_shape)
+            array.reshape(&new_shape)
         } else {
             array
         }

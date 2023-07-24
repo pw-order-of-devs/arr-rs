@@ -199,14 +199,14 @@ impl <T: ArrayElement> ArrayIter<T> for Array<T> {
         self.elements.iter()
             .map(f)
             .collect::<Array<T>>()
-            .reshape(self.get_shape()?)
+            .reshape(&self.get_shape()?)
     }
 
     fn map_e<F: FnMut(usize, &T) -> T>(&self, mut f: F) -> Result<Array<T>, ArrayError> {
         self.elements.iter().enumerate()
             .map(|(idx, item)| f(idx, item))
             .collect::<Array<T>>()
-            .reshape(self.get_shape()?)
+            .reshape(&self.get_shape()?)
     }
 
     fn filter<F: FnMut(&T) -> bool>(&self, mut f: F) -> Result<Array<T>, ArrayError> {

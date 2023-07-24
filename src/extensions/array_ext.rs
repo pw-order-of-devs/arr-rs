@@ -31,14 +31,14 @@ impl <N: Numeric> ArrayNumericExt<N> for Array<N> {
         self.get_elements()?.into_iter()
             .map(|i| S::from(i.to_f64()))
             .collect::<Array<S>>()
-            .reshape(self.get_shape()?)
+            .reshape(&self.get_shape()?)
     }
 
     fn to_array_f64(&self) -> Result<Array<f64>, ArrayError> {
         self.get_elements()?.into_iter()
             .map(|i| i.to_f64())
             .collect::<Array<f64>>()
-            .reshape(self.get_shape()?)
+            .reshape(&self.get_shape()?)
     }
 }
 

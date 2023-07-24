@@ -148,7 +148,7 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
         let partial = partial.into_iter().flatten().collect::<Array<T>>();
 
         let new_shape = array.get_shape()?.update_at(self.ndim()? - 1, partial_len);
-        let partial = partial.reshape(new_shape);
+        let partial = partial.reshape(&new_shape);
         if axis == 0 { partial.rollaxis((self.ndim()? - 1) as isize, None) }
         else { partial.moveaxis(vec![axis as isize], vec![(self.ndim()? - 1) as isize]) }
     }
@@ -249,7 +249,7 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
         let mut new_shape = self.get_shape()?;
 
         for item in axes { new_shape.insert(item, 1) }
-        self.reshape(new_shape)
+        self.reshape(&new_shape)
     }
 
     fn squeeze(&self, axes: Option<Vec<isize>>) -> Result<Self, ArrayError> {
@@ -265,11 +265,11 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
                 Err(ArrayError::SqueezeShapeOfAxisMustBeOne)
             } else {
                 for item in axes { new_shape.remove(item); }
-                self.reshape(new_shape)
+                self.reshape(&new_shape)
             }
         }
         else {
-            self.reshape(self.get_shape()?.into_iter().filter(|&i| i != 1).collect())
+            self.reshape(&self.get_shape()?.into_iter().filter(|&i| i != 1).collect::<Vec<usize>>())
         }
     }
 }

@@ -60,11 +60,11 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 3).reshape(vec![2, 2]);
+    /// let arr = array_arange!(0, 3).reshape(&[2, 2]);
     /// let split = arr.split_axis(0).unwrap();
     /// assert_eq!(vec![array!([[0, 1]]).unwrap(), array!([[2, 3]]).unwrap()], split);
     ///
-    /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]);
+    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]);
     /// let split = arr.split_axis(1).unwrap();
     /// assert_eq!(vec![array!([[[0, 1]], [[4, 5]]]).unwrap(), array!([[[2, 3]], [[6, 7]]]).unwrap()], split);
     /// ```
@@ -80,7 +80,7 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]).unwrap();
+    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.hsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0, 1]], [[4, 5]]]).unwrap(), array!([[[2, 3]], [[6, 7]]]).unwrap()], split);
     /// ```
@@ -96,7 +96,7 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]).unwrap();
+    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.vsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0, 1], [2, 3]]]).unwrap(), array!([[[4, 5], [6, 7]]]).unwrap()], split);
     /// ```
@@ -112,7 +112,7 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(vec![2, 2, 2]).unwrap();
+    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.dsplit(2).unwrap();
     /// assert_eq!(vec![array!([[[0], [2]], [[4], [6]]]).unwrap(), array!([[[1], [3]], [[5], [7]]]).unwrap()], split);
     /// ```
@@ -154,7 +154,7 @@ impl <T: ArrayElement> ArraySplit<T> for Array<T> {
                     else {
                         let mut new_shape = self.get_shape()?;
                         new_shape[axis] /= parts;
-                        m.reshape(new_shape)
+                        m.reshape(&new_shape)
                     }
                 })
                 .collect::<Vec<Result<Self, _>>>();

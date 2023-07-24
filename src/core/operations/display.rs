@@ -20,10 +20,10 @@ fn build_string<T: ArrayElement>(arr: &Array<T>, precision: Option<usize>, alter
             .map(|e| format_with_precision(e, precision))
             .collect::<Vec<String>>()
             .join(", ");
-        format!("[{}]", elements)
+        format!("[{elements}]")
     } else {
         let arrays = arr.split_axis(0).unwrap_or(vec![]).into_iter()
-            .map(|arr| arr.reshape(arr.get_shape().unwrap().remove_at(0)).unwrap())
+            .map(|arr| arr.reshape(&arr.get_shape().unwrap().remove_at(0)).unwrap())
             .map(|arr| build_string(&arr, precision, alternate, prefix + 1))
             .collect::<Vec<String>>();
         let separator_alt = format!(",\n{}", " ".repeat(prefix));

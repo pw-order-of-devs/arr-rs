@@ -24,14 +24,14 @@ pub trait ArrayTiling<T: ArrayElement> where Self: Sized + Clone {
     /// let arr = Array::<i32>::new(vec![1, 2, 3, 4], vec![2, 2]);
     /// assert_eq!(array!([[1, 2], [3, 4], [3, 4]]), arr.repeat(&vec![1, 2], Some(0)));
     /// ```
-    fn repeat(&self, repeats: &Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
+    fn repeat(&self, repeats: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 }
 
 impl <T: ArrayElement> ArrayTiling<T> for Array<T> {
 
-    fn repeat(&self, repeats: &Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn repeat(&self, repeats: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError> {
         if let Some(axis) = axis {
-            let repeats = repeats.to_array()?.broadcast_to(vec![self.get_shape()?[axis]]).get_elements()?;
+            let repeats = repeats.to_vec().to_array()?.broadcast_to(vec![self.get_shape()?[axis]]).get_elements()?;
             let new_axis_len = repeats.clone().into_iter().sum();
             let new_shape = self.get_shape()?.update_at(axis, new_axis_len);
             let tmp_shape = new_shape.clone().swap_ext(0, axis);
@@ -41,12 +41,12 @@ impl <T: ArrayElement> ArrayTiling<T> for Array<T> {
                 .collect::<Vec<Array<T>>>()
                 .into_iter().flatten()
                 .collect::<Array<T>>();
-            partial.reshape(tmp_shape.clone())
+            partial.reshape(&tmp_shape)
                 .moveaxis(vec![0], vec![axis as isize])
-                .reshape(new_shape)
+                .reshape(&new_shape)
         } else {
             let result = self.get_elements()?.into_iter()
-                .zip(&repeats.to_array()?.broadcast_to(self.get_shape()?).get_elements()?)
+                .zip(&repeats.to_vec().to_array()?.broadcast_to(self.get_shape()?).get_elements()?)
                 .flat_map(|(el, &rep)| vec![el; rep])
                 .collect();
             Array::flat(result)
@@ -56,7 +56,7 @@ impl <T: ArrayElement> ArrayTiling<T> for Array<T> {
 
 impl <T: ArrayElement> ArrayTiling<T> for Result<Array<T>, ArrayError> {
 
-    fn repeat(&self, repeats: &Vec<usize>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn repeat(&self, repeats: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError> {
         self.clone()?.repeat(repeats, axis)
     }
 }

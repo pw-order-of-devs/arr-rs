@@ -308,10 +308,10 @@ impl <N: NumericOps> ArrayTrigonometric<N> for Array<N> {
             let result = results.into_iter()
                 .flatten()
                 .collect::<Array<N>>()
-                .reshape(tmp_shape);
+                .reshape(&tmp_shape);
             if axis == 0 { result.rollaxis((self.ndim()? - 1) as isize, None) }
             else { result.moveaxis(vec![axis as isize], vec![self.ndim()? as isize]) }
-                .reshape(self.get_shape()?)
+                .reshape(&self.get_shape()?)
         }
     }
 }

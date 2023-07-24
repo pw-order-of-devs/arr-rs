@@ -69,11 +69,11 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 4]).unwrap();
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(&[2, 4]).unwrap();
     /// let expected: Array<i32> = array!([[1, 0, 0, 0], [5, 6, 0, 0]]).unwrap();
     /// assert_eq!(expected, arr.tril(None).unwrap());
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 2, 2]).unwrap();
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(&[2, 2, 2]).unwrap();
     /// let expected: Array<i32> = array!([[[1, 0], [3, 4]], [[5, 0], [7, 8]]]).unwrap();
     /// assert_eq!(expected, arr.tril(None).unwrap());
     /// ```
@@ -91,11 +91,11 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 4]).unwrap();
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(&[2, 4]).unwrap();
     /// let expected: Array<i32> = array!([[1, 2, 3, 4], [0, 6, 7, 8]]).unwrap();
     /// assert_eq!(expected, arr.triu(None).unwrap());
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(vec![2, 2, 2]).unwrap();
+    /// let arr: Array<i32> = array_arange!(1, 8).reshape(&[2, 2, 2]).unwrap();
     /// let expected: Array<i32> = array!([[[1, 2], [0, 4]], [[5, 6], [0, 8]]]).unwrap();
     /// assert_eq!(expected, arr.triu(None).unwrap());
     /// ```

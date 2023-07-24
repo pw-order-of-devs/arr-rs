@@ -56,7 +56,7 @@ case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], array!([[4, 5], [
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], array!([[4, 5, 3], [6, 7, 3]]), Some(1), Err(ArrayError::BroadcastShapeMismatch)),
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1, 2], array!([[4, 5], [6, 7]]), Some(2), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_insert(array: Result<Array<i32>, ArrayError>, indices: Vec<usize>, values: Result<Array<i32>, ArrayError>, axis: Option<usize>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, array.insert(indices, &values.unwrap(), axis))
+    assert_eq!(expected, array.insert(&indices, &values.unwrap(), axis))
 }
 
 #[rstest(
@@ -67,24 +67,24 @@ case(array!([[1, 2], [3, 4]]), vec![1], None, array!([1, 3, 4])),
 case(array!([[1, 2], [3, 4]]), vec![4], None, Err(ArrayError::OutOfBounds { value: "index" })),
 case(array!([[1, 2], [3, 4]]), vec![1], Some(0), array!([[1, 2]])),
 case(array!([[1, 2], [3, 4]]), vec![1], Some(1), array!([[1], [3]])),
-case(array!([[1, 2, 3, 4], [3, 4, 5, 6]]), vec![0, 1], Some(0), Array::empty().reshape(vec![0, 4])),
+case(array!([[1, 2, 3, 4], [3, 4, 5, 6]]), vec![0, 1], Some(0), Array::empty().reshape(&[0, 4])),
 case(array!([[1, 2, 3, 4], [3, 4, 5, 6]]), vec![1], Some(0), array!([[1, 2, 3, 4]])),
 case(array!([[1, 2, 3, 4], [3, 4, 5, 6]]), vec![1], Some(1), array!([[1, 3, 4], [3, 5, 6]])),
 case(array!([[1, 2, 3, 4], [3, 4, 5, 6]]), vec![1, 2], Some(1), array!([[1, 4], [3, 6]])),
-case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], Some(0), Array::empty().reshape(vec![0, 2, 2])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], Some(0), Array::empty().reshape(&[0, 2, 2])),
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(0), array!([[[1, 2], [3, 4]]])),
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(1), array!([[[1, 2]], [[1, 2]]])),
-case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], Some(2), Array::empty().reshape(vec![2, 2, 0])),
+case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![0, 1], Some(2), Array::empty().reshape(&[2, 2, 0])),
 case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![1], Some(2), array!([[[1], [3]], [[1], [3]]])),
-case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![0, 1], Some(0), Array::empty().reshape(vec![0, 2, 4])),
+case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![0, 1], Some(0), Array::empty().reshape(&[0, 2, 4])),
 case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![1], Some(0), array!([[[1, 2, 3, 4], [3, 4, 5, 6]]])),
-case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![0, 1], Some(1), Array::empty().reshape(vec![2, 0, 4])),
+case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![0, 1], Some(1), Array::empty().reshape(&[2, 0, 4])),
 case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![1], Some(1), array!([[[1, 2, 3, 4]], [[2, 3, 4, 5]]])),
 case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![1], Some(2), array!([[[1, 3, 4], [3, 5, 6]], [[2, 4, 5], [5, 7, 8]]])),
 case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![0, 1], Some(2), array!([[[3, 4], [5, 6]], [[4, 5], [7, 8]]])),
 case(array!([[[1, 2, 3, 4], [3, 4, 5, 6]], [[2, 3, 4, 5], [5, 6, 7, 8]]]), vec![1, 3], Some(2), array!([[[1, 3], [3, 5]], [[2, 4], [5, 7]]])),
 )] fn test_delete(array: Result<Array<i32>, ArrayError>, indices: Vec<usize>, axis: Option<usize>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, array.delete(indices, axis))
+    assert_eq!(expected, array.delete(&indices, axis))
 }
 
 #[rstest(
@@ -119,7 +119,7 @@ case(array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), vec![2, 4], array!([[1, 2, 3,
 case(array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), vec![8], array!([1, 2, 3, 4, 5, 6, 7, 8])),
 case(array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), vec![10], Err(ArrayError::ShapeMustMatchValuesLength)),
 )] fn test_reshape(array: Result<Array<i32>, ArrayError>, new_shape: Vec<usize>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, array.reshape(new_shape))
+    assert_eq!(expected, array.reshape(&new_shape))
 }
 
 #[rstest(
@@ -131,7 +131,7 @@ case(array!([[1, 2], [3, 4]]), vec![2, 4], array!([[1, 2, 3, 4], [1, 2, 3, 4]]))
 case(array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), vec![2], array!([1, 2])),
 case(array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), vec![8], array!([1, 2, 3, 4, 5, 6, 7, 8])),
 )] fn test_resize(array: Result<Array<i32>, ArrayError>, new_shape: Vec<usize>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, array.resize(new_shape))
+    assert_eq!(expected, array.resize(&new_shape))
 }
 
 #[rstest(
