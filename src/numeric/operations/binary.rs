@@ -212,6 +212,7 @@ impl <N: Numeric> ArrayBinary<N> for Array<N> {
 }
 
 impl <N: Numeric> ArrayBinary<N> for Result<Array<N>, ArrayError> {
+
     fn bitwise_and(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.bitwise_and(other)
     }

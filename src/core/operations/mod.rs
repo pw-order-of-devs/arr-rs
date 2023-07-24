@@ -16,6 +16,9 @@ pub mod indexing;
 /// array iteration functions
 pub mod iter;
 
+/// array joining functions
+pub mod joining;
+
 /// array manipulate functions
 pub mod manipulate;
 
@@ -31,5 +34,5 @@ pub mod reorder;
 /// array split functions
 pub mod split;
 
-/// array stack functions
-pub mod stack;
+/// array tiling functions
+pub mod tiling;

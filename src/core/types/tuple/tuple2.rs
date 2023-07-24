@@ -2,6 +2,8 @@ use std::fmt::Display;
 
 use crate::core::prelude::*;
 
+pub(crate) type TupleH2 <T, S> = (Array<T>, Array<S>);
+
 /// Tuple2 type for array
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub struct Tuple2<T: ArrayElement>(pub T, pub T);

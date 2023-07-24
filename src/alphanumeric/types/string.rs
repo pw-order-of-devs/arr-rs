@@ -1,10 +1,7 @@
 use crate::{
     alphanumeric::prelude::*,
     core::prelude::*,
-    extensions::{
-        chars_ext::CharsJoin,
-        vec_ext::VecReverse,
-    },
+    extensions::prelude::*,
 };
 
 impl ArrayElement for String {

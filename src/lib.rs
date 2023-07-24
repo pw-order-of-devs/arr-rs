@@ -48,6 +48,10 @@ pub mod alphanumeric;
 pub mod boolean;
 
 /// numeric module implementation
+#[cfg(feature = "math")]
+pub mod math;
+
+/// numeric module implementation
 #[cfg(feature = "numeric")]
 pub mod numeric;
 

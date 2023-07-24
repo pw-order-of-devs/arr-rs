@@ -114,7 +114,7 @@ impl <T: ArrayElement> ArrayBroadcast<T> for Array<T> {
         self.get_shape()?.is_broadcastable(&shape)?;
 
         if self.get_shape()?.iter().product::<usize>() == shape.iter().product::<usize>() {
-            self.reshape(shape)
+            self.reshape(&shape)
         } else {
             let output_elements: Vec<T> = self.elements
                 .chunks_exact(self.shape[self.shape.len() - 1])
@@ -236,5 +236,29 @@ impl <T: ArrayElement> Array<T> {
                 .map(Vec::from)
                 .collect(),
         }
+    }
+
+    pub(crate) fn broadcast_h2<S: ArrayElement>(&self, other: &Array<S>) -> Result<TupleH2<T, S>, ArrayError> {
+        let tmp_other = Array::single(T::zero()).broadcast_to(other.get_shape()?)?;
+        let tmp_array = self.broadcast(&tmp_other)?;
+
+        let array = tmp_array.clone().into_iter()
+            .map(|t| t.0).collect::<Array<T>>()
+            .reshape(&tmp_array.get_shape()?)?;
+        let other = other.broadcast_to(array.get_shape()?)?;
+
+        Ok((array, other))
+    }
+
+    pub(crate) fn broadcast_h3<S: ArrayElement, Q: ArrayElement>(&self, other_1: &Array<S>, other_2: &Array<Q>) -> Result<TupleH3<T, S, Q>, ArrayError> {
+        let tmp_other_1 = Array::single(T::zero()).broadcast_to(other_1.get_shape()?)?;
+        let tmp_other_2 = Array::single(T::zero()).broadcast_to(other_2.get_shape()?)?;
+        let broadcasted = Self::broadcast_arrays(vec![self.clone(), tmp_other_1, tmp_other_2])?;
+
+        let array = broadcasted[0].clone();
+        let other_1 = other_1.broadcast_to(array.get_shape()?)?;
+        let other_2 = other_2.broadcast_to(array.get_shape()?)?;
+
+        Ok((array, other_1, other_2))
     }
 }

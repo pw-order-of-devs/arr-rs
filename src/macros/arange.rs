@@ -13,7 +13,7 @@
 #[macro_export]
 macro_rules! array_arange {
     ($n:expr, $m:expr) => {
-        array_arange!($n, $m, 1)
+        Array::arange($n, $m, None)
     };
     ($n:expr, $m:expr, $k:expr) => {{
         Array::arange($n, $m, Some($k))
