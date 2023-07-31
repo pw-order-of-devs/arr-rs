@@ -39,7 +39,7 @@ pub trait ArrayExpLog<N: Numeric> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![1., 2., 3., 4.]);
-    /// assert_eq!(Array::flat(vec![1.7182818284590453, 6.38905609893065, 19.085536923187668, 53.598150033144236]), arr.exp_m1());
+    /// assert_eq!(Array::flat(vec![1.718281828459045, 6.38905609893065, 19.085536923187668, 53.598150033144236]), arr.exp_m1());
     /// ```
     fn exp_m1(&self) -> Result<Array<N>, ArrayError>;
 
