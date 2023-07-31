@@ -1,5 +1,8 @@
-/// array sum, product, diff functions
-pub mod sum_prod_diff;
+/// array arithmetic functions
+pub mod arithmetic;
+
+/// array exponential and logarithmic functions
+pub mod exp_log;
 
 /// array hyperbolic functions
 pub mod hyperbolic;
@@ -9,6 +12,9 @@ pub mod misc;
 
 /// array rounding functions
 pub mod rounding;
+
+/// array sum, product, diff functions
+pub mod sum_prod_diff;
 
 /// array trigonometric functions
 pub mod trigonometric;

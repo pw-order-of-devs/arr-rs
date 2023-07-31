@@ -1,10 +1,12 @@
 #[cfg(feature = "math")]
 pub use crate::math::{
     operations::{
-        sum_prod_diff::ArraySumProdDiff,
+        arithmetic::ArrayArithmetic,
+        exp_log::ArrayExpLog,
         hyperbolic::ArrayHyperbolic,
         misc::ArrayMathMisc,
         rounding::ArrayRounding,
+        sum_prod_diff::ArraySumProdDiff,
         trigonometric::ArrayTrigonometric,
     },
 };
