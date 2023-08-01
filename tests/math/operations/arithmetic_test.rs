@@ -48,6 +48,7 @@ array, value, expected,
 case(array![1., 2., 3., 4.], array![2.], array![0.5, 1., 1.5, 2.]),
 case(array![3., 6., 9., 12.], array![3.], array![1., 2., 3., 4.]),
 case(array!([[1., 2.], [3., 6.]]), array!([[2., 2.], [3., 3.]]), array!([[0.5, 1.], [1., 2.]])),
+case(array!([[1., 2.], [3., 6.]]), array!([[2., 0.], [3., 0.]]), Err(ArrayError::ParameterError { param: "value", message: "cannot contain `0`" })),
 )] fn test_divide(array: Result<Array<f64>, ArrayError>, value: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.divide(&value.unwrap()))
 }
@@ -95,4 +96,50 @@ case(array![3., 6., 9., 12.], array![3.], array![0., 3., 6., 9.]),
 case(array!([[1., 2.], [3., 6.]]), array!([[2., 2.], [3., 3.]]), array!([[-1., 0.], [0., 3.]])),
 )] fn test_subtract(array: Result<Array<f64>, ArrayError>, value: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.subtract(&value.unwrap()))
+}
+
+#[rstest(
+array, value, expected,
+case(array![1., 2., 3., 4.], array![2.], array![1., 0., 1., 0.]),
+case(array![3., 6., 9., 12.], array![3.], array![0., 0., 0., 0.]),
+case(array!([[1., 2.], [3., 6.]]), array!([[2., 2.], [3., 3.]]), array!([[1., 0.], [0., 0.]])),
+case(array!([[1., 2.], [3., 6.]]), array!([[2., 0.], [3., 0.]]), Err(ArrayError::ParameterError { param: "value", message: "cannot contain `0`" })),
+)] fn test_mod(array: Result<Array<f64>, ArrayError>, value: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, array.r#mod(&value.unwrap()))
+}
+
+#[rstest(
+array, value, expected,
+case(array![1., 2., 3., 4.], array![2.], array![1., 0., 1., 0.]),
+case(array![3., 6., 9., 12.], array![3.], array![0., 0., 0., 0.]),
+case(array!([[1., 2.], [3., 6.]]), array!([[2., 2.], [3., 3.]]), array!([[1., 0.], [0., 0.]])),
+case(array!([[1., 2.], [3., 6.]]), array!([[2., 0.], [3., 0.]]), Err(ArrayError::ParameterError { param: "value", message: "cannot contain `0`" })),
+)] fn test_fmod(array: Result<Array<f64>, ArrayError>, value: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, array.fmod(&value.unwrap()))
+}
+
+#[rstest(
+array, expected,
+case(array![1.2, 2., 3.5, 4.6], Ok((array![0.19999999999999996, 0., 0.5, 0.5999999999999996].unwrap(), array![1., 2., 3., 4.].unwrap()))),
+case(array!([[1.2, 2.], [3.5, 4.6]]), Ok((array!([[0.19999999999999996, 0.], [0.5, 0.5999999999999996]]).unwrap(), array!([[1., 2.], [3., 4.]]).unwrap()))),
+)] fn test_modf(array: Result<Array<f64>, ArrayError>, expected: Result<(Array<f64>, Array<f64>), ArrayError>) {
+    assert_eq!(expected, array.modf())
+}
+
+#[rstest(
+array, value, expected,
+case(array![1., 2., 3., 4.], array![2.], array![1., 0., 1., 0.]),
+case(array![3., 6., 9., 12.], array![3.], array![0., 0., 0., 0.]),
+case(array!([[1., 2.], [3., 6.]]), array!([[2., 2.], [3., 3.]]), array!([[1., 0.], [0., 0.]])),
+case(array!([[1., 2.], [3., 6.]]), array!([[2., 0.], [3., 0.]]), Err(ArrayError::ParameterError { param: "value", message: "cannot contain `0`" })),
+)] fn test_remainder(array: Result<Array<f64>, ArrayError>, value: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, array.remainder(&value.unwrap()))
+}
+
+#[rstest(
+array, expected,
+case(array![1.2, 2., 3.5, 4.6], Ok((array![1., 2., 3., 4.].unwrap(), array![0.19999999999999996, 0., 0.5, 0.5999999999999996].unwrap()))),
+case(array!([[1.2, 2.], [3.5, 4.6]]), Ok((array!([[1., 2.], [3., 4.]]).unwrap(), array!([[0.19999999999999996, 0.], [0.5, 0.5999999999999996]]).unwrap()))),
+)] fn test_divmod(array: Result<Array<f64>, ArrayError>, expected: Result<(Array<f64>, Array<f64>), ArrayError>) {
+    assert_eq!(expected, array.divmod())
 }

@@ -173,6 +173,79 @@ pub trait ArrayArithmetic<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::flat(vec![-1, 0, 1, 2]), arr.subtract(&Array::single(2).unwrap()));
     /// ```
     fn subtract(&self, value: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Computes remainder of division element-wise
+    /// alias on `remainder`
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - other array to perform operations on
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1, 2, 3, 4]);
+    /// assert_eq!(Array::flat(vec![1, 0, 1, 0]), arr.r#mod(&Array::single(2).unwrap()));
+    /// ```
+    fn r#mod(&self, value: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Computes remainder of division element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - other array to perform operations on
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1, 2, 3, 4]);
+    /// assert_eq!(Array::flat(vec![1, 0, 1, 0]), arr.fmod(&Array::single(2).unwrap()));
+    /// ```
+    fn fmod(&self, value: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Computes fractional and integral parts of an array, element-wise
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1.2, 2., 3.5]);
+    /// assert_eq!(Ok((Array::flat(vec![0.2, 0., 0.5]).unwrap(), Array::flat(vec![1., 2., 3.]).unwrap())), arr.modf(&Array::single(2.).unwrap()));
+    /// ```
+    fn modf(&self) -> Result<(Array<N>, Array<N>), ArrayError>;
+
+    /// Computes remainder of division element-wise
+    ///
+    /// # Arguments
+    ///
+    /// * `value` - other array to perform operations on
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1, 2, 3, 4]);
+    /// assert_eq!(Array::flat(vec![1, 0, 1, 0]), arr.remainder(&Array::single(2).unwrap()));
+    /// ```
+    fn remainder(&self, value: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Computes integral and fractional parts of an array, element-wise
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1.2, 2., 3.5]);
+    /// assert_eq!(Ok((Array::flat(vec![1., 2., 3.]).unwrap(), Array::flat(vec![0.2, 0., 0.5]).unwrap())), arr.divmod(&Array::single(2.).unwrap()));
+    /// ```
+    fn divmod(&self) -> Result<(Array<N>, Array<N>), ArrayError>;
 }
 
 impl <N: Numeric> ArrayArithmetic<N> for Array<N> {
@@ -206,6 +279,9 @@ impl <N: Numeric> ArrayArithmetic<N> for Array<N> {
     }
 
     fn divide(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
+        if value.get_elements()?.contains(&N::zero()) {
+            return Err(ArrayError::ParameterError { param: "value", message: "cannot contain `0`", });
+        }
         let broadcasted = self.broadcast(value)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| N::from(tuple.0.to_f64() / tuple.1.to_f64()))
@@ -243,6 +319,44 @@ impl <N: Numeric> ArrayArithmetic<N> for Array<N> {
             .map(|tuple| N::from(tuple.0.to_f64() - tuple.1.to_f64()))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn r#mod(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.remainder(value)
+    }
+
+    fn fmod(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
+        if value.get_elements()?.contains(&N::zero()) {
+            return Err(ArrayError::ParameterError { param: "value", message: "cannot contain `0`", });
+        }
+        let broadcasted = self.broadcast(value)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| N::from(tuple.0.to_f64() - (tuple.0.to_f64() / tuple.1.to_f64()).floor() * tuple.1.to_f64()))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn modf(&self) -> Result<(Array<N>, Array<N>), ArrayError> {
+        let fractional = self.r#mod(&Array::single(N::one())?)?;
+        let integral = self.floor()?;
+        Ok((fractional, integral))
+    }
+
+    fn remainder(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
+        if value.get_elements()?.contains(&N::zero()) {
+            return Err(ArrayError::ParameterError { param: "value", message: "cannot contain `0`", });
+        }
+        let broadcasted = self.broadcast(value)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| N::from(tuple.0.to_f64() % tuple.1.to_f64()))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
+    }
+
+    fn divmod(&self) -> Result<(Array<N>, Array<N>), ArrayError> {
+        let fractional = self.r#mod(&Array::single(N::one())?)?;
+        let integral = self.floor()?;
+        Ok((integral, fractional))
     }
 }
 
@@ -290,5 +404,25 @@ impl <N: Numeric> ArrayArithmetic<N> for Result<Array<N>, ArrayError> {
 
     fn subtract(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.subtract(value)
+    }
+
+    fn r#mod(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.r#mod(value)
+    }
+
+    fn fmod(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.fmod(value)
+    }
+
+    fn modf(&self) -> Result<(Array<N>, Array<N>), ArrayError> {
+        self.clone()?.modf()
+    }
+
+    fn remainder(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.remainder(value)
+    }
+
+    fn divmod(&self) -> Result<(Array<N>, Array<N>), ArrayError> {
+        self.clone()?.divmod()
     }
 }
