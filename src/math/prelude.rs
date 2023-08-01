@@ -6,6 +6,7 @@ pub use crate::math::{
         hyperbolic::ArrayHyperbolic,
         misc::ArrayMathMisc,
         rounding::ArrayRounding,
+        special::ArrayMathSpecial,
         sum_prod_diff::ArraySumProdDiff,
         trigonometric::ArrayTrigonometric,
     },

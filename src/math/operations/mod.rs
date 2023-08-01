@@ -13,6 +13,9 @@ pub mod misc;
 /// array rounding functions
 pub mod rounding;
 
+/// array special functions
+pub mod special;
+
 /// array sum, product, diff functions
 pub mod sum_prod_diff;
 
