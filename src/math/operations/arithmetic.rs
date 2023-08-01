@@ -1,9 +1,9 @@
 use crate::{
     core::prelude::*,
     errors::prelude::*,
+    math::prelude::*,
     numeric::prelude::*,
 };
-use crate::prelude::ArrayRounding;
 
 /// ArrayTrait - Array Math functions
 pub trait ArrayArithmetic<N: Numeric> where Self: Sized + Clone {
