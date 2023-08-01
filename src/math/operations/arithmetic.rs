@@ -242,8 +242,8 @@ pub trait ArrayArithmetic<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = Array::flat(vec![1.2, 2., 3.5]);
-    /// assert_eq!(Ok((Array::flat(vec![1., 2., 3.]).unwrap(), Array::flat(vec![0.2, 0., 0.5]).unwrap())), arr.divmod());
+    /// let arr = Array::flat(vec![1.5, 2., 3.5]);
+    /// assert_eq!(Ok((Array::flat(vec![1., 2., 3.]).unwrap(), Array::flat(vec![0.5, 0., 0.5]).unwrap())), arr.divmod());
     /// ```
     fn divmod(&self) -> Result<(Array<N>, Array<N>), ArrayError>;
 }

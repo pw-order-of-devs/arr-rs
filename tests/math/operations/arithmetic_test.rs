@@ -138,8 +138,8 @@ case(array!([[1., 2.], [3., 6.]]), array!([[2., 0.], [3., 0.]]), Err(ArrayError:
 
 #[rstest(
 array, expected,
-case(array![1.2, 2., 3.5, 4.6], Ok((array![1., 2., 3., 4.].unwrap(), array![0.19999999999999996, 0., 0.5, 0.5999999999999996].unwrap()))),
-case(array!([[1.2, 2.], [3.5, 4.6]]), Ok((array!([[1., 2.], [3., 4.]]).unwrap(), array!([[0.19999999999999996, 0.], [0.5, 0.5999999999999996]]).unwrap()))),
+case(array![1.5, 2., 3.5, 4.5], Ok((array![1., 2., 3., 4.].unwrap(), array![0.5, 0., 0.5, 0.5].unwrap()))),
+case(array!([[1.5, 2.], [3.5, 4.5]]), Ok((array!([[1., 2.], [3., 4.]]).unwrap(), array!([[0.5, 0.], [0.5, 0.5]]).unwrap()))),
 )] fn test_divmod(array: Result<Array<f64>, ArrayError>, expected: Result<(Array<f64>, Array<f64>), ArrayError>) {
     assert_eq!(expected, array.divmod())
 }
