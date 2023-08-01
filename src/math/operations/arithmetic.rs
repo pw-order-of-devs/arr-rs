@@ -126,7 +126,7 @@ pub trait ArrayArithmetic<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn floor_divide(&self, value: &Array<N>) -> Result<Array<N>, ArrayError>;
 
-    /// Computes power of array elements
+    /// Computes integer power of array elements
     ///
     /// # Arguments
     ///
@@ -142,8 +142,7 @@ pub trait ArrayArithmetic<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn power(&self, value: &Array<N>) -> Result<Array<N>, ArrayError>;
 
-    /// Computes power of array elements
-    /// alias on `power`
+    /// Computes float power of array elements
     ///
     /// # Arguments
     ///
@@ -225,13 +224,17 @@ impl <N: Numeric> ArrayArithmetic<N> for Array<N> {
     fn power(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
         let broadcasted = self.broadcast(value)?;
         let elements = broadcasted.clone().into_iter()
-            .map(|tuple| N::from(tuple.0.to_f64().powf(tuple.1.to_f64())))
+            .map(|tuple| N::from(tuple.0.to_f64().powi(tuple.1.to_i32())))
             .collect();
         Array::new(elements, broadcasted.get_shape()?)
     }
 
     fn float_power(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
-        self.power(value)
+        let broadcasted = self.broadcast(value)?;
+        let elements = broadcasted.clone().into_iter()
+            .map(|tuple| N::from(tuple.0.to_f64().powf(tuple.1.to_f64())))
+            .collect();
+        Array::new(elements, broadcasted.get_shape()?)
     }
 
     fn subtract(&self, value: &Array<N>) -> Result<Array<N>, ArrayError> {
