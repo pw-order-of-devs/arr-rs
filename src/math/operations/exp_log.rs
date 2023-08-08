@@ -4,7 +4,7 @@ use crate::{
     numeric::prelude::*,
 };
 
-/// ArrayTrait - Array Math functions
+/// ArrayTrait - Array ExpLog functions
 pub trait ArrayExpLog<N: Numeric> where Self: Sized + Clone {
 
     /// Computes the exponential of array elements

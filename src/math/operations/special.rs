@@ -4,7 +4,7 @@ use crate::{
     numeric::prelude::*,
 };
 
-/// ArrayTrait - Array Math functions
+/// ArrayTrait - Array Math Special functions
 pub trait ArrayMathSpecial<N: NumericOps> where Self: Sized + Clone {
 
     /// Modified Bessel function of the first kind, order 0

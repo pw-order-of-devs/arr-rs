@@ -5,7 +5,7 @@ use crate::{
     numeric::prelude::*,
 };
 
-/// ArrayTrait - Array Math functions
+/// ArrayTrait - Array Floating functions
 pub trait ArrayFloating<N: Floating> where Self: Sized + Clone {
 
     /// Returns element-wise True where signbit is set (less than zero)

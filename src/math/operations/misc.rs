@@ -4,7 +4,7 @@ use crate::{
     numeric::prelude::*,
 };
 
-/// ArrayTrait - Array Math functions
+/// ArrayTrait - Array Math Misc functions
 pub trait ArrayMathMisc<N: Numeric> where Self: Sized + Clone {
 
     /// Computes sqrt of array elements

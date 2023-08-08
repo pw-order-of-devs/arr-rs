@@ -5,7 +5,7 @@ use crate::{
     numeric::prelude::*,
 };
 
-/// ArrayTrait - Array Math functions
+/// ArrayTrait - Array Arithmetic functions
 pub trait ArrayArithmetic<N: Numeric> where Self: Sized + Clone {
 
     /// Add arguments element-wise

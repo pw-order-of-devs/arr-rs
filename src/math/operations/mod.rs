@@ -13,6 +13,9 @@ pub mod hyperbolic;
 /// array math misc functions
 pub mod misc;
 
+/// array rational functions
+pub mod rational;
+
 /// array rounding functions
 pub mod rounding;
 
