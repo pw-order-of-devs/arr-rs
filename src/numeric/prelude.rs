@@ -8,6 +8,7 @@ pub use crate::numeric::{
     },
     types::{
         binary::BitOrder,
+        floating::Floating,
         numeric::Numeric,
         numeric_ops::NumericOps,
         signed_ops::SignedNumericOps,

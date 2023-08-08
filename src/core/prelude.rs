@@ -6,7 +6,7 @@ pub use crate::core::{
         count::ArrayCount,
         create::ArrayCreate,
         indexing::ArrayIndexing,
-        iter::ArrayIter,
+        iter::{ArrayIter, ArrayIterMut},
         joining::ArrayJoining,
         manipulate::ArrayManipulate,
         meta::ArrayMeta,

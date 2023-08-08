@@ -3,6 +3,7 @@ pub use crate::math::{
     operations::{
         arithmetic::ArrayArithmetic,
         exp_log::ArrayExpLog,
+        floating::ArrayFloating,
         hyperbolic::ArrayHyperbolic,
         misc::ArrayMathMisc,
         rounding::ArrayRounding,

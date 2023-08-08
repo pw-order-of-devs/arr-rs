@@ -146,7 +146,7 @@ pub trait ArrayStringManipulate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]);
     /// assert_eq!(expected, ArrayStringManipulate::partition(&arr, &Array::single("-".to_string()).unwrap()));
     /// ```
-    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError>;
+    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N, N, N>>, ArrayError>;
 
     /// Partition each element around last occurrence of sep
     ///
@@ -163,7 +163,7 @@ pub trait ArrayStringManipulate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]);
     /// assert_eq!(expected, arr.rpartition(&Array::single("-".to_string()).unwrap()));
     /// ```
-    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError>;
+    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N, N, N>>, ArrayError>;
 
     /// Returns a list of the words in the string, using sep as the delimiter string.
     ///
@@ -393,7 +393,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
+    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N, N, N>>, ArrayError> {
         let broadcasted = self.broadcast(sep)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0._partition(tuple.1))
@@ -401,7 +401,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
+    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N, N, N>>, ArrayError> {
         let broadcasted = self.broadcast(sep)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0._rpartition(tuple.1))
@@ -444,7 +444,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
         let broadcasted = Self::broadcast_arrays(vec![self.clone(), old.clone(), new.clone()])?;
         let tupled = (0..broadcasted[0].len()?).map(|i| {
             Tuple3(broadcasted[0][i].clone(), broadcasted[1][i].clone(), broadcasted[2][i].clone())
-        }).collect::<Vec<Tuple3<N>>>();
+        }).collect::<Vec<Tuple3<N, N, N>>>();
         let elements = tupled.into_iter()
             .map(|tuple| tuple.0._replace(tuple.1, tuple.2, count))
             .collect();
@@ -533,11 +533,11 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Result<Array<N>, ArrayError>
         self.clone()?.join(sep)
     }
 
-    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
+    fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N, N, N>>, ArrayError> {
         ArrayStringManipulate::partition(&self.clone()?, sep)
     }
 
-    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
+    fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N, N, N>>, ArrayError> {
         self.clone()?.rpartition(sep)
     }
 

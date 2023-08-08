@@ -18,7 +18,7 @@ pub trait ArrayBroadcast<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Array<Tuple2<i32>> = Array::new(vec![
+    /// let expected: Array<Tuple2<i32, i32>> = Array::new(vec![
     ///     (1, 4), (1, 5), (1, 6),
     ///     (2, 4), (2, 5), (2, 6),
     ///     (3, 4), (3, 5), (3, 6)
@@ -27,10 +27,10 @@ pub trait ArrayBroadcast<T: ArrayElement> where Self: Sized + Clone {
     /// let arr_1: Array<i32> = array!([[1], [2], [3]]).unwrap();
     /// let arr_2: Array<i32> = array!([[4, 5, 6]]).unwrap();
     ///
-    /// let broadcast: Array<Tuple2<i32>> = arr_1.broadcast(&arr_2).unwrap();
+    /// let broadcast: Array<Tuple2<i32, i32>> = arr_1.broadcast(&arr_2).unwrap();
     /// assert_eq!(expected, broadcast);
     /// ```
-    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T>>, ArrayError>;
+    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T, T>>, ArrayError>;
 
     /// Broadcast an array to a new shape
     ///
@@ -77,7 +77,7 @@ pub trait ArrayBroadcast<T: ArrayElement> where Self: Sized + Clone {
 
 impl <T: ArrayElement> ArrayBroadcast<T> for Array<T> {
 
-    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T>>, ArrayError> {
+    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T, T>>, ArrayError> {
         self.get_shape()?.is_broadcastable(&other.get_shape()?)?;
 
         let final_shape = self.broadcast_shape(other.get_shape()?)?;
@@ -157,7 +157,7 @@ impl <T: ArrayElement> ArrayBroadcast<T> for Array<T> {
 
 impl <T: ArrayElement> ArrayBroadcast<T> for Result<Array<T>, ArrayError> {
 
-    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T>>, ArrayError> {
+    fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T, T>>, ArrayError> {
         self.clone()?.broadcast(other)
     }
 

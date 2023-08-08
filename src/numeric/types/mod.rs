@@ -1,6 +1,9 @@
 /// Binary types definition
 pub mod binary;
 
+/// Floating types definition
+pub mod floating;
+
 /// Numeric types definition
 pub mod numeric;
 

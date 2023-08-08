@@ -10,7 +10,7 @@ case(array!([[1], [2], [3]]), array!([[4, 5, 6]]), vec![(1, 4), (1, 5), (1, 6), 
 case(array!([1, 2]), array!([[2, 4], [5, 6]]), vec![(1, 2), (2, 4), (1, 5), (2, 6)], vec![2, 2], Ok(())),
 case(array!([[1, 2, 3], [1, 2, 3]]), array!([[1, 2, 3, 4], [1, 2, 3, 4]]), vec![(1, 1)], vec![1], Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_broadcast(arr1: Result<Array<i32>, ArrayError>, arr2: Result<Array<i32>, ArrayError>, expected: Vec<(i32, i32)>, expected_shape: Vec<usize>, result: Result<(), ArrayError>) {
-    let expected = expected.into_iter().map(Tuple2::from_tuple).collect::<Vec<Tuple2<i32>>>();
+    let expected = expected.into_iter().map(Tuple2::from_tuple).collect::<Vec<Tuple2<i32, i32>>>();
     let expected = Array::new(expected, expected_shape);
     match result {
         Ok(_) => assert_eq!(expected, arr1.broadcast(&arr2.unwrap())),
