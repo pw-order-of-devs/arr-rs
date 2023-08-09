@@ -1,5 +1,6 @@
 use crate::{
     core::prelude::*,
+    errors::prelude::*,
     extensions::prelude::*,
 };
 
@@ -36,5 +37,24 @@ fn format_with_precision<T: ArrayElement>(elem: T, precision: Option<usize>) -> 
         format!("{elem:.p$}", elem = elem, p = precision.unwrap())
     } else {
         format!("{elem}")
+    }
+}
+
+/// Wrapper for Result<Array<T>, ArrayError> for implementation of Display trait
+#[derive(Clone, Debug)]
+pub struct PrintableResult<T: ArrayElement> {
+    /// inner field - result to print
+    pub result: Result<Array<T>, ArrayError>,
+}
+
+impl <T: ArrayElement> std::fmt::Display for PrintableResult<T> {
+
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let result = self.result.clone();
+        if self.result.is_err() {
+            write!(f, "Err({})", result.unwrap_err())
+        } else {
+            write!(f, "Ok({})", build_string(&result.unwrap(), f.precision(), f.alternate(), 1))
+        }
     }
 }

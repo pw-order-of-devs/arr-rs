@@ -4,6 +4,9 @@ pub mod arithmetic;
 /// array exponential and logarithmic functions
 pub mod exp_log;
 
+/// array extrema functions
+pub mod extrema;
+
 /// array floating point functions
 pub mod floating;
 
