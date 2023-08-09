@@ -13,4 +13,7 @@ pub use crate::math::{
         sum_prod_diff::ArraySumProdDiff,
         trigonometric::ArrayTrigonometric,
     },
+    types::{
+        misc::convolve_mode::{ConvolveMode, ConvolveModeType},
+    },
 };
