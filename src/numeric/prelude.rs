@@ -7,7 +7,7 @@ pub use crate::numeric::{
         create_from::ArrayCreateFrom,
     },
     types::{
-        binary::BitOrder,
+        binary::{BitOrder, BitOrderType},
         floating::Floating,
         numeric::Numeric,
         numeric_ops::NumericOps,
