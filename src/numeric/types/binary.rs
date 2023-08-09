@@ -1,5 +1,4 @@
-use crate::errors::ArrayError::ParameterError;
-use crate::errors::prelude::ArrayError;
+use crate::errors::prelude::*;
 
 /// the order of the bits packed/unpacked
 #[derive(Copy, Clone, Debug, Ord, PartialOrd, Eq, PartialEq)]
@@ -29,7 +28,7 @@ impl BitOrderType for &str {
         match self {
             "big" => Ok(BitOrder::Big),
             "little" => Ok(BitOrder::Little),
-            _ => Err(ParameterError { param: "`bit_order`", message: "must be one of {`big`, `little`}" })
+            _ => Err(ArrayError::ParameterError { param: "`bit_order`", message: "must be one of {`big`, `little`}" })
         }
     }
 }
@@ -39,7 +38,7 @@ impl BitOrderType for String {
         match self.as_str() {
             "big" => Ok(BitOrder::Big),
             "little" => Ok(BitOrder::Little),
-            _ => Err(ParameterError { param: "`bit_order`", message: "must be one of {`big`, `little`}" })
+            _ => Err(ArrayError::ParameterError { param: "`bit_order`", message: "must be one of {`big`, `little`}" })
         }
     }
 }
