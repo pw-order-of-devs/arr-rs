@@ -28,7 +28,26 @@ pub trait ArrayMathMisc<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn convolve(&self, other: &Array<N>, mode: Option<impl ConvolveModeType>) -> Result<Array<N>, ArrayError>;
 
-    /// Computes sqrt of array elements
+    /// Clip (limit) the values in an array
+    ///
+    /// # Arguments
+    ///
+    /// * `a_min` - minimum array value
+    /// * `a_max` - maximum array value
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1., 2., 3., 4.]);
+    /// let a_min = Array::single(2.).unwrap();
+    /// let a_max = Array::single(3.).unwrap();
+    /// assert_eq!(Array::flat(vec![2., 2., 3., 3.]), arr.clip(Some(a_min), Some(a_max)));
+    /// ```
+    fn clip(&self, a_min: Option<Array<N>>, a_max: Option<Array<N>>) -> Result<Array<N>, ArrayError>;
+
+    /// Computes square root of array elements
     ///
     /// # Examples
     ///
@@ -39,6 +58,30 @@ pub trait ArrayMathMisc<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::flat(vec![1, 2, 3, 4]), arr.sqrt());
     /// ```
     fn sqrt(&self) -> Result<Array<N>, ArrayError>;
+
+    /// Computes cube root of array elements
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1, 8, 27, 64]);
+    /// assert_eq!(Array::flat(vec![1, 2, 3, 4]), arr.cbrt());
+    /// ```
+    fn cbrt(&self) -> Result<Array<N>, ArrayError>;
+
+    /// Return the element-wise square of the input
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1, 2, 3, 4]);
+    /// assert_eq!(Array::flat(vec![1, 4, 9, 16]), arr.square());
+    /// ```
+    fn square(&self) -> Result<Array<N>, ArrayError>;
 
     /// Computes absolute value of array elements
     ///
@@ -77,6 +120,46 @@ pub trait ArrayMathMisc<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::flat(vec![1, 2, 3, 4]), arr.fabs());
     /// ```
     fn fabs(&self) -> Result<Array<N>, ArrayError>;
+
+    /// Returns an element-wise indication of the sign of a number
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1, -2, -3, 4]);
+    /// assert_eq!(Array::flat(vec![1, -1, -1, 1]), arr.sign());
+    /// ```
+    fn sign(&self) -> Result<Array<isize>, ArrayError>;
+
+    /// Compute the Heaviside step function
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - array to perform the operation with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![-1.5, 0., 2.]);
+    /// assert_eq!(Array::flat(vec![0., 0.5, 1.]), arr.heaviside(&Array::single(0.5).unwrap()));
+    /// ```
+    fn heaviside(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Replace NaN with zero and infinity with large finite numbers
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::flat(vec![1., 2., f64::NAN, f64::INFINITY]);
+    /// assert_eq!(Array::flat(vec![1., 2., 0., f64::MAX]), arr.nan_to_num());
+    /// ```
+    fn nan_to_num(&self) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: Numeric> ArrayMathMisc<N> for Array<N> {
@@ -106,8 +189,31 @@ impl <N: Numeric> ArrayMathMisc<N> for Array<N> {
         }.to_array()?.to_array_num()
     }
 
+    fn clip(&self, a_min: Option<Array<N>>, a_max: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
+        let a_min = if let Some(min) = a_min { min } else { self.min(None)? }
+            .broadcast_to(self.get_shape()?)?;
+        let a_max = if let Some(max) = a_max { max } else { self.max(None)? }
+            .broadcast_to(self.get_shape()?)?;
+        let borders = a_min.zip(&a_max)?;
+
+        self.zip(&borders)?
+            .map(|tuple| {
+                if tuple.0 < tuple.1.0 { tuple.1.0 }
+                else if tuple.0 > tuple.1.1 { tuple.1.1 }
+                else { tuple.0 }
+            })
+    }
+
     fn sqrt(&self) -> Result<Array<N>, ArrayError> {
         self.map(|i| N::from(i.to_f64().sqrt()))
+    }
+
+    fn cbrt(&self) -> Result<Array<N>, ArrayError> {
+        self.map(|i| N::from(i.to_f64().cbrt()))
+    }
+
+    fn square(&self) -> Result<Array<N>, ArrayError> {
+        self.map(|i| N::from(i.to_f64().powf(2.)))
     }
 
     fn absolute(&self) -> Result<Array<N>, ArrayError> {
@@ -121,6 +227,27 @@ impl <N: Numeric> ArrayMathMisc<N> for Array<N> {
     fn fabs(&self) -> Result<Array<N>, ArrayError> {
         self.absolute()
     }
+
+    fn sign(&self) -> Result<Array<isize>, ArrayError> {
+        self.map(|&i| if i < N::zero() { -1 } else { 1 })
+    }
+
+    fn heaviside(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.zip(other)?
+            .map(|tuple|
+                if tuple.0 < N::zero() { N::zero() }
+                else if tuple.0 == N::zero() { tuple.1 }
+                else { N::one() }
+            )
+    }
+
+    fn nan_to_num(&self) -> Result<Array<N>, ArrayError> {
+        self.map(|&item|
+            if item.is_nan() { N::zero() }
+            else if item.is_inf() { item.max() }
+            else { item }
+        )
+    }
 }
 
 impl <N: Numeric> ArrayMathMisc<N> for Result<Array<N>, ArrayError> {
@@ -129,8 +256,20 @@ impl <N: Numeric> ArrayMathMisc<N> for Result<Array<N>, ArrayError> {
         self.clone()?.convolve(other, mode)
     }
 
+    fn clip(&self, a_min: Option<Array<N>>, a_max: Option<Array<N>>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.clip(a_min, a_max)
+    }
+
     fn sqrt(&self) -> Result<Array<N>, ArrayError> {
         self.clone()?.sqrt()
+    }
+
+    fn cbrt(&self) -> Result<Array<N>, ArrayError> {
+        self.clone()?.cbrt()
+    }
+
+    fn square(&self) -> Result<Array<N>, ArrayError> {
+        self.clone()?.square()
     }
 
     fn absolute(&self) -> Result<Array<N>, ArrayError> {
@@ -143,5 +282,17 @@ impl <N: Numeric> ArrayMathMisc<N> for Result<Array<N>, ArrayError> {
 
     fn fabs(&self) -> Result<Array<N>, ArrayError> {
         self.clone()?.fabs()
+    }
+
+    fn sign(&self) -> Result<Array<isize>, ArrayError> {
+        self.clone()?.sign()
+    }
+
+    fn heaviside(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.heaviside(other)
+    }
+
+    fn nan_to_num(&self) -> Result<Array<N>, ArrayError> {
+        self.clone()?.nan_to_num()
     }
 }

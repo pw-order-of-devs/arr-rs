@@ -60,6 +60,18 @@ impl <M: Numeric, N: Numeric> Numeric for Tuple2<M, N>
         self.0.to_f64()
     }
 
+    fn is_nan(&self) -> bool {
+        self.0.is_nan() || self.1.is_nan()
+    }
+
+    fn is_inf(&self) -> bool {
+        self.0.is_inf() || self.1.is_inf()
+    }
+
+    fn max(&self) -> Self {
+        Tuple2(self.0.max(), self.1.max())
+    }
+
     fn bitwise_and(&self, other: &Self) -> Self {
         Self(
             self.0.bitwise_and(&other.0),

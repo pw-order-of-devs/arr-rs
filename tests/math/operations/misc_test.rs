@@ -23,8 +23,16 @@ case(array_arange![-8., 6.], array_arange![1., 5.], Some(ConvolveMode::Same), ar
     assert_eq!(expected, array.convolve(&other.unwrap(), mode))
 }
 
-#[test] fn test() {
-    println!("{}", array_arange!(-8., 6.).unwrap())
+#[rstest(
+array, a_min, a_max, expected,
+case(array![1, 2, 3, 4], None, None, array![1, 2, 3, 4]),
+case(array![1, 2, 3, 4], Some(array!(2).unwrap()), Some(array!(3).unwrap()), array![2, 2, 3, 3]),
+case(array![1, 2, 3, 4], Some(array!(1).unwrap()), Some(array!(1).unwrap()), array![1, 1, 1, 1]),
+case(array![1, 2, 3, 4], Some(array!(2, 2).unwrap()), Some(array!(3, 3).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
+case(array![1, 2, 3, 4], Some(array!(2, 2, 2, 2).unwrap()), Some(array!(3, 3, 3, 3).unwrap()), array![2, 2, 3, 3]),
+case(array![-2, -1, 1, 2], Some(array!(-1).unwrap()), Some(array!(1).unwrap()), array![-1, -1, 1, 1]),
+)] fn test_clip(array: Result<Array<i32>, ArrayError>, a_min: Option<Array<i32>>, a_max: Option<Array<i32>>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.clip(a_min, a_max))
 }
 
 #[rstest(
@@ -33,6 +41,22 @@ case(array![1, 4, 9, 16], array![1, 2, 3, 4]),
 case(array!([[1, 4], [9, 16]]), array!([[1, 2], [3, 4]])),
 )] fn test_sqrt(array: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.sqrt())
+}
+
+#[rstest(
+array, expected,
+case(array![1, 8, 27, 64], array![1, 2, 3, 4]),
+case(array!([[1, 8], [27, 64]]), array!([[1, 2], [3, 4]])),
+)] fn test_cbrt(array: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.cbrt())
+}
+
+#[rstest(
+array, expected,
+case(array![1, 2, 3, 4], array![1, 4, 9, 16]),
+case(array!([[1, 2], [3, 4]]), array!([[1, 4], [9, 16]])),
+)] fn test_square(array: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.square())
 }
 
 #[rstest(
@@ -60,4 +84,34 @@ case(array![1, -2, 3, -4], array![1, 2, 3, 4]),
 case(array!([[1, -2], [3, -4]]), array!([[1, 2], [3, 4]])),
 )] fn test_fabs(array: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.fabs())
+}
+
+#[rstest(
+array, expected,
+case(array![1, 2, 3, 4], array![1, 1, 1, 1]),
+case(array![1, -2, 3, -4], array![1, -1, 1, -1]),
+case(array!([[1, -2], [3, -4]]), array!([[1, -1], [1, -1]])),
+)] fn test_sign(array: Result<Array<i32>, ArrayError>, expected: Result<Array<isize>, ArrayError>) {
+    assert_eq!(expected, array.sign())
+}
+
+#[rstest(
+array, other, expected,
+case(array![1.], array![0.], array![1.]),
+case(array![-1.], array![0.], array![0.]),
+case(array![-1.5, 0., 2.], array![0.5], array![0., 0.5, 1.]),
+case(array![-1.5, 0., 2.], array![1.], array![0., 1., 1.]),
+case(array![-1.5, 0., 0., 2.], array![1.], array![0., 1., 1., 1.]),
+case(array![[-1.5, 0.], [0., 2.]], array![1.], array![[0., 1.], [1., 1.]]),
+)] fn test_heaviside(array: Result<Array<f64>, ArrayError>, other: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, array.heaviside(&other.unwrap()))
+}
+
+#[rstest(
+array, expected,
+case(array![1., 2., 3., 4.], array![1., 2., 3., 4.]),
+case(array![1., f64::NAN, 1., f64::NAN], array![1., 0., 1., 0.]),
+case(array![0., f64::INFINITY, 0., f64::INFINITY], array![0., f64::MAX, 0., f64::MAX]),
+)] fn test_nan_to_num(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
+    assert_eq!(expected, array.nan_to_num())
 }
