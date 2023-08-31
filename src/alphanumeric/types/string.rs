@@ -13,6 +13,10 @@ impl ArrayElement for String {
     fn one() -> Self {
         "1".to_string()
     }
+
+    fn is_nan(&self) -> bool {
+        false
+    }
 }
 
 impl Alphanumeric for String {

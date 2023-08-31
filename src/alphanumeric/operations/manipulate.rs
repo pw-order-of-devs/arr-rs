@@ -144,7 +144,7 @@ pub trait ArrayStringManipulate<N: Alphanumeric> where Self: Sized + Clone {
     ///
     /// let expected = Array::flat(vec![Tuple3("a".to_string(), "-".to_string(), "a-a".to_string()), Tuple3("b".to_string(), "-".to_string(), "b-b-b".to_string())]);
     /// let arr = Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]);
-    /// assert_eq!(expected, arr.partition(&Array::single("-".to_string()).unwrap()));
+    /// assert_eq!(expected, ArrayStringManipulate::partition(&arr, &Array::single("-".to_string()).unwrap()));
     /// ```
     fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError>;
 
@@ -534,7 +534,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Result<Array<N>, ArrayError>
     }
 
     fn partition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {
-        self.clone()?.partition(sep)
+        ArrayStringManipulate::partition(&self.clone()?, sep)
     }
 
     fn rpartition(&self, sep: &Array<N>) -> Result<Array<Tuple3<N>>, ArrayError> {

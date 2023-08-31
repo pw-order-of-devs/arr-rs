@@ -15,8 +15,8 @@ pub trait ArrayAxis<T: ArrayElement> where Array<T>: Sized + Clone {
     /// * `axis` - axis along which the function will be applied
     /// * `f` - function to apply
     ///
-    fn apply_along_axis<F>(&self, axis: usize, f: F) -> Result<Array<T>, ArrayError>
-        where F: FnMut(&Array<T>) -> Result<Array<T>, ArrayError>;
+    fn apply_along_axis<S: ArrayElement, F>(&self, axis: usize, f: F) -> Result<Array<S>, ArrayError>
+        where F: FnMut(&Array<T>) -> Result<Array<S>, ArrayError>;
 
     /// Returns an array with axes transposed
     ///
@@ -132,20 +132,21 @@ pub trait ArrayAxis<T: ArrayElement> where Array<T>: Sized + Clone {
 
 impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
 
-    fn apply_along_axis<F>(&self, axis: usize, mut f: F) -> Result<Array<T>, ArrayError>
-        where F: FnMut(&Array<T>) -> Result<Array<T>, ArrayError> {
+    fn apply_along_axis<S: ArrayElement, F>(&self, axis: usize, mut f: F) -> Result<Array<S>, ArrayError>
+        where F: FnMut(&Array<T>) -> Result<Array<S>, ArrayError> {
+        self.axis_in_bounds(axis)?;
         let parts = self.get_shape()?.remove_at(axis).into_iter().product();
         let array = self.moveaxis(vec![axis as isize], vec![self.ndim()? as isize])?;
         let partial = array
             .ravel()
             .split(parts, None)?.into_iter()
             .map(|arr| f(&arr))
-            .collect::<Vec<Result<Array<T>, _>>>()
+            .collect::<Vec<Result<Array<S>, _>>>()
             .has_error()?.into_iter()
             .map(|arr| arr.unwrap())
-            .collect::<Vec<Array<T>>>();
+            .collect::<Vec<Array<S>>>();
         let partial_len = partial[0].len()?;
-        let partial = partial.into_iter().flatten().collect::<Array<T>>();
+        let partial = partial.into_iter().flatten().collect::<Array<S>>();
 
         let new_shape = array.get_shape()?.update_at(self.ndim()? - 1, partial_len);
         let partial = partial.reshape(&new_shape);
@@ -276,8 +277,8 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
 
 impl <T: ArrayElement> ArrayAxis<T> for Result<Array<T>, ArrayError> {
 
-    fn apply_along_axis<F>(&self, axis: usize, f: F) -> Result<Array<T>, ArrayError>
-        where F: FnMut(&Array<T>) -> Result<Array<T>, ArrayError> {
+    fn apply_along_axis<S: ArrayElement, F>(&self, axis: usize, f: F) -> Result<Array<S>, ArrayError>
+        where F: FnMut(&Array<T>) -> Result<Array<S>, ArrayError> {
         self.clone()?.apply_along_axis(axis, f)
     }
 

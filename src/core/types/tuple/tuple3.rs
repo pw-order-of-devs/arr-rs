@@ -36,6 +36,10 @@ impl <T: ArrayElement> ArrayElement for Tuple3<T> {
     fn one() -> Self {
         Tuple3(T::one(), T::one(), T::one())
     }
+
+    fn is_nan(&self) -> bool {
+        self.0.is_nan() || self.1.is_nan() || self.2.is_nan()
+    }
 }
 
 impl <T: ArrayElement> Display for Tuple3<T> {
