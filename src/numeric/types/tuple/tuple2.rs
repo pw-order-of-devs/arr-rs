@@ -60,10 +60,6 @@ impl <M: Numeric, N: Numeric> Numeric for Tuple2<M, N>
         self.0.to_f64()
     }
 
-    fn is_nan(&self) -> bool {
-        self.0.is_nan() || self.1.is_nan()
-    }
-
     fn is_inf(&self) -> bool {
         self.0.is_inf() || self.1.is_inf()
     }

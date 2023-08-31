@@ -29,11 +29,9 @@ pub trait Numeric: ArrayElement + Clone + Copy + Display + Debug + PartialEq + P
     /// Convert to f64
     fn to_f64(&self) -> f64;
 
-    /// Check if is nan
-    fn is_nan(&self) -> bool;
     /// Check if is infinity
     fn is_inf(&self) -> bool;
-    /// Gey max value for type
+    /// Get max value for type
     fn max(&self) -> Self;
 
     /// bitwise and operation
@@ -95,10 +93,6 @@ macro_rules! impl_numeric {
 
             fn to_f64(&self) -> f64 {
                 *self as f64
-            }
-
-            fn is_nan(&self) -> bool {
-                false
             }
 
             fn is_inf(&self) -> bool {
@@ -193,10 +187,6 @@ macro_rules! impl_numeric_float {
 
             fn to_f64(&self) -> f64 {
                 *self as f64
-            }
-
-            fn is_nan(&self) -> bool {
-                <$t>::is_nan(*self)
             }
 
             fn is_inf(&self) -> bool {

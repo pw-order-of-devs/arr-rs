@@ -60,10 +60,6 @@ impl Numeric for bool {
         self.to_usize() as f64
     }
 
-    fn is_nan(&self) -> bool {
-        false
-    }
-
     fn is_inf(&self) -> bool {
         false
     }
