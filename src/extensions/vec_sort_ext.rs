@@ -41,7 +41,7 @@ impl <N: Clone + PartialOrd> VecSort<N> for Vec<N> {
                 let higher = higher.quick_sort();
                 lower.into_iter()
                     .chain(core::iter::once(pivot))
-                    .chain(higher.into_iter())
+                    .chain(higher)
                     .collect()
             }
         }
