@@ -20,6 +20,10 @@ impl <T: ArrayElement> ArrayElement for List<T> {
     fn one() -> Self {
         List(vec![])
     }
+
+    fn is_nan(&self) -> bool {
+        self.0.iter().any(|i| i.is_nan())
+    }
 }
 
 impl <T: ArrayElement> Display for List<T> {

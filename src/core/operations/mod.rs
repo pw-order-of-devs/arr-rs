@@ -4,6 +4,9 @@ pub mod axis;
 /// array broadcast functions
 pub mod broadcast;
 
+/// array count functions
+pub mod count;
+
 /// array create functions
 pub mod create;
 
@@ -30,6 +33,12 @@ pub mod ops;
 
 /// array reorder functions
 pub mod reorder;
+
+/// array search functions
+pub mod search;
+
+/// array sort functions
+pub mod sort;
 
 /// array split functions
 pub mod split;

@@ -271,7 +271,6 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
         indices = indices.reverse_ext();
 
         if let Some(axis) = axis {
-            self.axis_in_bounds(axis)?;
             self.apply_along_axis(axis, |arr| arr.delete(&indices, None))
         } else {
             let mut elements = self.get_elements()?;

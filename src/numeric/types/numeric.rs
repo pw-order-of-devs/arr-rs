@@ -55,6 +55,10 @@ macro_rules! impl_numeric {
             fn one() -> Self {
                 1 as $t
             }
+
+            fn is_nan(&self) -> bool {
+                false
+            }
         }
 
         impl Numeric for $t {
@@ -136,6 +140,10 @@ macro_rules! impl_numeric_float {
 
             fn one() -> Self {
                 1 as $t
+            }
+
+            fn is_nan(&self) -> bool {
+                <$t>::is_nan(*self)
             }
         }
 

@@ -27,6 +27,10 @@ impl ArrayElement for bool {
     fn one() -> Self {
         true
     }
+
+    fn is_nan(&self) -> bool {
+        false
+    }
 }
 
 impl Numeric for bool {
