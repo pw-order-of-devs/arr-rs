@@ -1,6 +1,9 @@
 /// Collection types definition
 pub mod collection;
 
+/// Sort parameters types definition
+pub mod sort;
+
 /// Tuple types definition
 pub mod tuple;
 
@@ -12,4 +15,6 @@ pub trait ArrayElement: Clone + Display + Debug + PartialEq + PartialOrd {
     fn zero() -> Self;
     /// One constant value
     fn one() -> Self;
+    /// Is NAN
+    fn is_nan(&self) -> bool;
 }

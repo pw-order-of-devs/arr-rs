@@ -88,7 +88,7 @@ case(Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]), Array::singl
 case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Array::flat(vec!["-".to_string(), ".".to_string()]), Array::flat(vec![Tuple3("a".to_string(), "-".to_string(), "a-a".to_string()), Tuple3("b".to_string(), ".".to_string(), "b.b.b".to_string())])),
 case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["-".to_string(), ".".to_string(), "&".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_partition(array: Result<Array<String>, ArrayError>, sep: Result<Array<String>, ArrayError>, expected: Result<Array<Tuple3<String>>, ArrayError>) {
-    assert_eq!(expected, array.partition(&sep.unwrap()))
+    assert_eq!(expected, ArrayStringManipulate::partition(&array.unwrap(), &sep.unwrap()))
 }
 
 #[rstest(

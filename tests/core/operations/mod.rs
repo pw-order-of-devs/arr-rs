@@ -1,5 +1,6 @@
 mod axis_test;
 mod broadcast_test;
+mod count_test;
 mod create_test;
 mod display_test;
 mod indexing_test;
@@ -9,5 +10,7 @@ mod manipulate_test;
 mod meta_test;
 mod ops_test;
 mod reorder_test;
+mod search_test;
+mod sort_test;
 mod split_test;
 mod tiling_test;
