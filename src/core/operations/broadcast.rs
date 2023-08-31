@@ -181,7 +181,7 @@ impl <T: ArrayElement> Array<T> {
             .copied().chain(std::iter::repeat(1))
             .take(max_dim);
 
-        let zipped = shape1_padded.zip(shape2_padded.into_iter());
+        let zipped = shape1_padded.zip(shape2_padded);
         let result = zipped
             .map(|(dim1, dim2)| {
                 if dim1 == 1 { Ok(dim2) }

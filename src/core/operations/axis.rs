@@ -212,7 +212,7 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
             .collect::<Vec<usize>>();
 
         destination.into_iter()
-            .zip(source.into_iter())
+            .zip(source)
             .sorted()
             .for_each(|(d, s)| order.insert(d.min(order.len()), s));
 
