@@ -19,6 +19,15 @@ case(array!([[[2, 2]], [[3, 3]], [[5, 5]]]), Some(2), None, None, array!([[[0, 0
 }
 
 #[rstest(
+array, bit_order, expected,
+case(array_flat!(2, 3, 5), Some("big"), array!([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1])),
+case(array_flat!(2, 3, 5), Some("little"), array!([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0])),
+case(array_flat!(2, 3, 5), Some("err"), Err(ArrayError::ParameterError { param: "`bit_order`", message: "must be one of {`big`, `little`}", })),
+)] fn test_unpack_bits_str(array: Result<Array<u8>, ArrayError>, bit_order: Option<&str>, expected: Result<Array<u8>, ArrayError>) {
+    assert_eq!(expected, array.unpack_bits(None, None, bit_order))
+}
+
+#[rstest(
 array, axis, bit_order, expected,
 case(array!([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1]), None, None, array_flat!(2, 3, 5)),
 case(array!([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]), None, Some(BitOrder::Little), array_flat!(2, 3, 5)),
@@ -31,4 +40,13 @@ case(array!([[[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1]], [[0, 0, 0, 0,
 case(array!([[[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 0, 1, 1]], [[0, 0, 0, 0, 0, 1, 0, 1], [0, 0, 0, 0,  0, 0, 1, 1]]]), Some(2), None, array!([[[2], [3]], [[5], [3]]])),
 )] fn test_pack_bits(array: Result<Array<u8>, ArrayError>, axis: Option<isize>, bit_order: Option<BitOrder>, expected: Result<Array<u8>, ArrayError>) {
     assert_eq!(expected, array.pack_bits(axis, bit_order))
+}
+
+#[rstest(
+array, bit_order, expected,
+case(array!([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 1]), Some("big"), array_flat!(2, 3, 5)),
+case(array!([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]), Some("little"), array_flat!(2, 3, 5)),
+case(array!([0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0]), Some("err"), Err(ArrayError::ParameterError { param: "`bit_order`", message: "must be one of {`big`, `little`}", })),
+)] fn test_pack_bits_str(array: Result<Array<u8>, ArrayError>, bit_order: Option<&str>, expected: Result<Array<u8>, ArrayError>) {
+    assert_eq!(expected, array.pack_bits(None, bit_order))
 }

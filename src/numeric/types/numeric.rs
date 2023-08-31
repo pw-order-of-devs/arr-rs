@@ -1,4 +1,5 @@
 use std::fmt::{Debug, Display};
+use std::i64;
 use std::ops::RangeInclusive;
 use std::str::FromStr;
 use rand::{Rng, distributions::Uniform};
@@ -27,6 +28,11 @@ pub trait Numeric: ArrayElement + Clone + Copy + Display + Debug + PartialEq + P
     fn to_i32(&self) -> i32;
     /// Convert to f64
     fn to_f64(&self) -> f64;
+
+    /// Check if is infinity
+    fn is_inf(&self) -> bool;
+    /// Get max value for type
+    fn max(&self) -> Self;
 
     /// bitwise and operation
     fn bitwise_and(&self, other: &Self) -> Self;
@@ -87,6 +93,14 @@ macro_rules! impl_numeric {
 
             fn to_f64(&self) -> f64 {
                 *self as f64
+            }
+
+            fn is_inf(&self) -> bool {
+                false
+            }
+
+            fn max(&self) -> Self {
+                <$t>::MAX
             }
 
             fn bitwise_and(&self, other: &Self) -> Self {
@@ -173,6 +187,14 @@ macro_rules! impl_numeric_float {
 
             fn to_f64(&self) -> f64 {
                 *self as f64
+            }
+
+            fn is_inf(&self) -> bool {
+                <$t>::is_infinite(*self)
+            }
+
+            fn max(&self) -> Self {
+                <$t>::MAX
             }
 
             fn bitwise_and(&self, other: &Self) -> Self {

@@ -41,10 +41,10 @@ pub trait Alphanumeric: ArrayElement {
     fn _join(&self, sep: Self) -> Self;
 
     /// partition string by first occurrence of separator
-    fn _partition(&self, sep: Self) -> Tuple3<Self>;
+    fn _partition(&self, sep: Self) -> Tuple3<Self, Self, Self>;
 
     /// partition string by last occurrence of separator
-    fn _rpartition(&self, sep: Self) -> Tuple3<Self>;
+    fn _rpartition(&self, sep: Self) -> Tuple3<Self, Self, Self>;
 
     /// split string by separator
     fn _split(&self, sep: Self, max_split: Option<usize>) -> List<Self>;

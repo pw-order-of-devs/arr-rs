@@ -112,3 +112,11 @@ case(array!([[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), 1, 576),
 )] fn test_fold_mul(array: Result<Array<i32>, ArrayError>, init: i32, expected: i32) {
     assert_eq!(expected, array.unwrap().fold(init, |a, b| a * b).unwrap());
 }
+
+#[rstest(
+array, other, expected,
+case(array!([1, 2, 3, 4]), array!([5, 6, 7, 8]), Array::flat(vec![Tuple2(1, 5), Tuple2(2, 6), Tuple2(3, 7), Tuple2(4, 8)])),
+case(array!([[1, 2], [3, 4]]), array!([[5, 6], [7, 8]]), Array::new(vec![Tuple2(1, 5), Tuple2(2, 6), Tuple2(3, 7), Tuple2(4, 8)], vec![2, 2])),
+)] fn test_zip(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<Tuple2<i32, i32>>, ArrayError>) {
+    assert_eq!(expected, array.unwrap().zip(&other.unwrap()));
+}

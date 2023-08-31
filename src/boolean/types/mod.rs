@@ -60,6 +60,14 @@ impl Numeric for bool {
         self.to_usize() as f64
     }
 
+    fn is_inf(&self) -> bool {
+        false
+    }
+
+    fn max(&self) -> Self {
+        true
+    }
+
     fn bitwise_and(&self, other: &Self) -> Self {
         self & other
     }
