@@ -6,8 +6,10 @@ use crate::{
     numeric::prelude::*,
 };
 
-impl<T: Numeric + FromStr> FromStr for Tuple2<T> {
-    type Err = ParseTupleError<T>;
+impl<S: Numeric + FromStr, T: Numeric + FromStr> FromStr for Tuple2<S, T>
+    where <S as FromStr>::Err: std::fmt::Debug,
+          <T as FromStr>::Err: std::fmt::Debug, {
+    type Err = ParseTupleError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s.trim_start_matches('(').trim_end_matches(')');
@@ -15,14 +17,20 @@ impl<T: Numeric + FromStr> FromStr for Tuple2<T> {
         let x = parts.next().ok_or(ParseTupleError::Format)?;
         let y = parts.next().ok_or(ParseTupleError::Format)?;
 
-        let x = T::from_str(x).map_err(ParseTupleError::Parse)?;
-        let y = T::from_str(y).map_err(ParseTupleError::Parse)?;
+        let x = S::from_str(x);
+        let y = T::from_str(y);
 
-        Ok(Tuple2(x, y))
+        if x.is_err() || y.is_err() {
+            return Err(ParseTupleError::Parse("error parsing tuple value"))
+        }
+
+        Ok(Tuple2(x.unwrap(), y.unwrap()))
     }
 }
 
-impl <N: Numeric> Numeric for Tuple2<N> {
+impl <M: Numeric, N: Numeric> Numeric for Tuple2<M, N>
+    where <M as FromStr>::Err: std::fmt::Debug,
+          <N as FromStr>::Err: std::fmt::Debug, {
     fn rand(range: RangeInclusive<Self>) -> Self {
         let start = range.start();
         let end = range.end();
@@ -50,6 +58,14 @@ impl <N: Numeric> Numeric for Tuple2<N> {
 
     fn to_f64(&self) -> f64 {
         self.0.to_f64()
+    }
+
+    fn is_inf(&self) -> bool {
+        self.0.is_inf() || self.1.is_inf()
+    }
+
+    fn max(&self) -> Self {
+        Tuple2(self.0.max(), self.1.max())
     }
 
     fn bitwise_and(&self, other: &Self) -> Self {
@@ -99,9 +115,9 @@ impl <N: Numeric> Numeric for Tuple2<N> {
     }
 }
 
-impl <N: Numeric> From<(N, N)> for Tuple2<N> {
+impl <M: Numeric, N: Numeric> From<(M, N)> for Tuple2<M, N> {
 
-    fn from(value: (N, N)) -> Self {
+    fn from(value: (M, N)) -> Self {
         Tuple2(value.0, value.1)
     }
 }

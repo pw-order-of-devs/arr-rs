@@ -5,8 +5,9 @@ pub use crate::core::{
         broadcast::ArrayBroadcast,
         count::ArrayCount,
         create::ArrayCreate,
+        display::PrintableResult,
         indexing::ArrayIndexing,
-        iter::ArrayIter,
+        iter::{ArrayIter, ArrayIterMut},
         joining::ArrayJoining,
         manipulate::ArrayManipulate,
         meta::ArrayMeta,
@@ -32,7 +33,9 @@ pub use crate::core::{
     },
 };
 
-pub(crate) use crate::core::types::tuple::{
-    tuple2::TupleH2,
-    tuple3::TupleH3,
+pub(crate) use crate::core::{
+    types::tuple::{
+        tuple2::TupleH2,
+        tuple3::TupleH3,
+    }
 };

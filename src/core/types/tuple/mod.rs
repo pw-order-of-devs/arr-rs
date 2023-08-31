@@ -3,8 +3,6 @@ pub mod tuple2;
 /// Tuple3 definition
 pub mod tuple3;
 
-use std::str::FromStr;
-
 use crate::core::types::ArrayElement;
 
 /// Generic Tuple trait for array
@@ -20,9 +18,9 @@ pub trait TupleElement<T: ArrayElement> {
 
 /// Error definition for tuple parsing
 #[derive(Debug)]
-pub enum ParseTupleError<T: FromStr> {
+pub enum ParseTupleError {
     /// Error definition for tuple parsing - Parse error
-    Parse(T::Err),
+    Parse(&'static str),
     /// Error definition for tuple parsing - Format error
     Format,
 }

@@ -178,10 +178,7 @@ impl <N: Numeric> ArrayBinary<N> for Array<N> {
     }
 
     fn bitwise_not(&self) -> Result<Array<N>, ArrayError> {
-        let elements = self.into_iter()
-            .map(|&a| a.bitwise_not())
-            .collect();
-        Array::new(elements, self.get_shape()?)
+        self.map(|&a| a.bitwise_not())
     }
 
     fn invert(&self) -> Result<Array<N>, ArrayError> {

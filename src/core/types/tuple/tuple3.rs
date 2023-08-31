@@ -3,14 +3,17 @@ use std::str::FromStr;
 
 use crate::core::prelude::*;
 
-pub(crate) type TupleH3 <T, S, Q> = (Array<T>, Array<S>, Array<Q>);
+pub(crate) type TupleH3 <S, T, U> = (Array<S>, Array<T>, Array<U>);
 
 /// Tuple2 type for array
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
-pub struct Tuple3<T: ArrayElement>(pub T, pub T, pub T);
+pub struct Tuple3<S: ArrayElement, T: ArrayElement, U: ArrayElement>(pub S, pub T, pub U);
 
-impl<T: ArrayElement + FromStr> FromStr for Tuple3<T> {
-    type Err = ParseTupleError<T>;
+impl<S: ArrayElement + FromStr, T: ArrayElement + FromStr, U: ArrayElement + FromStr> FromStr for Tuple3<S, T, U>
+    where <S as FromStr>::Err: std::fmt::Debug,
+          <T as FromStr>::Err: std::fmt::Debug,
+          <U as FromStr>::Err: std::fmt::Debug, {
+    type Err = ParseTupleError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let s = s.trim_start_matches('(').trim_end_matches(')');
@@ -19,22 +22,26 @@ impl<T: ArrayElement + FromStr> FromStr for Tuple3<T> {
         let y = parts.next().ok_or(ParseTupleError::Format)?;
         let z = parts.next().ok_or(ParseTupleError::Format)?;
 
-        let x = T::from_str(x).map_err(ParseTupleError::Parse)?;
-        let y = T::from_str(y).map_err(ParseTupleError::Parse)?;
-        let z = T::from_str(z).map_err(ParseTupleError::Parse)?;
+        let x = S::from_str(x);
+        let y = T::from_str(y);
+        let z = U::from_str(z);
 
-        Ok(Tuple3(x, y, z))
+        if x.is_err() || y.is_err() || z.is_err() {
+            return Err(ParseTupleError::Parse("error parsing tuple value"))
+        }
+
+        Ok(Tuple3(x.unwrap(), y.unwrap(), z.unwrap()))
     }
 }
 
-impl <T: ArrayElement> ArrayElement for Tuple3<T> {
+impl <S: ArrayElement, T: ArrayElement, U: ArrayElement> ArrayElement for Tuple3<S, T, U> {
 
     fn zero() -> Self {
-        Tuple3(T::zero(), T::zero(), T::zero())
+        Tuple3(S::zero(), T::zero(), U::zero())
     }
 
     fn one() -> Self {
-        Tuple3(T::one(), T::one(), T::one())
+        Tuple3(S::one(), T::one(), U::one())
     }
 
     fn is_nan(&self) -> bool {
@@ -42,18 +49,18 @@ impl <T: ArrayElement> ArrayElement for Tuple3<T> {
     }
 }
 
-impl <T: ArrayElement> Display for Tuple3<T> {
+impl <S: ArrayElement, T: ArrayElement, U: ArrayElement> Display for Tuple3<S, T, U> {
 
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {}, {})", self.0, self.1, self.2)
     }
 }
 
-impl <T: ArrayElement> TupleElement<T> for Tuple3<T> {
-    type Input = (T, T, T);
+impl <S: ArrayElement, T: ArrayElement, U: ArrayElement> TupleElement<T> for Tuple3<S, T, U> {
+    type Input = (S, T, U);
     type Output = Self;
 
-    fn from_tuple(tuple: (T, T, T)) -> Self::Output {
+    fn from_tuple(tuple: (S, T, U)) -> Self::Output {
         Tuple3(tuple.0, tuple.1, tuple.2)
     }
 }

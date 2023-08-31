@@ -56,11 +56,11 @@ impl Alphanumeric for char {
         *self
     }
 
-    fn _partition(&self, sep: Self) -> Tuple3<Self> {
+    fn _partition(&self, sep: Self) -> Tuple3<Self, Self, Self> {
         Tuple3(*self, sep, ' ')
     }
 
-    fn _rpartition(&self, sep: Self) -> Tuple3<Self> {
+    fn _rpartition(&self, sep: Self) -> Tuple3<Self, Self, Self> {
         Tuple3(*self, sep, ' ')
     }
 

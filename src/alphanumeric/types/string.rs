@@ -71,7 +71,7 @@ impl Alphanumeric for String {
         self.chars().join(&sep)
     }
 
-    fn _partition(&self, sep: Self) -> Tuple3<Self> {
+    fn _partition(&self, sep: Self) -> Tuple3<Self, Self, Self> {
         if let Some(index) = self.find(&sep) {
             let (before, rest) = self.split_at(index);
             let (_, after) = rest.split_at(sep.len());
@@ -81,7 +81,7 @@ impl Alphanumeric for String {
         }
     }
 
-    fn _rpartition(&self, sep: Self) -> Tuple3<Self> {
+    fn _rpartition(&self, sep: Self) -> Tuple3<Self, Self, Self> {
         if let Some(index) = self.rfind(&sep) {
             let (before, rest) = self.split_at(index);
             let (_, after) = rest.split_at(sep.len());
