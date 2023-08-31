@@ -3,6 +3,7 @@ pub use crate::core::{
     operations::{
         axis::ArrayAxis,
         broadcast::ArrayBroadcast,
+        count::ArrayCount,
         create::ArrayCreate,
         indexing::ArrayIndexing,
         iter::ArrayIter,
@@ -10,6 +11,8 @@ pub use crate::core::{
         manipulate::ArrayManipulate,
         meta::ArrayMeta,
         reorder::ArrayReorder,
+        search::ArraySearch,
+        sort::ArraySort,
         split::ArraySplit,
         tiling::ArrayTiling,
     },
@@ -19,6 +22,7 @@ pub use crate::core::{
             CollectionElement,
             List,
         },
+        sort::{SortKind, SortKindType},
         tuple::{
             ParseTupleError,
             TupleElement,

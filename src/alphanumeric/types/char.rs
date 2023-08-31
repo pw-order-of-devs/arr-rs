@@ -12,6 +12,10 @@ impl ArrayElement for char {
     fn one() -> Self {
         '1'
     }
+
+    fn is_nan(&self) -> bool {
+        false
+    }
 }
 
 impl Alphanumeric for char {
