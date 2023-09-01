@@ -67,13 +67,13 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 3 .. 10, Err(Array
 
 #[rstest(
 array, indices, expected,
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[4], array!([5])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[0, 1, 2, 3], array!([1, 2, 3, 4])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[3, 3, 3, 3], array!([4, 4, 4, 4])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[7, 6, 5, 4, 3, 2, 1, 0], array!([8, 7, 6, 5, 4, 3, 2, 1])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[4], array!(i32, [5])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[0, 1, 2, 3], array!(i32, [1, 2, 3, 4])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[3, 3, 3, 3], array!(i32, [4, 4, 4, 4])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[7, 6, 5, 4, 3, 2, 1, 0], array!(i32, [8, 7, 6, 5, 4, 3, 2, 1])),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[10], Err(ArrayError::OutOfBounds { value: "indices" })),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[3, 2, 1, 0], array!([[7, 8], [5, 6], [3, 4], [1, 2]])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[3, 3], array!([[7, 8], [7, 8]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[3, 2, 1, 0], array!(i32, [[7, 8], [5, 6], [3, 4], [1, 2]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[3, 3], array!(i32, [[7, 8], [7, 8]])),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[4], Err(ArrayError::OutOfBounds { value: "indices" })),
 )] fn test_indices_at(array: Result<Array<i32>, ArrayError>, indices: &[usize], expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.indices_at(indices))
