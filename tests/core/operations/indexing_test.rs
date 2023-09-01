@@ -13,7 +13,7 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 1, Ok(vec![0, 0, 1
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 7, Ok(vec![1, 1, 1])),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 8, Err(ArrayError::ParameterError { param: "idx", message: "index must be smaller than array length", })),
 )] fn test_index_to_coord(array: Result<Array<i32>, ArrayError>, idx: usize, expected: Result<Vec<usize>, ArrayError>) {
-    assert_eq!(expected, array.unwrap().index_to_coord(idx))
+    assert_eq!(expected, array.index_to_coord(idx))
 }
 
 #[rstest(
@@ -29,7 +29,7 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[1, 1, 1], Ok(7))
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[2, 3, 4], Err(ArrayError::ParameterError { param: "coords", message: "length must match array dimension" })),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], Err(ArrayError::ParameterError { param: "coords", message: "value must match array shape" })),
 )] fn test_index_at(array: Result<Array<i32>, ArrayError>, coords: &[usize], expected: Result<usize, ArrayError>) {
-    assert_eq!(expected, array.unwrap().index_at(coords))
+    assert_eq!(expected, array.index_at(coords))
 }
 
 #[rstest(
@@ -45,7 +45,7 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[1, 1, 1], Ok(8))
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), &[2, 3, 4], Err(ArrayError::ParameterError { param: "coords", message: "length must match array dimension" })),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], Err(ArrayError::ParameterError { param: "coords", message: "value must match array shape" })),
 )] fn test_at(array: Result<Array<i32>, ArrayError>, coords: &[usize], expected: Result<i32, ArrayError>) {
-    assert_eq!(expected, array.unwrap().at(coords))
+    assert_eq!(expected, array.at(coords))
 }
 
 #[rstest(
@@ -62,5 +62,19 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 0 .. 1, array!([[1
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 2 .. 3, array!([[5, 6], [7, 8]])),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 3 .. 10, Err(ArrayError::OutOfBounds { value: "slice range" })),
 )] fn test_slice(array: Result<Array<i32>, ArrayError>, range: std::ops::Range<usize>, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, array.unwrap().slice(range))
+    assert_eq!(expected, array.slice(range))
+}
+
+#[rstest(
+array, indices, expected,
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[4], array!([5])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[0, 1, 2, 3], array!([1, 2, 3, 4])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[3, 3, 3, 3], array!([4, 4, 4, 4])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), &[7, 6, 5, 4, 3, 2, 1, 0], array!([8, 7, 6, 5, 4, 3, 2, 1])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[10], Err(ArrayError::OutOfBounds { value: "indices" })),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[3, 2, 1, 0], array!([[7, 8], [5, 6], [3, 4], [1, 2]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[3, 3], array!([[7, 8], [7, 8]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), &[4], Err(ArrayError::OutOfBounds { value: "indices" })),
+)] fn test_indices_at(array: Result<Array<i32>, ArrayError>, indices: &[usize], expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.indices_at(indices))
 }
