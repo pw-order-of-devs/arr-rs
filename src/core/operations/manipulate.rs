@@ -23,12 +23,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.insert(&[1], &Array::single(1.).unwrap(), None);
-    /// assert_eq!(array!([1., 1., 2., 3., 4.]), arr);
-    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.insert(&[1, 3], &Array::single(1.).unwrap(), None);
-    /// assert_eq!(array!([1., 1., 2., 3., 1., 4.]), arr);
+    /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).insert(&[1], &Array::single(1.).unwrap(), None);
+    /// assert_eq!(array!(f64, [1., 1., 2., 3., 4.]), arr);
+    /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).insert(&[1, 3], &Array::single(1.).unwrap(), None);
+    /// assert_eq!(array!(f64, [1., 1., 2., 3., 1., 4.]), arr);
     /// ```
     fn insert(&self, indices: &[usize], values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
@@ -44,12 +42,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.delete(&[1], None);
-    /// assert_eq!(array!([1., 3., 4.]), arr);
-    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.delete(&[2, 3], None);
-    /// assert_eq!(array!([1., 2.]), arr);
+    /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).delete(&[1], None);
+    /// assert_eq!(array!(f64, [1., 3., 4.]), arr);
+    /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).delete(&[2, 3], None);
+    /// assert_eq!(array!(f64, [1., 2.]), arr);
     /// ```
     fn delete(&self, indices: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
@@ -65,12 +61,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.append(&Array::single(1.).unwrap(), None);
-    /// assert_eq!(array!([1., 2., 3., 4., 1.]), arr);
-    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// let arr = arr.append(&Array::flat(vec![1., 3.]).unwrap(), None);
-    /// assert_eq!(array!([1., 2., 3., 4., 1., 3.]), arr);
+    /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).append(&Array::single(1.).unwrap(), None);
+    /// assert_eq!(array!(f64, [1., 2., 3., 4., 1.]), arr);
+    /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).append(&Array::flat(vec![1., 3.]).unwrap(), None);
+    /// assert_eq!(array!(f64, [1., 2., 3., 4., 1., 3.]), arr);
     /// ```
     fn append(&self, values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
@@ -86,9 +80,9 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// assert_eq!(array!([1, 2, 3, 4]).unwrap(), arr);
+    /// assert_eq!(array!(f64, [1., 2., 3., 4.]).unwrap(), arr);
     /// let arr = arr.reshape(&[2, 2]);
-    /// assert_eq!(array!([[1, 2], [3, 4]]), arr);
+    /// assert_eq!(array!(f64, [[1., 2.], [3., 4.]]), arr);
     /// ```
     fn reshape(&self, shape: &[usize]) -> Result<Array<T>, ArrayError>;
 
@@ -103,17 +97,16 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<f64> = Array::new(vec![1., 2., 3., 4.], vec![4]).unwrap();
-    /// assert_eq!(array!([1, 2, 3, 4]).unwrap(), arr);
+    /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]);
+    /// assert_eq!(array!(f64, [1, 2, 3, 4]), arr);
     /// let array = arr.resize(&[2, 2]);
-    /// assert_eq!(array!([[1, 2], [3, 4]]), array);
+    /// assert_eq!(array!(f64, [[1, 2], [3, 4]]), array);
     /// let array = arr.resize(&[4]);
-    /// assert_eq!(array!([1, 2, 3, 4]), array);
+    /// assert_eq!(array!(f64, [1, 2, 3, 4]), array);
     /// let array = arr.resize(&[8]);
-    /// assert_eq!(array!([1, 2, 3, 4, 1, 2, 3, 4]), array);
+    /// assert_eq!(array!(f64, [1, 2, 3, 4, 1, 2, 3, 4]), array);
     /// ```
     fn resize(&self, shape: &[usize]) -> Result<Array<T>, ArrayError>;
-
 
     /// Find the unique elements of an array
     ///
@@ -126,10 +119,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = Array::new(vec![1, 1, 2, 3, 3, 4], vec![6]).unwrap();
-    /// assert_eq!(array!([1, 2, 3, 4]), arr.unique(None));
-    /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 2, 1], vec![5]).unwrap();
-    /// assert_eq!(array!([1, 2, 3]), arr.unique(None));
+    /// let arr = Array::new(vec![1, 1, 2, 3, 3, 4], vec![6]).unwrap();
+    /// assert_eq!(array!(i32, [1, 2, 3, 4]), arr.unique(None));
+    /// let arr = Array::new(vec![1, 2, 3, 2, 1], vec![5]).unwrap();
+    /// assert_eq!(array!(i32, [1, 2, 3]), arr.unique(None));
     /// ```
     fn unique(&self, axis: Option<isize>) -> Result<Array<T>, ArrayError>;
 
@@ -165,8 +158,8 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::new(vec![1], vec![1]).unwrap();
-    /// assert_eq!(array!([[1]]), arr.atleast(2));
-    /// assert_eq!(array!([[[1]]]), arr.atleast(3));
+    /// assert_eq!(array!(i32, [[1]]), arr.atleast(2));
+    /// assert_eq!(array!(i32, [[[1]]]), arr.atleast(3));
     /// ```
     fn atleast(&self, n: usize) -> Result<Array<T>, ArrayError>;
 
@@ -178,7 +171,7 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![0, 0, 1, 2, 3, 4, 0, 0]);
-    /// assert_eq!(array!([1, 2, 3, 4]), arr.trim_zeros());
+    /// assert_eq!(array!(i32, [1, 2, 3, 4]), arr.trim_zeros());
     /// ```
     fn trim_zeros(&self) -> Result<Array<T>, ArrayError>;
 
@@ -194,7 +187,7 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![1, 2, 3, 4]);
-    /// assert_eq!(array!([1, 2]), arr.cycle_take(2));
+    /// assert_eq!(array!(i32, [1, 2]), arr.cycle_take(2));
     /// ```
     fn cycle_take(&self, n: usize) -> Result<Array<T>, ArrayError>;
 }

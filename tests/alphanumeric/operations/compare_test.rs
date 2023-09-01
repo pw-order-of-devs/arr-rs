@@ -69,6 +69,7 @@ case(Array::new(vec!["gd".to_string(), "gde".to_string(), "abc".to_string(), "ff
 case(Array::new(vec!["gd".to_string(), "gde".to_string(), "abc".to_string(), "ff".to_string()], vec![2, 2]), Array::flat(vec!["dd".to_string(), "ff".to_string()]), "<=", Array::new(vec![false, false, true, true], vec![2, 2])),
 case(Array::new(vec!["gd".to_string(), "gde".to_string(), "abc".to_string(), "ff".to_string()], vec![2, 2]), Array::flat(vec!["dd".to_string(), "ff".to_string()]), ">", Array::new(vec![true, true, false, false], vec![2, 2])),
 case(Array::new(vec!["gd".to_string(), "gde".to_string(), "abc".to_string(), "ff".to_string()], vec![2, 2]), Array::flat(vec!["dd".to_string(), "ff".to_string()]), "<", Array::new(vec![false, false, true, false], vec![2, 2])),
+case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), ">>>", Err(ArrayError::ParameterError { param: "`op`", message: "must be one of {`==`, `!=`, `>`, `<`, `>=`, `<=`}" })),
 case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), "==", Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_compare(array: Result<Array<String>, ArrayError>, other: Result<Array<String>, ArrayError>, cmp_op: &str, expected: Result<Array<bool>, ArrayError>) {
     assert_eq!(expected, array.compare(&other.unwrap(), cmp_op))

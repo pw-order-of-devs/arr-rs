@@ -19,14 +19,14 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3]).unwrap();
-    /// let other: Array<i32> = array!([4, 5, 6]).unwrap();
-    /// let expected: Array<i32> = array!([1, 2, 3, 4, 5, 6]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3]).unwrap();
+    /// let other = array!(i32, [4, 5, 6]).unwrap();
+    /// let expected = array!(i32, [1, 2, 3, 4, 5, 6]).unwrap();
     /// assert_eq!(expected, Array::<i32>::concatenate(vec![arr, other], None).unwrap());
     ///
-    /// let arr: Array<i32> = array!([[1, 2], [3, 4]]).unwrap();
-    /// let other: Array<i32> = array!([[5, 6]]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 2], [3, 4], [5, 6]]).unwrap();
+    /// let arr = array!(i32, [[1, 2], [3, 4]]).unwrap();
+    /// let other = array!(i32, [[5, 6]]).unwrap();
+    /// let expected = array!(i32, [[1, 2], [3, 4], [5, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::concatenate(vec![arr, other], Some(0)).unwrap());
     /// ```
     fn concatenate(arrs: Vec<Array<T>>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
@@ -42,14 +42,14 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3]).unwrap();
-    /// let other: Array<i32> = array!([4, 5, 6]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 2, 3], [4, 5, 6]]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3]).unwrap();
+    /// let other = array!(i32, [4, 5, 6]).unwrap();
+    /// let expected = array!(i32, [[1, 2, 3], [4, 5, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::stack(vec![arr, other], None).unwrap());
     ///
-    /// let arr: Array<i32> = array!([[1, 2], [3, 4]]).unwrap();
-    /// let other: Array<i32> = array!([[5, 6], [7, 8]]).unwrap();
-    /// let expected: Array<i32> = array!([[[1, 2], [3, 4]], [[5, 6], [7, 8]]]).unwrap();
+    /// let arr = array!(i32, [[1, 2], [3, 4]]).unwrap();
+    /// let other = array!(i32, [[5, 6], [7, 8]]).unwrap();
+    /// let expected = array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::stack(vec![arr, other], Some(0)).unwrap());
     /// ```
     fn stack(arrs: Vec<Array<T>>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
@@ -64,14 +64,14 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3]).unwrap();
-    /// let other: Array<i32> = array!([4, 5, 6]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 2, 3], [4, 5, 6]]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3]).unwrap();
+    /// let other = array!(i32, [4, 5, 6]).unwrap();
+    /// let expected = array!(i32, [[1, 2, 3], [4, 5, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::vstack(vec![arr, other]).unwrap());
     ///
-    /// let arr: Array<i32> = array!([[1], [2], [3]]).unwrap();
-    /// let other: Array<i32> = array!([[4], [5], [6]]).unwrap();
-    /// let expected: Array<i32> = array!([[1], [2], [3], [4], [5], [6]]).unwrap();
+    /// let arr = array!(i32, [[1], [2], [3]]).unwrap();
+    /// let other = array!(i32, [[4], [5], [6]]).unwrap();
+    /// let expected = array!(i32, [[1], [2], [3], [4], [5], [6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::vstack(vec![arr, other]).unwrap());
     /// ```
     fn vstack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
@@ -86,14 +86,14 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3]).unwrap();
-    /// let other: Array<i32> = array!([4, 5, 6]).unwrap();
-    /// let expected: Array<i32> = array!([1, 2, 3, 4, 5, 6]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3]).unwrap();
+    /// let other = array!(i32, [4, 5, 6]).unwrap();
+    /// let expected = array!(i32, [1, 2, 3, 4, 5, 6]).unwrap();
     /// assert_eq!(expected, Array::<i32>::hstack(vec![arr, other]).unwrap());
     ///
-    /// let arr: Array<i32> = array!([[1], [2], [3]]).unwrap();
-    /// let other: Array<i32> = array!([[4], [5], [6]]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 4], [2, 5], [3, 6]]).unwrap();
+    /// let arr = array!(i32, [[1], [2], [3]]).unwrap();
+    /// let other = array!(i32, [[4], [5], [6]]).unwrap();
+    /// let expected = array!(i32, [[1, 4], [2, 5], [3, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::hstack(vec![arr, other]).unwrap());
     /// ```
     fn hstack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
@@ -108,14 +108,14 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3]).unwrap();
-    /// let other: Array<i32> = array!([4, 5, 6]).unwrap();
-    /// let expected: Array<i32> = array!([[[1, 4], [2, 5], [3, 6]]]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3]).unwrap();
+    /// let other = array!(i32, [4, 5, 6]).unwrap();
+    /// let expected = array!(i32, [[[1, 4], [2, 5], [3, 6]]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::dstack(vec![arr, other]).unwrap());
     ///
-    /// let arr: Array<i32> = array!([[1], [2], [3]]).unwrap();
-    /// let other: Array<i32> = array!([[4], [5], [6]]).unwrap();
-    /// let expected: Array<i32> = array!([[[1, 4]], [[2, 5]], [[3, 6]]]).unwrap();
+    /// let arr = array!(i32, [[1], [2], [3]]).unwrap();
+    /// let other = array!(i32, [[4], [5], [6]]).unwrap();
+    /// let expected = array!(i32, [[[1, 4]], [[2, 5]], [[3, 6]]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::dstack(vec![arr, other]).unwrap());
     /// ```
     fn dstack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
@@ -131,9 +131,9 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3]).unwrap();
-    /// let other: Array<i32> = array!([4, 5, 6]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 4], [2, 5], [3, 6]]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3]).unwrap();
+    /// let other = array!(i32, [4, 5, 6]).unwrap();
+    /// let expected = array!(i32, [[1, 4], [2, 5], [3, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::column_stack(vec![arr, other]).unwrap());
     /// ```
     fn column_stack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
@@ -148,14 +148,14 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3]).unwrap();
-    /// let other: Array<i32> = array!([4, 5, 6]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 2, 3], [4, 5, 6]]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3]).unwrap();
+    /// let other = array!(i32, [4, 5, 6]).unwrap();
+    /// let expected = array!(i32, [[1, 2, 3], [4, 5, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::row_stack(vec![arr, other]).unwrap());
     ///
-    /// let arr: Array<i32> = array!([[1], [2], [3]]).unwrap();
-    /// let other: Array<i32> = array!([[4], [5], [6]]).unwrap();
-    /// let expected: Array<i32> = array!([[1], [2], [3], [4], [5], [6]]).unwrap();
+    /// let arr = array!(i32, [[1], [2], [3]]).unwrap();
+    /// let other = array!(i32, [[4], [5], [6]]).unwrap();
+    /// let expected = array!(i32, [[1], [2], [3], [4], [5], [6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::row_stack(vec![arr, other]).unwrap());
     /// ```
     fn row_stack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;

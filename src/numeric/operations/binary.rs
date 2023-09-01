@@ -19,9 +19,9 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!(Array::<i32>::flat(vec![1]), array!([13]).bitwise_and(&array!([17]).unwrap()));
-    /// assert_eq!(Array::<i32>::flat(vec![0, 1]), array!([11, 7]).bitwise_and(&array!([4, 25]).unwrap()));
-    /// assert_eq!(Array::<i32>::flat(vec![2, 4, 16]), array!([2, 5, 255]).bitwise_and(&array!([3, 14, 16]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![1]), array!(i32, [13]).bitwise_and(&array!(i32, [17]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![0, 1]), array!(i32, [11, 7]).bitwise_and(&array!(i32, [4, 25]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![2, 4, 16]), array!(i32, [2, 5, 255]).bitwise_and(&array!(i32, [3, 14, 16]).unwrap()));
     /// ```
     fn bitwise_and(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 
@@ -36,9 +36,9 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!(Array::<i32>::flat(vec![29]), array!([13]).bitwise_or(&array!([16]).unwrap()));
-    /// assert_eq!(Array::<i32>::flat(vec![33, 6]), array!([33, 4]).bitwise_or(&array!([1, 2]).unwrap()));
-    /// assert_eq!(Array::<i32>::flat(vec![6, 5, 255]), array!([2, 5, 255]).bitwise_or(&array!([4, 4, 4]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![29]), array!(i32, [13]).bitwise_or(&array!(i32, [16]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![33, 6]), array!(i32, [33, 4]).bitwise_or(&array!(i32, [1, 2]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![6, 5, 255]), array!(i32, [2, 5, 255]).bitwise_or(&array!(i32, [4, 4, 4]).unwrap()));
     /// ```
     fn bitwise_or(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 
@@ -53,9 +53,9 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!(Array::<i32>::flat(vec![28]), array!([13]).bitwise_xor(&array!([17]).unwrap()));
-    /// assert_eq!(Array::<i32>::flat(vec![26]), array!([31]).bitwise_xor(&array!([5]).unwrap()));
-    /// assert_eq!(Array::<i32>::flat(vec![26, 5]), array!([31, 3]).bitwise_xor(&array!([5, 6]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![28]), array!(i32, [13]).bitwise_xor(&array!(i32, [17]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![26]), array!(i32, [31]).bitwise_xor(&array!(i32, [5]).unwrap()));
+    /// assert_eq!(Array::<i32>::flat(vec![26, 5]), array!(i32, [31, 3]).bitwise_xor(&array!(i32, [5, 6]).unwrap()));
     /// ```
     fn bitwise_xor(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 
@@ -70,9 +70,9 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!(Array::<u8>::flat(vec![242]), array!([13]).bitwise_not());
-    /// assert_eq!(Array::<u16>::flat(vec![65522]), array!([13]).bitwise_not());
-    /// assert_eq!(Array::<i32>::flat(vec![-14]), array!([13]).bitwise_not());
+    /// assert_eq!(Array::<u8>::flat(vec![242]), array!(u8, [13]).bitwise_not());
+    /// assert_eq!(Array::<u16>::flat(vec![65522]), array!(u16, [13]).bitwise_not());
+    /// assert_eq!(Array::<i32>::flat(vec![-14]), array!(i32, [13]).bitwise_not());
     /// ```
     fn bitwise_not(&self) -> Result<Array<N>, ArrayError>;
 
@@ -87,9 +87,9 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!(Array::<u8>::flat(vec![242]), array!([13]).invert());
-    /// assert_eq!(Array::<u16>::flat(vec![65522]), array!([13]).invert());
-    /// assert_eq!(Array::<i32>::flat(vec![-14]), array!([13]).invert());
+    /// assert_eq!(Array::<u8>::flat(vec![242]), array!(u8, [13]).invert());
+    /// assert_eq!(Array::<u16>::flat(vec![65522]), array!(u16, [13]).invert());
+    /// assert_eq!(Array::<i32>::flat(vec![-14]), array!(i32, [13]).invert());
     /// ```
     fn invert(&self) -> Result<Array<N>, ArrayError>;
 
@@ -104,8 +104,8 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!(Array::<u8>::flat(vec![20]), array!([5]).left_shift(&array!([2]).unwrap()));
-    /// assert_eq!(Array::<u8>::flat(vec![10, 20, 40]), array!([5]).left_shift(&array!([1, 2, 3]).unwrap()));
+    /// assert_eq!(Array::<u8>::flat(vec![20]), array!(u8, [5]).left_shift(&array!(u8, [2]).unwrap()));
+    /// assert_eq!(Array::<u8>::flat(vec![10, 20, 40]), array!(u8, [5]).left_shift(&array!(u8, [1, 2, 3]).unwrap()));
     /// ```
     fn left_shift(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 
@@ -120,8 +120,8 @@ pub trait ArrayBinary<N: Numeric> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!(Array::<u8>::flat(vec![5]), array!([10]).right_shift(&array!([1]).unwrap()));
-    /// assert_eq!(Array::<u8>::flat(vec![5, 2, 1]), array!([10]).right_shift(&array!([1, 2, 3]).unwrap()));
+    /// assert_eq!(Array::<u8>::flat(vec![5]), array!(u8, [10]).right_shift(&array!(u8, [1]).unwrap()));
+    /// assert_eq!(Array::<u8>::flat(vec![5, 2, 1]), array!(u8, [10]).right_shift(&array!(u8, [1, 2, 3]).unwrap()));
     /// ```
     fn right_shift(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 

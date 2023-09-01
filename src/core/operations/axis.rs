@@ -30,13 +30,13 @@ pub trait ArrayAxis<T: ArrayElement> where Array<T>: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 4]).unwrap();
-    /// assert_eq!(array!([[1, 5], [2, 6], [3, 7], [4, 8]]), arr.transpose(None));
+    /// assert_eq!(array!(i32, [[1, 5], [2, 6], [3, 7], [4, 8]]), arr.transpose(None));
     ///
     /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]).unwrap();
-    /// assert_eq!(array!([[1, 3, 5, 7], [2, 4, 6, 8]]), arr.transpose(None));
+    /// assert_eq!(array!(i32, [[1, 3, 5, 7], [2, 4, 6, 8]]), arr.transpose(None));
     ///
     /// let arr = Array::new(vec![1,2,3,4,5,6,7,8], vec![4, 2]).unwrap();
-    /// assert_eq!(array!([[1, 3, 5, 7], [2, 4, 6, 8]]), arr.transpose(Some(vec![1, 0])));
+    /// assert_eq!(array!(i32, [[1, 3, 5, 7], [2, 4, 6, 8]]), arr.transpose(Some(vec![1, 0])));
     /// ```
     fn transpose(&self, axes: Option<Vec<isize>>) -> Result<Array<T>, ArrayError>;
 
