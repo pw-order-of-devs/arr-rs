@@ -19,10 +19,10 @@ pub trait ArraySearch<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Result<Array<i32>, ArrayError> = array!([[10, 11, 12], [13, 14, 15]]);
-    /// assert_eq!(array!([5]), arr.argmax(None, None));
-    /// let arr: Result<Array<f64>, ArrayError> = array!([[f64::NAN, 4.], [2., 3.]]);
-    /// assert_eq!(array!([0]), arr.argmax(None, None));
+    /// let arr = array!(i32, [[10, 11, 12], [13, 14, 15]]);
+    /// assert_eq!(array!(usize, [5]), arr.argmax(None, None));
+    /// let arr = array!(f64, [[f64::NAN, 4.], [2., 3.]]);
+    /// assert_eq!(array!(usize, [0]), arr.argmax(None, None));
     /// ```
     fn argmax(&self, axis: Option<isize>, keepdims: Option<bool>) -> Result<Array<usize>, ArrayError>;
 
@@ -38,14 +38,14 @@ pub trait ArraySearch<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Result<Array<i32>, ArrayError> = array!([[10, 11, 12], [13, 14, 15]]);
-    /// assert_eq!(array!([0]), arr.argmin(None, None));
-    /// assert_eq!(array!([0, 0, 0]), arr.argmin(Some(0), None));
-    /// assert_eq!(array!([0, 0]), arr.argmin(Some(1), None));
-    /// let arr: Result<Array<f64>, ArrayError> = array!([[f64::NAN, 4.], [2., 3.]]);
-    /// assert_eq!(array!([0]), arr.argmin(None, None));
-    /// assert_eq!(array!([0, 1]), arr.argmin(Some(0), None));
-    /// assert_eq!(array!([0, 0]), arr.argmin(Some(1), None));
+    /// let arr = array!(i32, [[10, 11, 12], [13, 14, 15]]);
+    /// assert_eq!(array!(usize, [0]), arr.argmin(None, None));
+    /// assert_eq!(array!(usize, [0, 0, 0]), arr.argmin(Some(0), None));
+    /// assert_eq!(array!(usize, [0, 0]), arr.argmin(Some(1), None));
+    /// let arr = array!(f64, [[f64::NAN, 4.], [2., 3.]]);
+    /// assert_eq!(array!(usize, [0]), arr.argmin(None, None));
+    /// assert_eq!(array!(usize, [0, 1]), arr.argmin(Some(0), None));
+    /// assert_eq!(array!(usize, [0, 0]), arr.argmin(Some(1), None));
     /// ```
     fn argmin(&self, axis: Option<isize>, keepdims: Option<bool>) -> Result<Array<usize>, ArrayError>;
 }
@@ -63,7 +63,7 @@ impl <T: ArrayElement> ArraySearch<T> for Array<T> {
             let result = match self.get_elements()?.iter().position(|item| item.is_nan()) {
                 Some(i) => Array::single(i),
                 None => {
-                    let sorted = self.sort(None, None)?.get_elements()?;
+                    let sorted = self.sort(None, Some("quicksort"))?.get_elements()?;
                     let max_pos = self.get_elements()?.iter().position(|item| item == &sorted[sorted.len() - 1]).unwrap();
                     Array::single(max_pos)
                 }
@@ -85,7 +85,7 @@ impl <T: ArrayElement> ArraySearch<T> for Array<T> {
             let result = match self.get_elements()?.iter().position(|item| item.is_nan()) {
                 Some(i) => Array::single(i),
                 None => {
-                    let sorted = self.sort(None, None)?.get_elements()?;
+                    let sorted = self.sort(None, Some("quicksort"))?.get_elements()?;
                     let max_pos = self.get_elements()?.iter().position(|item| item == &sorted[0]).unwrap();
                     Array::single(max_pos)
                 }

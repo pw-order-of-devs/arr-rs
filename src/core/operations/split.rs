@@ -19,13 +19,13 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7);
+    /// let arr = array_arange!(i32, 0, 7);
     /// let split = arr.array_split(3, None).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1, 2).unwrap(), array_flat!(3, 4, 5).unwrap(), array_flat!(6, 7).unwrap()], split);
+    /// assert_eq!(vec![array_flat!(i32, 0, 1, 2).unwrap(), array_flat!(i32, 3, 4, 5).unwrap(), array_flat!(i32, 6, 7).unwrap()], split);
     ///
-    /// let arr = array_arange!(0, 8);
+    /// let arr = array_arange!(i32, 0, 8);
     /// let split = arr.array_split(4, None).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1, 2).unwrap(), array_flat!(3, 4).unwrap(), array_flat!(5, 6).unwrap(), array_flat!(7, 8).unwrap()], split);
+    /// assert_eq!(vec![array_flat!(i32, 0, 1, 2).unwrap(), array_flat!(i32, 3, 4).unwrap(), array_flat!(i32, 5, 6).unwrap(), array_flat!(i32, 7, 8).unwrap()], split);
     /// ```
     fn array_split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<T>>, ArrayError>;
 
@@ -40,13 +40,13 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 8);
+    /// let arr = array_arange!(i32, 0, 8);
     /// let split = arr.split(3, None).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1, 2).unwrap(), array_flat!(3, 4, 5).unwrap(), array_flat!(6, 7, 8).unwrap()], split);
+    /// assert_eq!(vec![array_flat!(i32, 0, 1, 2).unwrap(), array_flat!(i32, 3, 4, 5).unwrap(), array_flat!(i32, 6, 7, 8).unwrap()], split);
     ///
-    /// let arr = array_arange!(0, 7);
+    /// let arr = array_arange!(i32, 0, 7);
     /// let split = arr.split(4, None).unwrap();
-    /// assert_eq!(vec![array_flat!(0, 1).unwrap(), array_flat!(2, 3).unwrap(), array_flat!(4, 5).unwrap(), array_flat!(6, 7).unwrap()], split);
+    /// assert_eq!(vec![array_flat!(i32, 0, 1).unwrap(), array_flat!(i32, 2, 3).unwrap(), array_flat!(i32, 4, 5).unwrap(), array_flat!(i32, 6, 7).unwrap()], split);
     /// ```
     fn split(&self, parts: usize, axis: Option<usize>) -> Result<Vec<Array<T>>, ArrayError>;
 
@@ -60,13 +60,13 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 3).reshape(&[2, 2]);
+    /// let arr = array_arange!(i32, 0, 3).reshape(&[2, 2]);
     /// let split = arr.split_axis(0).unwrap();
-    /// assert_eq!(vec![array!([[0, 1]]).unwrap(), array!([[2, 3]]).unwrap()], split);
+    /// assert_eq!(vec![array!(i32, [[0, 1]]).unwrap(), array!(i32, [[2, 3]]).unwrap()], split);
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]);
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 2, 2]);
     /// let split = arr.split_axis(1).unwrap();
-    /// assert_eq!(vec![array!([[[0, 1]], [[4, 5]]]).unwrap(), array!([[[2, 3]], [[6, 7]]]).unwrap()], split);
+    /// assert_eq!(vec![array!(i32, [[[0, 1]], [[4, 5]]]).unwrap(), array!(i32, [[[2, 3]], [[6, 7]]]).unwrap()], split);
     /// ```
     fn split_axis(&self, axis: usize) -> Result<Vec<Array<T>>, ArrayError>;
 
@@ -80,9 +80,9 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.hsplit(2).unwrap();
-    /// assert_eq!(vec![array!([[[0, 1]], [[4, 5]]]).unwrap(), array!([[[2, 3]], [[6, 7]]]).unwrap()], split);
+    /// assert_eq!(vec![array!(i32, [[[0, 1]], [[4, 5]]]).unwrap(), array!(i32, [[[2, 3]], [[6, 7]]]).unwrap()], split);
     /// ```
     fn hsplit(&self, parts: usize) -> Result<Vec<Array<T>>, ArrayError>;
 
@@ -96,9 +96,9 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.vsplit(2).unwrap();
-    /// assert_eq!(vec![array!([[[0, 1], [2, 3]]]).unwrap(), array!([[[4, 5], [6, 7]]]).unwrap()], split);
+    /// assert_eq!(vec![array!(i32, [[[0, 1], [2, 3]]]).unwrap(), array!(i32, [[[4, 5], [6, 7]]]).unwrap()], split);
     /// ```
     fn vsplit(&self, parts: usize) -> Result<Vec<Array<T>>, ArrayError>;
 
@@ -112,9 +112,9 @@ pub trait ArraySplit<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]).unwrap();
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 2, 2]).unwrap();
     /// let split = arr.dsplit(2).unwrap();
-    /// assert_eq!(vec![array!([[[0], [2]], [[4], [6]]]).unwrap(), array!([[[1], [3]], [[5], [7]]]).unwrap()], split);
+    /// assert_eq!(vec![array!(i32, [[[0], [2]], [[4], [6]]]).unwrap(), array!(i32, [[[1], [3]], [[5], [7]]]).unwrap()], split);
     /// ```
     fn dsplit(&self, parts: usize) -> Result<Vec<Array<T>>, ArrayError>;
 }
