@@ -413,7 +413,8 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
         let sep = sep.unwrap_or(Array::single(N::from_str(" "))?);
         let broadcasted = self.broadcast(&sep)?;
         let max_split =
-            if let Some(counts) = max_split { Some(counts.broadcast_to(broadcasted.get_shape()?)?) } else { None };
+            if let Some(counts) = max_split { Some(counts.broadcast_to(broadcasted.get_shape()?)?) }
+            else { None };
         let elements = broadcasted.clone().into_iter().enumerate()
             .map(|(idx, tuple)| tuple.0._split(tuple.1, max_split.clone().map(|s| s[idx])))
             .collect();

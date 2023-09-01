@@ -81,7 +81,7 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// assert_eq!(array!([1, 2, 3, 4]), Array::<i32>::flat(vec![1, 2, 3, 4]));
+    /// assert_eq!(array!(i32, [1, 2, 3, 4]), Array::<i32>::flat(vec![1, 2, 3, 4]));
     /// ```
     fn flat(elements: Vec<T>) -> Result<Self, ArrayError>;
 

@@ -23,6 +23,7 @@ pub use crate::core::{
             CollectionElement,
             List,
         },
+        compare::{CompareOp, CompareOpType},
         sort::{SortKind, SortKindType},
         tuple::{
             ParseTupleError,

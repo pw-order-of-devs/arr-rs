@@ -21,8 +21,8 @@ pub trait ArrayReorder<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]);
-    /// assert_eq!(array!([[[1, 0], [3, 2]], [[5, 4], [7, 6]]]), arr.flip(Some(vec![2])));
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 2, 2]);
+    /// assert_eq!(array!(i32, [[[1, 0], [3, 2]], [[5, 4], [7, 6]]]), arr.flip(Some(vec![2])));
     /// ```
     fn flip(&self, axes: Option<Vec<isize>>) -> Result<Array<T>, ArrayError>;
 
@@ -33,8 +33,8 @@ pub trait ArrayReorder<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]);
-    /// assert_eq!(array!([[[4, 5], [6, 7]], [[0, 1], [2, 3]]]), arr.flipud());
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 2, 2]);
+    /// assert_eq!(array!(i32, [[[4, 5], [6, 7]], [[0, 1], [2, 3]]]), arr.flipud());
     /// ```
     fn flipud(&self) -> Result<Array<T>, ArrayError>;
 
@@ -45,8 +45,8 @@ pub trait ArrayReorder<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]);
-    /// assert_eq!(array!([[[2, 3], [0, 1]], [[6, 7], [4, 5]]]), arr.fliplr());
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 2, 2]);
+    /// assert_eq!(array!(i32, [[[2, 3], [0, 1]], [[6, 7], [4, 5]]]), arr.fliplr());
     /// ```
     fn fliplr(&self) -> Result<Array<T>, ArrayError>;
 
@@ -64,8 +64,8 @@ pub trait ArrayReorder<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 2, 2]);
-    /// assert_eq!(array!([[[4, 5], [6, 7]], [[0, 1], [2, 3]]]), arr.roll(vec![1], Some(vec![0])));
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 2, 2]);
+    /// assert_eq!(array!(i32, [[[4, 5], [6, 7]], [[0, 1], [2, 3]]]), arr.roll(vec![1], Some(vec![0])));
     /// ```
     fn roll(&self, shift: Vec<isize>, axes: Option<Vec<isize>>) -> Result<Array<T>, ArrayError>;
 
@@ -82,8 +82,8 @@ pub trait ArrayReorder<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr = array_arange!(0, 7).reshape(&[2, 4]);
-    /// assert_eq!(array!([[3, 7], [2, 6], [1, 5], [0, 4]]), arr.rot90(1, vec![0, 1]));
+    /// let arr = array_arange!(i32, 0, 7).reshape(&[2, 4]);
+    /// assert_eq!(array!(i32, [[3, 7], [2, 6], [1, 5], [0, 4]]), arr.rot90(1, vec![0, 1]));
     /// ```
     fn rot90(&self, k: usize, axes: Vec<isize>) -> Result<Array<T>, ArrayError>;
 }

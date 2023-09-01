@@ -50,16 +50,16 @@ case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), &[2, 3, 4], Err(Ar
 
 #[rstest(
 array, range, expected,
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), 0 .. 4, array!([1, 2, 3, 4])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), 0 .. 6, array!([1, 2, 3, 4, 5, 6])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), 0 .. 1, array!([1, 2])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), 0 .. 2, array!([[1, 2], [3, 4]])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), 1 .. 2, array!([3, 4])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), 2 .. 4, array!([[5, 6], [7, 8]])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]), 0 .. 1, array!([1, 2, 3, 4])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]), 0 .. 2, array!([[1, 2, 3, 4], [5, 6, 7, 8]])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 0 .. 1, array!([[1, 2], [3, 4]])),
-case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 2 .. 3, array!([[5, 6], [7, 8]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), 0 .. 4, array!(i32, [1, 2, 3, 4])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![8]), 0 .. 6, array!(i32, [1, 2, 3, 4, 5, 6])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), 0 .. 1, array!(i32, [1, 2])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), 0 .. 2, array!(i32, [[1, 2], [3, 4]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), 1 .. 2, array!(i32, [3, 4])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![4, 2]), 2 .. 4, array!(i32, [[5, 6], [7, 8]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]), 0 .. 1, array!(i32, [1, 2, 3, 4])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]), 0 .. 2, array!(i32, [[1, 2, 3, 4], [5, 6, 7, 8]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 0 .. 1, array!(i32, [[1, 2], [3, 4]])),
+case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 2 .. 3, array!(i32, [[5, 6], [7, 8]])),
 case(Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]), 3 .. 10, Err(ArrayError::OutOfBounds { value: "slice range" })),
 )] fn test_slice(array: Result<Array<i32>, ArrayError>, range: std::ops::Range<usize>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.unwrap().slice(range))

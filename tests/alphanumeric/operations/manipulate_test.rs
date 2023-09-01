@@ -61,11 +61,11 @@ case(Array::new(vec!["aB21".to_string(), "Cd32".to_string(), "2aA3".to_string(),
 
 #[rstest(
 array, width, fill_char, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(5).unwrap(), None, Array::flat(vec!["  a  ".to_string(), "  b  ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(5).unwrap(), None, Array::flat(vec![" aaa ".to_string(), " bbbb".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(5, 6).unwrap(), None, Array::flat(vec![" aaa ".to_string(), " bbbb ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["**aaa*".to_string(), "*bbbb*".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["**aaa*".to_string(), "#bbbb#".to_string()])),
+case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["  a  ".to_string(), "  b  ".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec![" aaa ".to_string(), " bbbb".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5, 6).unwrap(), None, Array::flat(vec![" aaa ".to_string(), " bbbb ".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["**aaa*".to_string(), "*bbbb*".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["**aaa*".to_string(), "#bbbb#".to_string()])),
 case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1, 1]).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
 case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1]).unwrap(), Some(Array::flat(vec!['*', '*', '*']).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_center(array: Result<Array<String>, ArrayError>, width: Array<usize>, fill_char: Option<Array<char>>, expected: Result<Array<String>, ArrayError>) {
@@ -104,6 +104,7 @@ case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["-"
 #[rstest(
 array, sep, max_split, expected,
 case(Array::single("a a a".to_string()), None, None, Array::single(List(vec!["a".to_string(), "a".to_string(), "a".to_string()]))),
+case(Array::single("a a a".to_string()), None, Some(Array::single(3).unwrap()), Array::single(List(vec!["a".to_string(), "a".to_string(), "a".to_string()]))),
 case(Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]), Some(Array::single("-".to_string()).unwrap()), None, Array::flat(vec![List(vec!["a".to_string(), "a".to_string(), "a".to_string()]), List(vec!["b".to_string(), "b".to_string(), "b".to_string(), "b".to_string()])])),
 case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string()]).unwrap()), None, Array::flat(vec![List(vec!["a".to_string(), "a".to_string(), "a".to_string()]), List(vec!["b".to_string(), "b".to_string(), "b".to_string(), "b".to_string()])])),
 case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string()]).unwrap()), Some(Array::single(2).unwrap()), Array::flat(vec![List(vec!["a".to_string(), "a-a".to_string()]), List(vec!["b".to_string(), "b.b.b".to_string()])])),
@@ -174,11 +175,11 @@ case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec
 
 #[rstest(
 array, width, fill_char, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(5).unwrap(), None, Array::flat(vec!["a    ".to_string(), "b    ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(5).unwrap(), None, Array::flat(vec!["aaa  ".to_string(), "bbbb ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(5, 6).unwrap(), None, Array::flat(vec!["aaa  ".to_string(), "bbbb  ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["aaa***".to_string(), "bbbb**".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["aaa***".to_string(), "bbbb##".to_string()])),
+case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["a    ".to_string(), "b    ".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["aaa  ".to_string(), "bbbb ".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5, 6).unwrap(), None, Array::flat(vec!["aaa  ".to_string(), "bbbb  ".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["aaa***".to_string(), "bbbb**".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["aaa***".to_string(), "bbbb##".to_string()])),
 case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1, 1]).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
 case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1]).unwrap(), Some(Array::flat(vec!['*', '*', '*']).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_ljust(array: Result<Array<String>, ArrayError>, width: Array<usize>, fill_char: Option<Array<char>>, expected: Result<Array<String>, ArrayError>) {
@@ -187,11 +188,11 @@ case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1]
 
 #[rstest(
 array, width, fill_char, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(5).unwrap(), None, Array::flat(vec!["    a".to_string(), "    b".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(5).unwrap(), None, Array::flat(vec!["  aaa".to_string(), " bbbb".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(5, 6).unwrap(), None, Array::flat(vec!["  aaa".to_string(), "  bbbb".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["***aaa".to_string(), "**bbbb".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["***aaa".to_string(), "##bbbb".to_string()])),
+case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["    a".to_string(), "    b".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["  aaa".to_string(), " bbbb".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5, 6).unwrap(), None, Array::flat(vec!["  aaa".to_string(), "  bbbb".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["***aaa".to_string(), "**bbbb".to_string()])),
+case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["***aaa".to_string(), "##bbbb".to_string()])),
 case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1, 1]).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
 case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1]).unwrap(), Some(Array::flat(vec!['*', '*', '*']).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_rjust(array: Result<Array<String>, ArrayError>, width: Array<usize>, fill_char: Option<Array<char>>, expected: Result<Array<String>, ArrayError>) {
