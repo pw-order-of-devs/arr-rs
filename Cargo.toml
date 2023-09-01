@@ -1,6 +1,6 @@
 [package]
 name = "arr-rs"
-version = "0.5.0"
+version = "0.5.1"
 edition = "2021"
 authors = [ "Paweł Walus <pawel.walus@protonmail.com>" ]
 description = "arr-rs - rust arrays library"
