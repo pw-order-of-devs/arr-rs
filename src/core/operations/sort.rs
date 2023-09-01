@@ -19,13 +19,13 @@ pub trait ArraySort<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Result<Array<i32>, ArrayError> = array!([[1, 4], [3, 1]]);
-    /// assert_eq!(array!([1, 1, 3, 4]), arr.sort(None, None));
+    /// let arr = array!(i32, [[1, 4], [3, 1]]);
+    /// assert_eq!(array!(i32, [1, 1, 3, 4]), arr.sort(None, None::<&str>));
     ///
-    /// let arr: Result<Array<i32>, ArrayError> = array!([[1, 4], [3, 1]]);
-    /// assert_eq!(array!([[1, 4], [1, 3]]), arr.sort(Some(-1), None));
+    /// let arr = array!(i32, [[1, 4], [3, 1]]);
+    /// assert_eq!(array!(i32, [[1, 4], [1, 3]]), arr.sort(Some(-1), None::<&str>));
     /// ```
-    fn sort(&self, axis: Option<isize>, kind: Option<SortKind>) -> Result<Array<T>, ArrayError>;
+    fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<T>, ArrayError>;
 
     /// Returns the indices that would sort an array
     ///
@@ -39,18 +39,18 @@ pub trait ArraySort<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Result<Array<i32>, ArrayError> = array!([[1, 4], [3, 1]]);
-    /// assert_eq!(array!([0, 3, 2, 1]), arr.argsort(None, None));
+    /// let arr = array!(i32, [[1, 4], [3, 1]]);
+    /// assert_eq!(array!(usize, [0, 3, 2, 1]), arr.argsort(None, None::<&str>));
     ///
-    /// let arr: Result<Array<i32>, ArrayError> = array!([[1, 4], [3, 1]]);
-    /// assert_eq!(array!([[0, 1], [1, 0]]), arr.argsort(Some(-1), None));
+    /// let arr = array!(i32, [[1, 4], [3, 1]]);
+    /// assert_eq!(array!(usize, [[0, 1], [1, 0]]), arr.argsort(Some(-1), None::<&str>));
     /// ```
-    fn argsort(&self, axis: Option<isize>, kind: Option<SortKind>) -> Result<Array<usize>, ArrayError>;
+    fn argsort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<usize>, ArrayError>;
 }
 
 impl <T: ArrayElement> ArraySort<T> for Array<T> {
 
-    fn sort(&self, axis: Option<isize>, kind: Option<SortKind>) -> Result<Array<T>, ArrayError> {
+    fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<T>, ArrayError> {
         let kind = match kind {
             Some(k) => k.parse()?,
             None => SortKind::Quicksort,
@@ -69,7 +69,7 @@ impl <T: ArrayElement> ArraySort<T> for Array<T> {
         }
     }
 
-    fn argsort(&self, axis: Option<isize>, kind: Option<SortKind>) -> Result<Array<usize>, ArrayError> {
+    fn argsort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<usize>, ArrayError> {
         let kind = match kind {
             Some(k) => k.parse()?,
             None => SortKind::Quicksort,
@@ -103,11 +103,11 @@ impl <T: ArrayElement> ArraySort<T> for Array<T> {
 
 impl <T: ArrayElement> ArraySort<T> for Result<Array<T>, ArrayError> {
 
-    fn sort(&self, axis: Option<isize>, kind: Option<SortKind>) -> Result<Array<T>, ArrayError> {
+    fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<T>, ArrayError> {
         self.clone()?.sort(axis, kind)
     }
 
-    fn argsort(&self, axis: Option<isize>, kind: Option<SortKind>) -> Result<Array<usize>, ArrayError> {
+    fn argsort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<usize>, ArrayError> {
         self.clone()?.argsort(axis, kind)
     }
 }

@@ -21,8 +21,8 @@ pub trait ArrayBinaryBits where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Result<Array<u8>, _> = array!([[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 0, 1, 1, 1]]);
-    /// let array: Result<Array<u8>, _> = array!([[2], [7], [23]]);
+    /// let expected = array!(u8, [[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 0, 1, 1, 1]]);
+    /// let array = array!(u8, [[2], [7], [23]]);
     /// assert_eq!(expected, array.unpack_bits(Some(1), None, Some("big")));
     /// ```
     fn unpack_bits(&self, axis: Option<isize>, count: Option<isize>, bit_order: Option<impl BitOrderType>) -> Result<Array<u8>, ArrayError>;
@@ -39,8 +39,8 @@ pub trait ArrayBinaryBits where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Result<Array<u8>, _> = array!([[2], [7], [23]]);
-    /// let array: Result<Array<u8>, _> = array!([[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 0, 1, 1, 1]]);
+    /// let expected = array!(u8, [[2], [7], [23]]);
+    /// let array = array!(u8, [[0, 0, 0, 0, 0, 0, 1, 0], [0, 0, 0, 0, 0, 1, 1, 1], [0, 0, 0, 1, 0, 1, 1, 1]]);
     /// assert_eq!(expected, array.pack_bits(Some(1), Some("big")));
     /// ```
     fn pack_bits(&self, axis: Option<isize>, bit_order: Option<impl BitOrderType>) -> Result<Array<u8>, ArrayError>;

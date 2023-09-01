@@ -19,11 +19,11 @@ pub trait ArrayCount<T: ArrayElement> where Self: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Result<Array<i32>, ArrayError> = array_eye!(4);
-    /// assert_eq!(array!([4]), arr.count_nonzero(None, None));
+    /// let arr = array_eye!(i32, 4);
+    /// assert_eq!(array!(usize, [4]), arr.count_nonzero(None, None));
     ///
-    /// let arr: Result<Array<i32>, ArrayError> = array!([[0, 1, 7, 0], [3, 0, 2, 19]]);
-    /// assert_eq!(array!([1, 1, 2, 1]), arr.count_nonzero(Some(0), None));
+    /// let arr = array!(i32, [[0, 1, 7, 0], [3, 0, 2, 19]]);
+    /// assert_eq!(array!(usize, [1, 1, 2, 1]), arr.count_nonzero(Some(0), None));
     /// ```
     fn count_nonzero(&self, axis: Option<isize>, keepdims: Option<bool>) -> Result<Array<usize>, ArrayError>;
 }

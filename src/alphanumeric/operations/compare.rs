@@ -3,6 +3,7 @@ use crate::{
     core::prelude::*,
     errors::prelude::*,
 };
+use crate::core::types::compare::CompareOpType;
 
 /// ArrayTrait - Alphanumeric Array operations
 pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
@@ -148,7 +149,7 @@ pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
     /// let expected = Array::flat(vec![false, false]);
     /// assert_eq!(expected, arr.compare(&other, "<"));
     /// ```
-    fn compare(&self, other: &Array<N>, cmp_op: &str) -> Result<Array<bool>, ArrayError>;
+    fn compare(&self, other: &Array<N>, cmp_op: impl CompareOpType) -> Result<Array<bool>, ArrayError>;
 }
 
 impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
@@ -201,15 +202,15 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn compare(&self, other: &Array<N>, cmp_op: &str) -> Result<Array<bool>, ArrayError> {
+    fn compare(&self, other: &Array<N>, cmp_op: impl CompareOpType) -> Result<Array<bool>, ArrayError> {
+        let cmp_op = cmp_op.parse()?;
         match cmp_op {
-            "==" => self.equal(other),
-            "!=" => self.not_equal(other),
-            ">=" => self.greater_equal(other),
-            "<=" => self.less_equal(other),
-            ">" => self.greater(other),
-            "<" => self.less(other),
-            _ => Err(ArrayError::ParameterError { param: "cmp_op", message: "must be one of {“<”, “<=”, “==”, “>=”, “>”, “!=”}" })
+            CompareOp::Equals => self.equal(other),
+            CompareOp::NotEquals => self.not_equal(other),
+            CompareOp::GreaterEqual => self.greater_equal(other),
+            CompareOp::LessEqual => self.less_equal(other),
+            CompareOp::Greater => self.greater(other),
+            CompareOp::Less => self.less(other),
         }
     }
 }
@@ -240,7 +241,7 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Result<Array<N>, ArrayError> {
         self.clone()?.less(other)
     }
 
-    fn compare(&self, other: &Array<N>, cmp_op: &str) -> Result<Array<bool>, ArrayError> {
+    fn compare(&self, other: &Array<N>, cmp_op: impl CompareOpType) -> Result<Array<bool>, ArrayError> {
         self.clone()?.compare(other, cmp_op)
     }
 }

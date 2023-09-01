@@ -21,16 +21,16 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
-    /// let arr: Array<i32> = Array::diag(&array![1, 2, 3, 4].unwrap(), None).unwrap();
+    /// let expected = array!(i32, [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
+    /// let arr = Array::diag(&array!(i32, [1, 2, 3, 4]).unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     ///
-    /// let expected: Array<i32> = array!([1, 2, 3, 4]).unwrap();
-    /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap(), None).unwrap();
+    /// let expected = array!(i32, [1, 2, 3, 4]).unwrap();
+    /// let arr = Array::diag(&array!(i32, [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     ///
-    /// let expected: Array<i32> = array!([0, 0, 0]).unwrap();
-    /// let arr: Array<i32> = Array::diag(&array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap(), Some(1)).unwrap();
+    /// let expected = array!(i32, [0, 0, 0]).unwrap();
+    /// let arr = Array::diag(&array!(i32, [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap(), Some(1)).unwrap();
     /// assert_eq!(expected, arr);
     /// ```
     fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
@@ -47,12 +47,12 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
-    /// let arr: Array<i32> = Array::diagflat(&array![1, 2, 3, 4].unwrap(), None).unwrap();
+    /// let expected = array!(i32, [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
+    /// let arr = Array::diagflat(&array!(i32, [1, 2, 3, 4]).unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     ///
-    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
-    /// let arr: Array<i32> = Array::diagflat(&array!([[1, 2], [3, 4]]).unwrap(), None).unwrap();
+    /// let expected = array!(i32, [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap();
+    /// let arr = Array::diagflat(&array!(i32, [[1, 2], [3, 4]]).unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     /// ```
     fn diagflat(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
@@ -69,12 +69,12 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(&[2, 4]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 0, 0, 0], [5, 6, 0, 0]]).unwrap();
+    /// let arr = array_arange!(i32, 1, 8).reshape(&[2, 4]).unwrap();
+    /// let expected = array!(i32, [[1, 0, 0, 0], [5, 6, 0, 0]]).unwrap();
     /// assert_eq!(expected, arr.tril(None).unwrap());
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(&[2, 2, 2]).unwrap();
-    /// let expected: Array<i32> = array!([[[1, 0], [3, 4]], [[5, 0], [7, 8]]]).unwrap();
+    /// let arr = array_arange!(i32, 1, 8).reshape(&[2, 2, 2]).unwrap();
+    /// let expected = array!(i32, [[[1, 0], [3, 4]], [[5, 0], [7, 8]]]).unwrap();
     /// assert_eq!(expected, arr.tril(None).unwrap());
     /// ```
     fn tril(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
@@ -91,12 +91,12 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(&[2, 4]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 2, 3, 4], [0, 6, 7, 8]]).unwrap();
+    /// let arr = array_arange!(i32, 1, 8).reshape(&[2, 4]).unwrap();
+    /// let expected = array!(i32, [[1, 2, 3, 4], [0, 6, 7, 8]]).unwrap();
     /// assert_eq!(expected, arr.triu(None).unwrap());
     ///
-    /// let arr: Array<i32> = array_arange!(1, 8).reshape(&[2, 2, 2]).unwrap();
-    /// let expected: Array<i32> = array!([[[1, 2], [0, 4]], [[5, 6], [0, 8]]]).unwrap();
+    /// let arr = array_arange!(i32, 1, 8).reshape(&[2, 2, 2]).unwrap();
+    /// let expected = array!(i32, [[[1, 2], [0, 4]], [[5, 6], [0, 8]]]).unwrap();
     /// assert_eq!(expected, arr.triu(None).unwrap());
     /// ```
     fn triu(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
@@ -114,12 +114,12 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// ```
     /// use arr_rs::prelude::*;
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3, 4]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 1, 1, 1], [8, 4, 2, 1], [27, 9, 3, 1], [64, 16, 4, 1]]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3, 4]).unwrap();
+    /// let expected = array!(i32, [[1, 1, 1, 1], [8, 4, 2, 1], [27, 9, 3, 1], [64, 16, 4, 1]]).unwrap();
     /// assert_eq!(expected, arr.vander(None, Some(false)).unwrap());
     ///
-    /// let arr: Array<i32> = array!([1, 2, 3, 4]).unwrap();
-    /// let expected: Array<i32> = array!([[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]]).unwrap();
+    /// let arr = array!(i32, [1, 2, 3, 4]).unwrap();
+    /// let expected = array!(i32, [[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]]).unwrap();
     /// assert_eq!(expected, arr.vander(None, Some(true)).unwrap());
     /// ```
     fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Array<N>, ArrayError>;

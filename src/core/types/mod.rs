@@ -1,6 +1,9 @@
 /// Collection types definition
 pub mod collection;
 
+/// Compare parameters types definition
+pub mod compare;
+
 /// Sort parameters types definition
 pub mod sort;
 
