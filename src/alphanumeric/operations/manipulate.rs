@@ -325,6 +325,41 @@ pub trait ArrayStringManipulate<N: Alphanumeric> where Self: Sized + Clone {
     /// assert_eq!(expected, arr.rjust(&Array::single(9).unwrap(), Some(Array::single('*').unwrap())));
     /// ```
     fn rjust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError>;
+
+    /// Return the numeric string left-filled with zeros
+    ///
+    /// # Arguments
+    ///
+    /// * `width` - length of the resulting strings
+    /// 
+    /// # Examples
+    /// 
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec!["0005".to_string(), "-005".to_string()]);
+    /// let arr = Array::flat(vec!["5".to_string(), "-5".to_string()]);
+    /// assert_eq!(expected, arr.zfill(4));
+    /// ```
+    fn zfill(&self, width: usize) -> Result<Array<N>, ArrayError>;
+
+    /// Remove elements from `delete_char` vec and translate string remaining characters through `table`
+    ///
+    /// # Arguments
+    ///
+    /// * `table` - chars to replace
+    /// * `delete_chars` - chars to delete
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let expected = Array::flat(vec!["hewwd".to_string(), "wdrwd".to_string()]);
+    /// let arr = Array::flat(vec!["hello".to_string(), "world".to_string()]);
+    /// assert_eq!(expected, arr.translate(vec![('l', 'w'), ('o', 'd')]));
+    /// ```
+    fn translate(&self, table: Vec<(char, char)>) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
@@ -499,6 +534,38 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
             .collect();
         Array::new(elements, self.get_shape()?)
     }
+
+    fn zfill(&self, width: usize) -> Result<Array<N>, ArrayError> {
+        if self.get_elements()?.iter().any(|item| item.to_string().parse::<f64>().is_err()) {
+            return Err(ArrayError::ParameterError { param: "`array`", message: "must be containing numeric strings only" })
+        }
+        self.map(|item| {
+            let (mut prefix, mut str) = ("", item.to_string());
+            if str.starts_with('-') {
+                str.remove(0);
+                prefix = "-";
+            }
+            let zeros_len = width - prefix.len();
+            if str.len() < zeros_len {
+                for _ in 0 .. zeros_len - str.len() { str.insert(0, '0') }
+            }
+            if prefix == "-" { str.insert(0, prefix.chars().next().unwrap()); }
+            N::from_str(&str)
+        })
+    }
+
+    fn translate(&self, table: Vec<(char, char)>) -> Result<Array<N>, ArrayError> {
+        self.map(|item| {
+            let str = item.to_string().chars()
+                .map(|c| {
+                    let tuple = table.iter().find(|(t, _)| c == *t);
+                    if let Some(t) = tuple { t.1 }
+                    else { c }
+                })
+                .collect::<String>();
+            N::from_str(&str)
+        })
+    }
 }
 
 impl <N: Alphanumeric> ArrayStringManipulate<N> for Result<Array<N>, ArrayError> {
@@ -576,5 +643,13 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Result<Array<N>, ArrayError>
 
     fn rjust(&self, width: &Array<usize>, fill_char: Option<Array<char>>) -> Result<Array<N>, ArrayError> {
         self.clone()?.rjust(width, fill_char)
+    }
+
+    fn zfill(&self, width: usize) -> Result<Array<N>, ArrayError> {
+        self.clone()?.zfill(width)
+    }
+
+    fn translate(&self, table: Vec<(char, char)>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.translate(table)
     }
 }
