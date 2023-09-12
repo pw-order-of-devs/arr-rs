@@ -556,8 +556,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
 
     fn translate(&self, table: Vec<(char, char)>) -> Result<Array<N>, ArrayError> {
         self.map(|item| {
-            let str = item.to_string()
-                .chars().into_iter()
+            let str = item.to_string().chars()
                 .map(|c| {
                     let tuple = table.iter().find(|(t, _)| c == *t);
                     if let Some(t) = tuple { t.1 }
