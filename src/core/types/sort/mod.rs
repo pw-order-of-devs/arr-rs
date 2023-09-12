@@ -17,25 +17,25 @@ pub enum SortKind {
 pub trait SortKindType {
 
     /// Parse input to SortKind type
-    fn parse(self) -> Result<SortKind, ArrayError>;
+    fn parse_type(self) -> Result<SortKind, ArrayError>;
 }
 
 impl SortKindType for SortKind {
 
-    fn parse(self) -> Result<SortKind, ArrayError> {
+    fn parse_type(self) -> Result<SortKind, ArrayError> {
         Ok(self)
     }
 }
 
 impl SortKindType for &str {
 
-    fn parse(self) -> Result<SortKind, ArrayError> {
+    fn parse_type(self) -> Result<SortKind, ArrayError> {
         parse_kind(self.to_lowercase().as_str())
     }
 }
 impl SortKindType for String {
 
-    fn parse(self) -> Result<SortKind, ArrayError> {
+    fn parse_type(self) -> Result<SortKind, ArrayError> {
         parse_kind(self.to_lowercase().as_str())
     }
 }
