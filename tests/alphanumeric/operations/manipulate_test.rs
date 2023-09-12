@@ -198,3 +198,24 @@ case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1]
 )] fn test_char_rjust(array: Result<Array<String>, ArrayError>, width: Array<usize>, fill_char: Option<Array<char>>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.rjust(&width, fill_char))
 }
+
+#[rstest(
+array, width, expected,
+case(Array::flat(vec!["5".to_string(), "-5".to_string()]), 4, Array::flat(vec!["0005".to_string(), "-005".to_string()])),
+case(Array::flat(vec!["12345".to_string(), "67890".to_string()]), 3, Array::flat(vec!["12345".to_string(), "67890".to_string()])),
+case(Array::flat(vec!["-12345".to_string(), "-67890".to_string()]), 3, Array::flat(vec!["-12345".to_string(), "-67890".to_string()])),
+case(Array::flat(vec!["12345".to_string(), "67890".to_string()]), 10, Array::flat(vec!["0000012345".to_string(), "0000067890".to_string()])),
+case(Array::flat(vec!["-12345".to_string(), "-67890".to_string()]), 10, Array::flat(vec!["-000012345".to_string(), "-000067890".to_string()])),
+)] fn test_char_zfill(array: Result<Array<String>, ArrayError>, width: usize, expected: Result<Array<String>, ArrayError>) {
+    assert_eq!(expected, array.zfill(width))
+}
+
+#[rstest(
+case(Array::flat(vec!["hello".to_string(), "world".to_string()]), vec![('l', 'w'), ('o', 'd')], Array::flat(vec!["hewwd".to_string(), "wdrwd".to_string()])),
+case(Array::flat(vec!["abc".to_string(), "def".to_string()]), vec![('a', 'x'), ('b', 'y'), ('c', 'z')], Array::flat(vec!["xyz".to_string(), "def".to_string()])),
+case(Array::flat(vec!["apple".to_string(), "banana".to_string()]), vec![('a', 'A'), ('e', 'E'), ('i', 'I'), ('o', 'O'), ('u', 'U')], Array::flat(vec!["ApplE".to_string(), "bAnAnA".to_string()])),
+case(Array::flat(vec!["12345".to_string(), "67890".to_string()]), vec![('1', 'a'), ('3', 'b'), ('5', 'c'), ('7', 'd'), ('9', 'e')], Array::flat(vec!["a2b4c".to_string(), "6d8e0".to_string()])),
+array, table, expected,
+)] fn test_char_translate(array: Result<Array<String>, ArrayError>, table: Vec<(char, char)>, expected: Result<Array<String>, ArrayError>) {
+    assert_eq!(expected, array.translate(table))
+}

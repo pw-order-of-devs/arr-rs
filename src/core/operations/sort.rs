@@ -52,7 +52,7 @@ impl <T: ArrayElement> ArraySort<T> for Array<T> {
 
     fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<T>, ArrayError> {
         let kind = match kind {
-            Some(k) => k.parse()?,
+            Some(k) => k.parse_type()?,
             None => SortKind::Quicksort,
         };
         if let Some(axis) = axis {
@@ -71,7 +71,7 @@ impl <T: ArrayElement> ArraySort<T> for Array<T> {
 
     fn argsort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<usize>, ArrayError> {
         let kind = match kind {
-            Some(k) => k.parse()?,
+            Some(k) => k.parse_type()?,
             None => SortKind::Quicksort,
         };
         if let Some(axis) = axis {
