@@ -203,7 +203,7 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
     }
 
     fn compare(&self, other: &Array<N>, cmp_op: impl CompareOpType) -> Result<Array<bool>, ArrayError> {
-        let cmp_op = cmp_op.parse()?;
+        let cmp_op = cmp_op.parse_type()?;
         match cmp_op {
             CompareOp::Equals => self.equal(other),
             CompareOp::NotEquals => self.not_equal(other),

@@ -21,25 +21,25 @@ pub enum CompareOp {
 pub trait CompareOpType {
 
     /// Parse input to CompareOp type
-    fn parse(self) -> Result<CompareOp, ArrayError>;
+    fn parse_type(self) -> Result<CompareOp, ArrayError>;
 }
 
 impl CompareOpType for CompareOp {
 
-    fn parse(self) -> Result<CompareOp, ArrayError> {
+    fn parse_type(self) -> Result<CompareOp, ArrayError> {
         Ok(self)
     }
 }
 
 impl CompareOpType for &str {
 
-    fn parse(self) -> Result<CompareOp, ArrayError> {
+    fn parse_type(self) -> Result<CompareOp, ArrayError> {
         parse_op(self.to_lowercase().as_str())
     }
 }
 impl CompareOpType for String {
 
-    fn parse(self) -> Result<CompareOp, ArrayError> {
+    fn parse_type(self) -> Result<CompareOp, ArrayError> {
         parse_op(self.to_lowercase().as_str())
     }
 }
