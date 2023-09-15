@@ -15,7 +15,7 @@ include = [
 ]
 
 [package.metadata.docs.rs]
-features = ["numeric", "alphanumeric", "boolean", "math", "macros"]
+features = ["numeric", "alphanumeric", "boolean", "linalg", "math", "macros"]
 rustdoc-args = ["--cfg", "docsrs"]
 
 [lib]
@@ -23,10 +23,11 @@ name = "arr_rs"
 path = "src/lib.rs"
 
 [features]
-default = ["numeric", "alphanumeric", "boolean", "math", "macros"]
+default = ["numeric", "alphanumeric", "boolean", "linalg", "math", "macros"]
 numeric = []
 alphanumeric = []
 boolean = ["numeric"]
+linalg = ["numeric"]
 math = ["numeric"]
 macros = ["numeric"]
 

@@ -47,7 +47,11 @@ pub mod alphanumeric;
 #[cfg(feature = "boolean")]
 pub mod boolean;
 
-/// numeric module implementation
+/// linear algebra module implementation
+#[cfg(feature = "linalg")]
+pub mod linalg;
+
+/// math module implementation
 #[cfg(feature = "math")]
 pub mod math;
 

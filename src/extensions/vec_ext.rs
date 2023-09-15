@@ -40,12 +40,18 @@ impl <N: Clone> VecUpdateAt<N> for Vec<N> {
 pub(crate) trait VecReverse<N> {
 
     fn reverse_ext(&mut self) -> Self;
+    fn reverse_if(&mut self, condition: bool) -> Self;
 }
 
 impl <N: Clone> VecReverse<N> for Vec<N> {
 
     fn reverse_ext(&mut self) -> Self {
         self.reverse();
+        self.clone()
+    }
+
+    fn reverse_if(&mut self, condition: bool) -> Self {
+        if condition { self.reverse() }
         self.clone()
     }
 }
