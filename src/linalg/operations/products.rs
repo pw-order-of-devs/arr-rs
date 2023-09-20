@@ -26,45 +26,76 @@ pub trait ArrayLinalgProducts<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::new(vec![4, 1, 2, 2], vec![2, 2]), Array::new(vec![1, 0, 0, 1], vec![2, 2]).dot(&Array::new(vec![4, 1, 2, 2], vec![2, 2]).unwrap()));
     /// ```
     fn dot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Dot product of two vectors. If input is an array, it will be raveled
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - other array to perform operations with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::single(20), Array::flat(vec![1, 2, 3]).vdot(&Array::flat(vec![2, 3, 4]).unwrap()));
+    /// assert_eq!(Array::single(30), Array::new(vec![1, 4, 5, 6], vec![2, 2]).vdot(&Array::new(vec![4, 1, 2, 2], vec![2, 2]).unwrap()));
+    /// ```
+    fn vdot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Matrix product of two arrays
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - other array to perform operations with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::single(5), Array::flat(vec![1, 2]).matmul(&Array::flat(vec![1, 2]).unwrap()));
+    /// assert_eq!(Array::new(vec![5, 8, 8, 13], vec![2, 2]), Array::new(vec![1, 2, 2, 3], vec![2, 2]).matmul(&Array::new(vec![1, 2, 2, 3], vec![2, 2]).unwrap()));
+    /// ```
+    fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
 
     fn dot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
-        if self.len()? == 1 && other.len()? == 1 {
-            Array::single(N::from(self[0].to_f64() * other[0].to_f64()))
-        } else if other.len()? == 1 {
+        if self.len()? == 1 || other.len()? == 1 {
             self.multiply(other)
-        } else if self.len()? == 1 {
-            other.multiply(self)
         } else if self.ndim()? == 1 && other.ndim()? == 1 {
-            Self::dot_sum_product(self, other)
+            self.vdot(other)
         } else if self.ndim()? == 2 && other.ndim()? == 2 {
-            Self::dot_mat_mul(self, other)
+            self.matmul(other)
         } else if self.ndim()? == 1 || other.ndim()? == 1 {
             Self::dot_1d(self, other)
         } else {
             Self::dot_nd(self, other)
         }
     }
-}
 
-#[test] fn test() {
-    let arr_1 = Array::new(vec![1, 2, 3, 4], vec![2, 2]).unwrap();
-    let arr_2 = Array::flat(vec![1, 2]).unwrap();
-    println!("{}", arr_1.dot(&arr_2).unwrap());
+    fn vdot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.len()?.is_equal(&other.len()?)?;
+        let result = self.ravel()?.zip(&other.ravel()?)?
+            .map(|tuple| tuple.0.to_f64() * tuple.1.to_f64())?
+            .fold(0., |a, b| a + b)?;
+        Array::single(N::from(result))
+    }
 
-    let arr_1 = Array::flat(vec![1, 2]).unwrap();
-    let arr_2 = Array::new(vec![1, 2, 3, 4], vec![2, 2]).unwrap();
-    println!("{}", arr_1.dot(&arr_2).unwrap());
-
-    let arr_1 = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]).unwrap();
-    let arr_2 = Array::new(vec![1, 2, 3, 4], vec![2, 2]).unwrap();
-    println!("{}", arr_1.dot(&arr_2).unwrap());
-
-    let arr_1 = Array::new(vec![1, 2, 3, 4], vec![2, 2]).unwrap();
-    let arr_2 = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 2, 2]).unwrap();
-    println!("{}", arr_1.dot(&arr_2).unwrap());
+    fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        if self.ndim()? == 1 && other.ndim()? == 1 {
+            self.vdot(other)
+        } else if self.ndim()? == 1 || other.ndim()? == 1 {
+            return Err(ArrayError::ParameterError { param: "`todo`", message: "given shapes are not supported" })
+        } else if self.ndim()? == 2 && other.ndim()? == 2 {
+            self.shapes_align(0, &other.get_shape()?, 1)?;
+            Self::matmul_iterate(self, other)
+        } else {
+            return Err(ArrayError::ParameterError { param: "`todo`", message: "given shapes are not supported" })
+        }
+    }
 }
 
 impl <N: Numeric> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
@@ -72,32 +103,17 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
     fn dot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.dot(other)
     }
+
+    fn vdot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.vdot(other)
+    }
+
+    fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.matmul(other)
+    }
 }
 
-trait DotHelper {
-
-    fn dot_sum_product<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
-        if arr_1.len()? != arr_2.len()? {
-            return Err(ArrayError::ParameterError { param: "`len`", message: "of inputs for sum_product must be equal" })
-        }
-        let result = arr_1.zip(arr_2)?
-            .map(|tuple| tuple.0.to_f64() * tuple.1.to_f64())?
-            .fold(0., |a, b| a + b)?;
-        Array::single(N::from(result))
-    }
-
-    fn dot_mat_mul<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
-        if arr_1.get_shape()? != arr_2.get_shape()? {
-            return Err(ArrayError::ShapesMustMatch { shape_1: arr_1.get_shape()?, shape_2: arr_2.get_shape()? })
-        }
-        let mut result = vec![];
-        let (n, m) = (arr_1.get_shape()?[0], arr_1.get_shape()?[1]);
-        for i in 0 .. n { for j in 0 .. m {
-            let sum = (0 .. n).fold(0., |a, k| a + arr_1[i * n + k].to_f64() * arr_2[k * m + j].to_f64());
-            result.push(N::from(sum));
-        } }
-        Array::new(result, arr_1.get_shape()?)
-    }
+trait LinalgHelper {
 
     fn dot_split_array<N: Numeric>(arr: &Array<N>, axis: usize) -> Result<Vec<Array<N>>, ArrayError> {
         arr.split_axis(axis)?
@@ -108,13 +124,24 @@ trait DotHelper {
 
     fn dot_iterate<N: Numeric>(v_arr_1: &[Array<N>], v_arr_2: &[Array<N>]) -> Result<Array<N>, ArrayError> {
         v_arr_1.iter().flat_map(|a| {
-            v_arr_2.iter().map(move |b| Self::dot_sum_product(a, b))
+            v_arr_2.iter().map(move |b| a.vdot(b))
         })
             .collect::<Vec<Result<Array<N>, _>>>()
             .has_error()?.into_iter()
             .flat_map(|item| item.unwrap())
             .collect::<Array<N>>()
             .ravel()
+    }
+
+    fn matmul_iterate<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+        let (shape_1, shape_2) = (&arr_1.get_shape()?, &arr_2.get_shape()?);
+        (0..shape_1[0])
+            .flat_map(|i| (0..shape_2[1])
+                .map(move |j| (0..shape_1[1])
+                    .fold(0., |acc, k| acc + arr_1[i * shape_1[1] + k].to_f64() * arr_2[k * shape_2[1] + j].to_f64())))
+            .map(N::from_f64)
+            .collect::<Array<N>>()
+            .reshape(&[shape_1[0], shape_2[1]])
     }
 
     fn dot_1d<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
@@ -124,9 +151,7 @@ trait DotHelper {
     }
 
     fn dot_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
-        if arr_1.get_shape()?[arr_1.ndim()? - 1] != arr_2.get_shape()?[arr_2.ndim()? - 2] {
-            return Err(ArrayError::ParameterError { param: "`shapes`", message: "are not aligned" })
-        }
+        arr_1.shapes_align(arr_1.ndim()? - 1, &arr_2.get_shape()?, arr_2.ndim()? - 2)?;
         let mut new_shape = arr_1.get_shape()?.remove_at(arr_1.ndim()? - 2);
         new_shape.extend_from_slice(&arr_2.get_shape()?.remove_at(arr_2.ndim()? - 1));
         let v_arr_1 = Self::dot_split_array(arr_1, arr_1.ndim()? - 2)?;
@@ -153,4 +178,4 @@ trait DotHelper {
     }
 }
 
-impl <N: Numeric> DotHelper for Array<N> {}
+impl <N: Numeric> LinalgHelper for Array<N> {}

@@ -9,6 +9,7 @@ pub(crate) trait ValidateShape {
     fn is_broadcastable(&self, other: &[usize]) -> Result<(), ArrayError>;
     fn matches_values_len<T>(&self, other: &[T]) -> Result<(), ArrayError>;
     fn matches_shape(&self, other: &[usize]) -> Result<(), ArrayError>;
+    fn shapes_align(&self, i: usize, other: &[usize], j: usize) -> Result<(), ArrayError>;
 }
 
 impl ValidateShape for Vec<usize> {
@@ -34,8 +35,16 @@ impl ValidateShape for Vec<usize> {
     }
 
     fn matches_shape(&self, other: &[usize]) -> Result<(), ArrayError> {
-        if self.len() != other.len() {
+        if self != other {
             Err(ArrayError::ShapesMustMatch { shape_1: self.clone(), shape_2: other.to_vec() })
+        } else {
+            Ok(())
+        }
+    }
+
+    fn shapes_align(&self, i: usize, other: &[usize], j: usize) -> Result<(), ArrayError> {
+        if self[i] != other[j] {
+            Err(ArrayError::ParameterError { param: "`shapes`", message: "are not aligned" })
         } else {
             Ok(())
         }
@@ -54,6 +63,10 @@ impl <T: ArrayElement> ValidateShape for Array<T> {
 
     fn matches_shape(&self, other: &[usize]) -> Result<(), ArrayError> {
         self.get_shape()?.matches_shape(other)
+    }
+
+    fn shapes_align(&self, i: usize, other: &[usize], j: usize) -> Result<(), ArrayError> {
+        self.get_shape()?.shapes_align(i, other, j)
     }
 }
 

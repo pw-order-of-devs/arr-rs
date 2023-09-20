@@ -2,11 +2,12 @@
 pub use crate::{
     array,
     array_arange,
-    array_rand,
-    array_flat,
     array_eye,
-    array_identity,
-    array_zeros,
-    array_ones,
+    array_flat,
     array_full,
+    array_identity,
+    array_ones,
+    array_rand,
+    array_single,
+    array_zeros,
 };
