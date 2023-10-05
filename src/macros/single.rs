@@ -12,6 +12,9 @@
 /// ```
 #[macro_export]
 macro_rules! array_single {
+    (String, $x:expr) => {{
+        compile_error!("`String` macros are not supported")
+    }};
     ($tt:ty, $x:expr) => {{
         Array::<$tt>::single($x)
     }};

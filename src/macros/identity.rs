@@ -12,6 +12,9 @@
 /// ```
 #[macro_export]
 macro_rules! array_identity {
+    (String, $n:expr) => {{
+        compile_error!("`String` macros are not supported")
+    }};
     ($tt:ty, $n:expr) => {
         Array::<$tt>::identity($n)
     };

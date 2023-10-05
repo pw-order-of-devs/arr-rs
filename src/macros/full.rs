@@ -12,6 +12,9 @@
 /// ```
 #[macro_export]
 macro_rules! array_full {
+    (String, $shape:expr, $fill:expr) => {{
+        compile_error!("`String` macros are not supported")
+    }};
     ($tt:ty, $shape:expr, $fill:expr) => {{
         Array::<$tt>::full($shape.clone(), $fill)
     }};

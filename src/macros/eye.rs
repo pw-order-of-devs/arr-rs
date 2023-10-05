@@ -12,6 +12,15 @@
 /// ```
 #[macro_export]
 macro_rules! array_eye {
+    (String, $n:expr) => {{
+        compile_error!("`String` macros are not supported")
+    }};
+    (String, $n:expr, $m:expr) => {{
+        compile_error!("`String` macros are not supported")
+    }};
+    (String, $n:expr, $m:expr, $k:expr) => {{
+        compile_error!("`String` macros are not supported")
+    }};
     ($tt:ty, $n:expr) => {
         array_eye!($tt, $n, $n, 0)
     };

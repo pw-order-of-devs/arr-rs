@@ -12,6 +12,12 @@
 /// ```
 #[macro_export]
 macro_rules! array_arange {
+    (String, $n:expr, $m:expr) => {{
+        compile_error!("`String` macros are not supported")
+    }};
+    (String, $n:expr, $m:expr, $k:expr) => {{
+        compile_error!("`String` macros are not supported")
+    }};
     ($tt:ty, $n:expr, $m:expr) => {
         Array::<$tt>::arange($n, $m, None)
     };

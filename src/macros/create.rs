@@ -12,6 +12,9 @@
 /// ```
 #[macro_export]
 macro_rules! array {
+    (String, $($x:expr),* $(,)*) => {{
+        compile_error!("`String` macros are not supported")
+    }};
     ($tt:ty, $($x:expr),* $(,)*) => {{
         let string = format!("{:?}", vec![$($x,)*]).replace(" ", "");
         let ndim = string.find(|p| p != '[').unwrap_or(1) - 1;

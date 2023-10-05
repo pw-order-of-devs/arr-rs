@@ -12,6 +12,9 @@
 /// ```
 #[macro_export]
 macro_rules! array_zeros {
+    (String, $($x:expr),* $(,)*) => {{
+        compile_error!("`String` macros are not supported")
+    }};
     ($([$($nested:expr),*]),* $(,)*) => {{
         compile_error!("array_zeros! only accepts a flat list of elements");
     }};
