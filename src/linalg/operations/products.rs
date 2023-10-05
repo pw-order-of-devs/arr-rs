@@ -88,7 +88,9 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
         if self.ndim()? == 1 && other.ndim()? == 1 {
             self.vdot(other)
         } else if self.ndim()? == 1 || other.ndim()? == 1 {
-            return Err(ArrayError::ParameterError { param: "`todo`", message: "given shapes are not supported" })
+            if self.ndim()? == 1 { self.shapes_align(0, &other.get_shape()?, other.ndim()? - 1)?; }
+            else { self.shapes_align(self.ndim()? - 1, &other.get_shape()?, 0)?; }
+            Self::matmul_1d_nd(self, other)
         } else if self.ndim()? == 2 && other.ndim()? == 2 {
             self.shapes_align(0, &other.get_shape()?, 1)?;
             Self::matmul_iterate(self, other)
@@ -175,6 +177,54 @@ trait LinalgHelper {
         Self::dot_iterate(&v_arr_1, &v_arr_2)
             .reshape(&new_shape)
             .transpose(Some(pairs))
+    }
+
+    fn matmul_1d_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+        if arr_1.ndim()? == 1 {
+            if arr_2.ndim()? > 2 {
+                let new_shape = arr_2.get_shape()?.remove_at(0);
+                arr_2.split_axis(0)?.into_iter()
+                    .map(|arr| Self::matmul_1d_nd(arr_1, &arr.reshape(&new_shape).unwrap()))
+                    .collect::<Vec<Result<Array<N>, _>>>()
+                    .has_error()?
+                    .into_iter()
+                    .flat_map(Result::unwrap)
+                    .collect::<Array<N>>()
+                    .reshape(&new_shape)
+            } else {
+                let result = arr_1
+                    .get_elements()?
+                    .into_iter()
+                    .zip(&arr_2.split_axis(0)?)
+                    .map(|(a, b)| b.into_iter()
+                        .map(|item| a.to_f64() * item.to_f64())
+                        .sum::<f64>())
+                    .map(N::from)
+                    .collect::<Array<N>>();
+                Ok(result)
+            }
+        } else if arr_1.ndim()? > 2 {
+            let new_shape = arr_1.get_shape()?.remove_at(0);
+            arr_1.split_axis(0)?
+                .into_iter()
+                .map(|arr| Self::matmul_1d_nd(&arr.reshape(&new_shape).unwrap(), arr_2))
+                .collect::<Vec<Result<Array<N>, _>>>()
+                .has_error()?
+                .into_iter()
+                .flat_map(Result::unwrap)
+                .collect::<Array<N>>()
+                .reshape(&new_shape)
+        } else {
+            let result = arr_1
+                .split_axis(0)?
+                .iter()
+                .map(|arr| (0..arr.shape[arr.shape.len() - 1])
+                    .map(|idx| arr[idx].to_f64() * arr_2[idx].to_f64())
+                    .sum::<f64>())
+                .map(N::from)
+                .collect::<Array<N>>();
+            Ok(result)
+        }
     }
 }
 
