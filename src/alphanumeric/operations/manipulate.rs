@@ -537,7 +537,7 @@ impl <N: Alphanumeric> ArrayStringManipulate<N> for Array<N> {
 
     fn zfill(&self, width: usize) -> Result<Array<N>, ArrayError> {
         if self.get_elements()?.iter().any(|item| item.to_string().parse::<f64>().is_err()) {
-            return Err(ArrayError::ParameterError { param: "`array`", message: "must be containing numeric strings only" })
+            return Err(ArrayError::ParameterError { param: "`array`", message: "must contain numeric strings only" })
         }
         self.map(|item| {
             let (mut prefix, mut str) = ("", item.to_string());

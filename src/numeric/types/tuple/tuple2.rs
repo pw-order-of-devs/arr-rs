@@ -6,28 +6,6 @@ use crate::{
     numeric::prelude::*,
 };
 
-impl<S: Numeric + FromStr, T: Numeric + FromStr> FromStr for Tuple2<S, T>
-    where <S as FromStr>::Err: std::fmt::Debug,
-          <T as FromStr>::Err: std::fmt::Debug, {
-    type Err = ParseTupleError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.trim_start_matches('(').trim_end_matches(')');
-        let mut parts = s.split(", ");
-        let x = parts.next().ok_or(ParseTupleError::Format)?;
-        let y = parts.next().ok_or(ParseTupleError::Format)?;
-
-        let x = S::from_str(x);
-        let y = T::from_str(y);
-
-        if x.is_err() || y.is_err() {
-            return Err(ParseTupleError::Parse("error parsing tuple value"))
-        }
-
-        Ok(Tuple2(x.unwrap(), y.unwrap()))
-    }
-}
-
 impl <M: Numeric, N: Numeric> Numeric for Tuple2<M, N>
     where <M as FromStr>::Err: std::fmt::Debug,
           <N as FromStr>::Err: std::fmt::Debug, {

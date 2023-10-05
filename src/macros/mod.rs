@@ -28,5 +28,8 @@ pub mod single;
 /// ArrayTrait - Array Create functions - zeros array macro
 pub mod zeros;
 
+/// internal support macros
+pub mod helpers;
+
 /// prelude module - imports facade
 pub mod prelude;

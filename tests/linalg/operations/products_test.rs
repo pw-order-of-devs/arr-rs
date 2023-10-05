@@ -3,11 +3,11 @@ use arr_rs::prelude::*;
 
 #[rstest(
 array, other, expected,
-case(Array::single(2), Array::single(3), Array::single(6)),
-case(Array::single(2), array_flat!(i32, 1, 2, 3), array_flat!(i32, 2, 4, 6)),
-case(array_flat!(i32, 1, 2, 3), Array::single(2), array_flat!(i32, 2, 4, 6)),
-case(Array::single(2), array!(i32, [[1, 2], [3, 4]]), array!(i32, [[2, 4], [6, 8]])),
-case(array!(i32, [[1, 2], [3, 4]]), Array::single(2), array!(i32, [[2, 4], [6, 8]])),
+case(array_single!(i32, 2), array_single!(i32, 3), array_single!(i32, 6)),
+case(array_single!(i32, 2), array_flat!(i32, 1, 2, 3), array_flat!(i32, 2, 4, 6)),
+case(array_flat!(i32, 1, 2, 3), array_single!(i32, 2), array_flat!(i32, 2, 4, 6)),
+case(array_single!(i32, 2), array!(i32, [[1, 2], [3, 4]]), array!(i32, [[2, 4], [6, 8]])),
+case(array!(i32, [[1, 2], [3, 4]]), array_single!(i32, 2), array!(i32, [[2, 4], [6, 8]])),
 case(array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 1, 2), array_flat!(i32, 7, 10)),
 case(array_flat!(i32, 1, 2), array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 5, 11)),
 case(array!(i32, [[1, 2], [3, 4]]), array!(i32, [[5, 6], [7, 8]]), array!(i32, [[19, 22], [43, 50]])),
@@ -25,7 +25,7 @@ case(array_arange!(i32, 1, 24).reshape(&[2, 3, 4]), array_arange!(i32, 1, 24).re
 
 #[rstest(
 array, other, expected,
-case(Array::single(2), Array::single(3), Array::single(6)),
+case(array_single!(i32, 2), array_single!(i32, 3), array_single!(i32, 6)),
 case(array!(i32, [[1, 2], [3, 4]]), array!(i32, [[5, 6], [7, 8]]), array!(i32, 70)),
 case(array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), array!(i32, 204)),
 case(array_flat!(i32, 1, 2, 3), array!(i32, [[1, 2, 3], [4, 5, 6]]), Err(ArrayError::MustBeEqual { value1: "3".to_string(), value2: "6".to_string() })),
@@ -36,8 +36,8 @@ case(array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 1, 2, 3), Err(ArrayError::M
 
 #[rstest(
 array, other, expected,
-case(Array::single(2), Array::single(3), Array::single(6)),
-case(array_flat!(i32, 1, 2), array_flat!(i32, 1, 2), Array::single(5)),
+case(array_single!(i32, 2), array_single!(i32, 3), array_single!(i32, 6)),
+case(array_flat!(i32, 1, 2), array_flat!(i32, 1, 2), array_single!(i32, 5)),
 case(array_flat!(i32, 1, 2), array!(i32, [[1, 2], [1, 2]]), array_flat!(i32, 3, 6)),
 case(array!(i32, [[1, 2], [1, 2]]), array_flat!(i32, 1, 2), array_flat!(i32, 5, 5)),
 case(array_flat!(i32, 1, 2), array!(i32, [[[1, 2], [1, 2]], [[1, 2], [1, 2]]]), array!(i32, [[3, 6], [3, 6]])),

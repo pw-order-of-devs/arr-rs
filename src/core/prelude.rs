@@ -20,6 +20,7 @@ pub use crate::core::{
     types::{
         ArrayElement,
         collection::{
+            ParseListError,
             CollectionElement,
             List,
         },

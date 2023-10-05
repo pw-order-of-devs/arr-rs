@@ -147,9 +147,9 @@ case(array_arange!(f64, 0., 23.).reshape(&[2, 3, 4]), 2, Some(2), Some(array_ara
 array, to_end, to_begin, expected,
 case(array![f64, 1., 2., 4., 4., 7.], None, None, array_flat!(f64, 1., 2., 0., 3.)),
 case(array!(f64, [[1., 2., 4.], [4., 7., 0.]]), None, None, array_flat!(f64, 1., 2., 0., 3., -7.)),
-case(array![f64, 1., 2., 4., 4., 7.], None, Some(Array::single(-99.).unwrap()), array_flat!(f64, -99., 1., 2., 0., 3.)),
-case(array![f64, 1., 2., 4., 4., 7.], Some(Array::flat(vec![98., 99.]).unwrap()), None, array_flat!(f64, 1., 2., 0., 3., 98., 99.)),
-case(array![f64, 1., 2., 4., 4., 7.], Some(Array::flat(vec![98., 99.]).unwrap()), Some(Array::single(-99.).unwrap()), array_flat!(f64, -99., 1., 2., 0., 3., 98., 99.)),
+case(array![f64, 1., 2., 4., 4., 7.], None, Some(array_single!(f64, -99.).unwrap()), array_flat!(f64, -99., 1., 2., 0., 3.)),
+case(array![f64, 1., 2., 4., 4., 7.], Some(array_flat!(f64, 98., 99.).unwrap()), None, array_flat!(f64, 1., 2., 0., 3., 98., 99.)),
+case(array![f64, 1., 2., 4., 4., 7.], Some(array_flat!(f64, 98., 99.).unwrap()), Some(array_single!(f64, -99.).unwrap()), array_flat!(f64, -99., 1., 2., 0., 3., 98., 99.)),
 )] fn test_ediff1d(array: Result<Array<f64>, ArrayError>, to_end: Option<Array<f64>>, to_begin: Option<Array<f64>>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.ediff1d(to_end, to_begin))
 }

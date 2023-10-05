@@ -3,8 +3,8 @@ use arr_rs::prelude::*;
 
 #[rstest(
 array, expected,
-case(array![f64, 1., 2., 3., 4.], array![f64, std::f64::consts::E,  7.38905609893065, 20.085536923187668, 54.598150033144236]),
-case(array!(f64, [[1., 2.], [3., 4.]]), array!(f64, [[std::f64::consts::E,  7.38905609893065], [20.085536923187668, 54.598150033144236]])),
+case(array![f64, 1., 2., 3., 4.], array![f64, std::f64::consts::E, 7.38905609893065, 20.085536923187668, 54.598150033144236]),
+case(array!(f64, [[1., 2.], [3., 4.]]), array!(f64, [[std::f64::consts::E, 7.38905609893065], [20.085536923187668, 54.598150033144236]])),
 )] fn test_exp(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.exp())
 }

@@ -5,7 +5,7 @@ use crate::core::prelude::*;
 
 pub(crate) type TupleH3 <S, T, U> = (Array<S>, Array<T>, Array<U>);
 
-/// Tuple2 type for array
+/// Tuple3 type for array
 #[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
 pub struct Tuple3<S: ArrayElement, T: ArrayElement, U: ArrayElement>(pub S, pub T, pub U);
 
@@ -16,8 +16,12 @@ impl<S: ArrayElement + FromStr, T: ArrayElement + FromStr, U: ArrayElement + Fro
     type Err = ParseTupleError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.trim_start_matches('(').trim_end_matches(')');
-        let mut parts = s.split(", ");
+        let s = s
+            .trim_start_matches('(')
+            .trim_end_matches(')')
+            .replace(", ", ",");
+        let mut parts = s.split(',');
+
         let x = parts.next().ok_or(ParseTupleError::Format)?;
         let y = parts.next().ok_or(ParseTupleError::Format)?;
         let z = parts.next().ok_or(ParseTupleError::Format)?;

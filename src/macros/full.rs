@@ -12,8 +12,20 @@
 /// ```
 #[macro_export]
 macro_rules! array_full {
-    (String, $shape:expr, $fill:expr) => {{
-        compile_error!("`String` macros are not supported")
+    (Tuple2<$t1:ty, $t2:ty>, $($tt:tt)*) => {{
+        compile_error!("only `Numeric` types are supported")
+    }};
+    (Tuple3<$t1:ty, $t2:ty, $t3:ty>, $($tt:tt)*) => {{
+        compile_error!("only `Numeric` types are supported")
+    }};
+    (List<$t1:ty>, $($tt:tt)*) => {{
+        compile_error!("only `Numeric` types are supported")
+    }};
+    (char, $($tt:tt)*) => {{
+        compile_error!("only `Numeric` types are supported")
+    }};
+    (String, $($tt:tt)*) => {{
+        compile_error!("only `Numeric` types are supported")
     }};
     ($tt:ty, $shape:expr, $fill:expr) => {{
         Array::<$tt>::full($shape.clone(), $fill)

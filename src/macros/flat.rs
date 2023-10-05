@@ -12,16 +12,28 @@
 /// ```
 #[macro_export]
 macro_rules! array_flat {
-    (String, $($x:expr),* $(,)*) => {{
-        compile_error!("`String` macros are not supported")
-    }};
     ($([$($nested:expr),*]),* $(,)*) => {{
         compile_error!("array_flat! only accepts a flat list of elements");
     }};
     ($tt:ty, $([$($nested:expr),*]),* $(,)*) => {{
         compile_error!("array_flat! only accepts a flat list of elements");
     }};
+    (Tuple2<$t1:ty, $t2:ty>, $($x:expr),* $(,)*) => {{
+        array_tuple!(Tuple2<$t1, $t2>, format!("{:?}", vec![$(vec![$x],)*]))
+    }};
+    (Tuple3<$t1:ty, $t2:ty, $t3:ty>, $($x:expr),* $(,)*) => {{
+        array_tuple!(Tuple3<$t1, $t2, $t3>, format!("{:?}", vec![$(vec![$x],)*]))
+    }};
+    (List<$tt:ty>, $($x:expr),* $(,)*) => {{
+        array_list!(List<$tt>, format!("{:?}", vec![$(vec![$x],)*]))
+    }};
+    (char, $($x:expr),* $(,)*) => {{
+        array_char!(format!("{:?}", vec![$(vec![$x],)*]))
+    }};
+    (String, $($x:expr),* $(,)*) => {{
+        array_string!(format!("{:?}", vec![$(vec![$x],)*]))
+    }};
     ($tt:ty, $($x:expr),* $(,)*) => {{
-        Array::<$tt>::flat(vec![$($x,)*])
+        array!($tt, vec![$($x,)*])
     }};
 }
