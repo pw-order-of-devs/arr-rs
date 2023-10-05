@@ -28,7 +28,7 @@ macro_rules! array {
 
         // get array elements
         let elems = string
-            .replace("[", "").replace("]", "").replace(" ", "")
+            .replace("[", "").replace("]", "").replace(" ", "").replace("\"", "")
             .split_terminator(',')
             .map(|e| e.parse().unwrap())
             .collect::<Vec<_>>();

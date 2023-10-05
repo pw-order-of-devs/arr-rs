@@ -36,8 +36,8 @@ case(array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 1, 2, 3), Err(ArrayError::M
 
 #[rstest(
 array, other, expected,
-case(Array::single(2), Array::single(3), Array::single(6)),
-case(array_flat!(i32, 1, 2), array_flat!(i32, 1, 2), Array::single(5)),
+case(array_single!(i32, 2), array_single!(i32, 3), array_single!(i32, 6)),
+case(array_flat!(i32, 1, 2), array_flat!(i32, 1, 2), array_single!(i32, 5)),
 case(array_flat!(i32, 1, 2), array!(i32, [[1, 2], [1, 2]]), array_flat!(i32, 3, 6)),
 case(array!(i32, [[1, 2], [1, 2]]), array_flat!(i32, 1, 2), array_flat!(i32, 5, 5)),
 case(array_flat!(i32, 1, 2), array!(i32, [[[1, 2], [1, 2]], [[1, 2], [1, 2]]]), array!(i32, [[3, 6], [3, 6]])),
