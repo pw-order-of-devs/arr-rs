@@ -29,7 +29,7 @@ element, expected,
 case(2, array!(i32, [2])),
 case(4, array!(i32, [4])),
 )] fn test_single(element: i32, expected: Result<Array<i32>, ArrayError>) {
-    assert_eq!(expected, array_single!(i32, element))
+    assert_eq!(expected, Array::single(element))
 }
 
 #[rstest(

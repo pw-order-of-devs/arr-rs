@@ -12,7 +12,7 @@
 /// ```
 #[macro_export]
 macro_rules! array_single {
-    ($tt:ty, $($x:expr),* $(,)*) => {{
-        array!($tt, $($x,)*)
+    ($tt:ty, $x:expr) => {{
+        Array::<$tt>::single($x)
     }};
 }

@@ -19,6 +19,6 @@ macro_rules! array_flat {
         compile_error!("array_flat! only accepts a flat list of elements");
     }};
     ($tt:ty, $($x:expr),* $(,)*) => {{
-        array!($tt, $($x,)*)
+        Array::<$tt>::flat(vec![$($x,)*])
     }};
 }
