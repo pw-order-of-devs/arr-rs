@@ -45,9 +45,8 @@ case(array!(i32, [[[1, 2], [1, 2]], [[1, 2], [1, 2]]]), array_flat!(i32, 1, 2), 
 case(array!(i32, [[1, 2], [1, 2]]), array!(i32, [[4, 1], [2, 2]]), array!(i32, [[8, 5], [8, 5]])),
 case(array!(i32, [[1, 2, 3], [1, 2, 3]]), array!(i32, [[1, 2], [1, 2], [1, 2]]), array!(i32, [[6, 12], [6, 12]])),
 case(array!(i32, [[1, 2], [1, 2], [1, 2]]), array!(i32, [[1, 2, 3], [1, 2, 3]]), array!(i32, [[3, 6, 9], [3, 6, 9], [3, 6, 9]])),
-// 2d vs 3d case
-// 3d vs 2d case
-// 3d vs 3d case
+case(array_arange!(i32, 0, 7).reshape(&[2, 2, 2]), array_arange!(i32, 0, 3).reshape(&[2, 2]), array!(i32, [[[2, 3], [6, 11]], [[10, 19], [14, 27]]])),
+case(array_arange!(i32, 0, 3).reshape(&[2, 2]), array_arange!(i32, 0, 7).reshape(&[2, 2, 2]), array!(i32, [[[2, 3], [6, 11]], [[6, 7], [26, 31]]])),
 )] fn test_linalg_matmul(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.matmul(&other.unwrap()))
 }

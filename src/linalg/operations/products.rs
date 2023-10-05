@@ -95,7 +95,7 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
             self.shapes_align(0, &other.get_shape()?, 1)?;
             Self::matmul_iterate(self, other)
         } else {
-            return Err(ArrayError::ParameterError { param: "`todo`", message: "given shapes are not supported" })
+            Self::matmul_nd(self, other)
         }
     }
 }
@@ -225,6 +225,36 @@ trait LinalgHelper {
                 .collect::<Array<N>>();
             Ok(result)
         }
+    }
+
+    fn matmul_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+        fn matmul_split<N: Numeric>(arr: &Array<N>, len: usize, chunk_len: usize) -> Result<Vec<Array<N>>, ArrayError> {
+            let shape_last = (arr.get_shape()?[arr.ndim()? - 2], arr.get_shape()?[arr.ndim()? - 1]);
+            let result = arr.split(arr.len()? / chunk_len, Some(0))?
+                .into_iter().cycle().take(len)
+                .map(|arr| arr.reshape(&[shape_last.0, shape_last.1]).unwrap())
+                .collect::<Vec<Array<N>>>();
+            Ok(result)
+        }
+
+        let mut new_shape =
+            if arr_1.ndim()? >= arr_2.ndim()? { arr_1.get_shape()? }
+            else { arr_2.get_shape()? };
+        let shape_len = new_shape.len();
+        new_shape[shape_len - 2] = arr_1.get_shape()?[arr_1.ndim()? - 2];
+        new_shape[shape_len - 1] = arr_2.get_shape()?[arr_2.ndim()? - 1];
+        let chunk_len = arr_1.get_shape()?[arr_1.ndim()? - 2 ..].iter().product::<usize>();
+        let len = std::cmp::max(arr_1.len()?, arr_2.len()?) / chunk_len;
+        matmul_split(arr_1, len, chunk_len)?
+            .into_iter()
+            .zip(&matmul_split(arr_2, len, chunk_len)?)
+            .map(|(a, b)| a.matmul(b))
+            .collect::<Vec<Result<Array<N>, _>>>()
+            .has_error()?
+            .into_iter()
+            .flat_map(Result::unwrap)
+            .collect::<Array<N>>()
+            .reshape(&new_shape)
     }
 }
 
