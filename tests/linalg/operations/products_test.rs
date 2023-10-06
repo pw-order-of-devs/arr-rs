@@ -37,7 +37,7 @@ case(array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 1, 2, 3), Err(ArrayError::M
 #[rstest(
 array, other, expected,
 case(array_single!(i32, 2), array_single!(i32, 3), array_single!(i32, 6)),
-case(array_flat!(i32, 1, 2), array_flat!(i32, 1, 2), array_single!(i32, 5)),
+case(array_flat!(i32, 1, 2), array_flat!(i32, 3, 4), array_single!(i32, 11)),
 case(array_flat!(i32, 1, 2, 3, 4), array_flat!(i32, 4, 3, 2, 1), array_single!(i32, 20)),
 case(array_flat!(i32, 1, 2), array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 5, 11)),
 case(array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 1, 2), array_flat!(i32, 5, 11)),
@@ -46,6 +46,19 @@ case(array_flat!(i32, 1, 2, 3), array!(i32, [[6, 5, 4], [3, 2, 1]]), array_flat!
 case(array!(i32, [[6, 5, 4], [3, 2, 1]]), array_flat!(i32, 1, 2, 3), array_flat!(i32, 28, 10)),
 )] fn test_linalg_inner(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.inner(&other.unwrap()))
+}
+
+#[rstest(
+array, other, expected,
+case(array_single!(i32, 2), array_single!(i32, 3), array!(i32, [[6]])),
+case(array_flat!(i32, 1, 2), array_flat!(i32, 3, 4), array!(i32, [[3, 4], [6, 8]])),
+case(array_flat!(i32, 1, 2, 3), array_flat!(i32, 4, 3), array!(i32, [[4, 3], [8, 6], [12, 9]])),
+case(array_flat!(i32, 4, 3), array_flat!(i32, 1, 2, 3), array!(i32, [[4, 8, 12], [3, 6, 9]])),
+case(array_flat!(i32, 1, 2), array!(i32, [[1, 2], [3, 4]]), array!(i32, [[1, 2, 3, 4], [2, 4, 6, 8]])),
+case(array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 1, 2), array!(i32, [[1, 2], [2, 4], [3, 6], [4, 8]])),
+case(array!(i32, [[1, 2], [3, 4]]), array!(i32, [[4, 3], [2, 1]]), array!(i32, [[4, 3, 2, 1], [8, 6, 4, 2], [12, 9, 6, 3], [16, 12, 8, 4]])),
+)] fn test_linalg_outer(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.outer(&other.unwrap()))
 }
 
 #[rstest(

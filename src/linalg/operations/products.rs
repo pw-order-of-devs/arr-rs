@@ -59,6 +59,22 @@ pub trait ArrayLinalgProducts<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn inner(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 
+    /// Outer product of two arrays
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - other array to perform operations with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::new(vec![4, 3, 8, 6], vec![2, 2]), Array::flat(vec![1, 2]).outer(&Array::flat(vec![4, 3]).unwrap()));
+    /// assert_eq!(Array::new(vec![4, 3, 2, 1, 8, 6, 4, 2, 12, 9, 6, 3, 16, 12, 8, 4], vec![4, 4]), Array::new(vec![1, 2, 3, 4], vec![2, 2]).outer(&Array::new(vec![4, 3, 2, 1], vec![2, 2]).unwrap()));
+    /// ```
+    fn outer(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
     /// Matrix product of two arrays
     ///
     /// # Arguments
@@ -113,6 +129,14 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
         }
     }
 
+    fn outer(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.into_iter().flat_map(|a| other.into_iter()
+            .map(|b| N::from(a.to_f64() * b.to_f64()))
+            .collect::<Array<N>>())
+            .collect::<Array<N>>()
+            .reshape(&[self.len()?, other.len()?])
+    }
+
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         if self.ndim()? == 1 && other.ndim()? == 1 {
             self.vdot(other)
@@ -141,6 +165,10 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
 
     fn inner(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.inner(other)
+    }
+
+    fn outer(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.outer(other)
     }
 
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
