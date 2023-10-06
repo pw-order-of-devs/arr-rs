@@ -169,15 +169,8 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
             if let Some(axis) = axis { arrs.validate_stack_shapes(axis, axis)?; }
 
             let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
-            println!("{initial:?}");
             let result = arrs.remove_at(0).into_iter()
-                .fold(initial, |a, b| {
-                    println!();
-                    println!("{a:?}");
-                    println!("{b:?}");
-                    println!("{axis:?}");
-                    a.append(&b, axis).unwrap()
-                });
+                .fold(initial, |a, b| a.append(&b, axis).unwrap());
             Ok(result)
         }
     }

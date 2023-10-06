@@ -202,15 +202,11 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
                 .ravel()?
                 .split(self.len()? / sub_shape.iter().product::<usize>(), None)?
                 .iter()
-                .map(|arr| {
-                    println!("{arr}");
-                    arr.reshape(&sub_shape).det()
-                })
+                .map(|arr| arr.reshape(&sub_shape).det())
                 .collect::<Vec<Result<Array<N>, _>>>()
                 .has_error()?.into_iter()
                 .flat_map(Result::unwrap)
                 .collect::<Array<N>>();
-            println!("{dets}");
             Ok(dets)
         }
     }
