@@ -90,6 +90,17 @@ pub trait ArrayLinalgProducts<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::new(vec![5, 8, 8, 13], vec![2, 2]), Array::new(vec![1, 2, 2, 3], vec![2, 2]).matmul(&Array::new(vec![1, 2, 2, 3], vec![2, 2]).unwrap()));
     /// ```
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Compute the determinant of an array
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::single(-14), Array::new(vec![3, 8, 4, 6], vec![2, 2]).det());
+    /// ```
+    fn det(&self) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
@@ -151,6 +162,58 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
             Self::matmul_nd(self, other)
         }
     }
+
+    fn det(&self) -> Result<Array<N>, ArrayError> {
+        if self.ndim()? == 0 {
+            Err(ArrayError::MustBeAtLeast { value1: "`dimension`".to_string(), value2: "1".to_string() })
+        } else if self.ndim()? == 1 {
+            Ok(self.clone())
+        } else if self.ndim()? == 2 {
+            let shape = self.get_shape()?;
+            shape[0].is_at_least(&2)?;
+            shape[1].is_at_least(&2)?;
+            shape[0].is_equal(&shape[1])?;
+            if shape[0] == 2 {
+                Array::single(N::from(self[0].to_f64() * self[3].to_f64() - self[1].to_f64() * self[2].to_f64()))
+            } else {
+                let elems = (0..shape[0])
+                    .map(|i| self[i * shape[0]].to_f64())
+                    .collect::<Vec<f64>>();
+                let dets = (0..shape[0])
+                    .map(|i| Self::minor(self, i, 0).det())
+                    .collect::<Vec<Result<Array<N>, _>>>()
+                    .has_error()?.into_iter()
+                    .map(Result::unwrap)
+                    .map(|i| i[0].to_f64())
+                    .collect::<Vec<f64>>();
+                let result = elems.iter().zip(&dets)
+                    .enumerate()
+                    .map(|(i, (&e, &d))| e * f64::powi(-1., i as i32 + 2) * d)
+                    .sum::<f64>();
+                Array::single(N::from(result))
+            }
+        } else {
+            let shape = self.get_shape()?;
+            shape[self.ndim()? - 2].is_at_least(&2)?;
+            shape[self.ndim()? - 1].is_at_least(&2)?;
+            shape[self.ndim()? - 2].is_equal(&shape[self.ndim()? - 1])?;
+            let sub_shape = shape[self.ndim()? - 2 ..].to_vec();
+            let dets = self
+                .ravel()?
+                .split(self.len()? / sub_shape.iter().product::<usize>(), None)?
+                .iter()
+                .map(|arr| {
+                    println!("{arr}");
+                    arr.reshape(&sub_shape).det()
+                })
+                .collect::<Vec<Result<Array<N>, _>>>()
+                .has_error()?.into_iter()
+                .flat_map(Result::unwrap)
+                .collect::<Array<N>>();
+            println!("{dets}");
+            Ok(dets)
+        }
+    }
 }
 
 impl <N: Numeric> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
@@ -173,6 +236,10 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
 
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.matmul(other)
+    }
+
+    fn det(&self) -> Result<Array<N>, ArrayError> {
+        self.clone()?.det()
     }
 }
 
@@ -340,6 +407,26 @@ trait LinalgHelper {
             .flat_map(Result::unwrap)
             .collect::<Array<N>>()
             .reshape(&new_shape)
+    }
+
+    fn minor<N: Numeric>(arr: &Array<N>, row: usize, col: usize) -> Result<Array<N>, ArrayError> {
+        arr.is_dim_supported(&[2])?;
+        if row >= arr.get_shape()?[0] || col >= arr.get_shape()?[1] {
+            return Err(ArrayError::OutOfBounds { value: "Row or column index out of bounds" })
+        }
+
+        let mut sub_shape = arr.get_shape()?;
+        sub_shape[arr.ndim()? - 1] -= 1;
+        sub_shape[arr.ndim()? - 2] -= 1;
+
+        let mut sub_elements = Vec::new();
+        for (i, &element) in arr.get_elements()?.iter().enumerate() {
+            if i / arr.get_shape()?[1] != row && i % arr.get_shape()?[1] != col {
+                sub_elements.push(element);
+            }
+        }
+
+        Array::new(sub_elements, sub_shape)
     }
 }
 
