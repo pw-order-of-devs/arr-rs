@@ -223,7 +223,7 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
             let arrs = arrs.iter()
                 .map(|arr| arr.atleast(2)).collect::<Vec<Result<Self, _>>>()
                 .has_error()?.into_iter()
-                .map(|a| a.unwrap())
+                .map(Result::unwrap)
                 .collect::<Vec<Self<>>>();
             arrs.validate_stack_shapes(1, 0)?;
 
@@ -244,7 +244,7 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
                 .map(|arr| arr.atleast(3))
                 .collect::<Vec<Result<Self, _>>>()
                 .has_error()?.into_iter()
-                .map(|a| a.unwrap())
+                .map(Result::unwrap)
                 .collect::<Vec<Self<>>>();
             arrs.validate_stack_shapes(2, 0)?;
 

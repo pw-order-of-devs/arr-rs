@@ -114,7 +114,7 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
                             .map(|i| i.flip(Some(vec![ax as isize - 1])))
                             .collect::<Vec<Result<Array<T>, _>>>()
                             .has_error()?.into_iter()
-                            .flat_map(|i| i.unwrap())
+                            .flat_map(Result::unwrap)
                             .collect::<Vec<T>>()
                         }
                 };
@@ -182,7 +182,7 @@ impl <T: ArrayElement> ArrayReorder<T> for Array<T> {
                         .map(|i| i.roll(vec![shifts[&ax]], Some(vec![ax as isize - 1])))
                         .collect::<Vec<Result<Array<T>, _>>>()
                         .has_error()?.into_iter()
-                        .flat_map(|i| i.unwrap())
+                        .flat_map(Result::unwrap)
                         .collect::<Vec<T>>()
                     }
                 }

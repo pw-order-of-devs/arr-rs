@@ -143,7 +143,7 @@ impl <T: ArrayElement> ArrayAxis<T> for Array<T> {
             .map(|arr| f(&arr))
             .collect::<Vec<Result<Array<S>, _>>>()
             .has_error()?.into_iter()
-            .map(|arr| arr.unwrap())
+            .map(Result::unwrap)
             .collect::<Vec<Array<S>>>();
         let partial_len = partial[0].len()?;
         let partial = partial.into_iter().flatten().collect::<Array<S>>();

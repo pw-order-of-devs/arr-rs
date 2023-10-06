@@ -146,7 +146,7 @@ impl <T: ArrayElement> ArrayBroadcast<T> for Array<T> {
                 .map(|array| array.broadcast_to(common_shape.clone()))
                 .collect::<Vec<Result<Self, _>>>()
                 .has_error()?
-                .into_iter().map(|a| a.unwrap())
+                .into_iter().map(Result::unwrap)
                 .collect();
             Ok(result)
         } else {

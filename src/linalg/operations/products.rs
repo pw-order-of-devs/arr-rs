@@ -43,6 +43,22 @@ pub trait ArrayLinalgProducts<N: Numeric> where Self: Sized + Clone {
     /// ```
     fn vdot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 
+    /// Inner product of two arrays
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - other array to perform operations with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::single(20), Array::flat(vec![1, 2, 3, 4]).inner(&Array::flat(vec![4, 3, 2, 1]).unwrap()));
+    /// assert_eq!(Array::new(vec![10, 4, 24, 10], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]).inner(&Array::new(vec![4, 3, 2, 1], vec![2, 2]).unwrap()));
+    /// ```
+    fn inner(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
     /// Matrix product of two arrays
     ///
     /// # Arguments
@@ -84,6 +100,19 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
         Array::single(N::from(result))
     }
 
+    fn inner(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        if self.ndim()? == 1 && other.ndim()? == 1 {
+            self.shapes_align(0, &other.get_shape()?, 0)?;
+            self.zip(other)?
+                .map(|i| i.0.to_f64() * i.1.to_f64())
+                .sum(None)?
+                .to_array_num()
+        } else {
+            self.shapes_align(self.ndim()? - 1, &other.get_shape()?, other.ndim()? - 1)?;
+            Self::inner_nd(self, other)
+        }
+    }
+
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         if self.ndim()? == 1 && other.ndim()? == 1 {
             self.vdot(other)
@@ -110,6 +139,10 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
         self.clone()?.vdot(other)
     }
 
+    fn inner(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.inner(other)
+    }
+
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.matmul(other)
     }
@@ -133,17 +166,6 @@ trait LinalgHelper {
             .flat_map(|item| item.unwrap())
             .collect::<Array<N>>()
             .ravel()
-    }
-
-    fn matmul_iterate<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
-        let (shape_1, shape_2) = (&arr_1.get_shape()?, &arr_2.get_shape()?);
-        (0..shape_1[0])
-            .flat_map(|i| (0..shape_2[1])
-                .map(move |j| (0..shape_1[1])
-                    .fold(0., |acc, k| acc + arr_1[i * shape_1[1] + k].to_f64() * arr_2[k * shape_2[1] + j].to_f64())))
-            .map(N::from_f64)
-            .collect::<Array<N>>()
-            .reshape(&[shape_1[0], shape_2[1]])
     }
 
     fn dot_1d<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
@@ -177,6 +199,41 @@ trait LinalgHelper {
         Self::dot_iterate(&v_arr_1, &v_arr_2)
             .reshape(&new_shape)
             .transpose(Some(pairs))
+    }
+
+    fn inner_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+        fn inner_split<N: Numeric>(arr: &Array<N>) -> Result<Vec<Array<N>>, ArrayError> {
+            let _arr = arr.ravel()?;
+            _arr.split(arr.get_shape()?.remove_at(arr.ndim()? - 1).iter().product(), None)
+        }
+
+        let mut new_shape = vec![];
+        new_shape.extend_from_slice(&arr_1.get_shape()?.remove_at(arr_1.ndim()? - 1));
+        new_shape.extend_from_slice(&arr_2.get_shape()?.remove_at(arr_2.ndim()? - 1));
+
+        let _arr_1 = inner_split(arr_1)?;
+        let _arr_2 = inner_split(arr_2)?;
+
+        _arr_1.iter()
+            .flat_map(|_a1| _arr_2.iter()
+                .map(|_a2| _a1.inner(_a2))
+                .collect::<Vec<Result<Array<N>, ArrayError>>>())
+            .collect::<Vec<Result<Array<N>, ArrayError>>>()
+            .has_error()?.into_iter()
+            .flat_map(Result::unwrap)
+            .collect::<Array<N>>()
+            .reshape(&new_shape)
+    }
+
+    fn matmul_iterate<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+        let (shape_1, shape_2) = (&arr_1.get_shape()?, &arr_2.get_shape()?);
+        (0..shape_1[0])
+            .flat_map(|i| (0..shape_2[1])
+                .map(move |j| (0..shape_1[1])
+                    .fold(0., |acc, k| acc + arr_1[i * shape_1[1] + k].to_f64() * arr_2[k * shape_2[1] + j].to_f64())))
+            .map(N::from_f64)
+            .collect::<Array<N>>()
+            .reshape(&[shape_1[0], shape_2[1]])
     }
 
     fn matmul_1d_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {

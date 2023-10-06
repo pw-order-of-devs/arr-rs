@@ -159,7 +159,7 @@ impl <T: ArrayElement> ArraySplit<T> for Array<T> {
                 })
                 .collect::<Vec<Result<Self, _>>>();
             if let Err(err) = result.has_error() { Err(err) }
-            else { Ok(result.into_iter().map(|a| a.unwrap()).collect()) }
+            else { Ok(result.into_iter().map(Result::unwrap).collect()) }
         } else {
             Err(arr.err().unwrap())
         }

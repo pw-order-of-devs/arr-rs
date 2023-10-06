@@ -489,7 +489,7 @@ impl <N: Numeric> ArrayCreateNumeric<N> for Array<N> {
             .has_error()?.iter()
             .map(|a| a.get_elements()).collect::<Vec<Result<Vec<N>, ArrayError>>>()
             .has_error()?.into_iter()
-            .map(|a| a.unwrap())
+            .map(Result::unwrap)
             .collect::<Vec<Vec<N>>>();
         Self::flat(values.into_iter().flatten().collect())
             .reshape(&new_shape)?
