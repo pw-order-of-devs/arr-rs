@@ -2,13 +2,14 @@ use crate::{
     core::prelude::*,
     errors::prelude::*,
     extensions::prelude::*,
+    linalg::prelude::*,
     math::prelude::*,
     numeric::prelude::*,
     validators::prelude::*,
 };
 
 /// ArrayTrait - Array Linalg Products functions
-pub trait ArrayLinalgProducts<N: Numeric> where Self: Sized + Clone {
+pub trait ArrayLinalgProducts<N: NumericOps> where Self: Sized + Clone {
 
     /// Dot product of two arrays
     ///
@@ -90,20 +91,9 @@ pub trait ArrayLinalgProducts<N: Numeric> where Self: Sized + Clone {
     /// assert_eq!(Array::new(vec![5, 8, 8, 13], vec![2, 2]), Array::new(vec![1, 2, 2, 3], vec![2, 2]).matmul(&Array::new(vec![1, 2, 2, 3], vec![2, 2]).unwrap()));
     /// ```
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
-
-    /// Compute the determinant of an array
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use arr_rs::prelude::*;
-    ///
-    /// assert_eq!(Array::single(-14), Array::new(vec![3, 8, 4, 6], vec![2, 2]).det());
-    /// ```
-    fn det(&self) -> Result<Array<N>, ArrayError>;
 }
 
-impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
+impl <N: NumericOps> ArrayLinalgProducts<N> for Array<N> {
 
     fn dot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         if self.len()? == 1 || other.len()? == 1 {
@@ -162,57 +152,9 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Array<N> {
             Self::matmul_nd(self, other)
         }
     }
-
-    fn det(&self) -> Result<Array<N>, ArrayError> {
-        if self.ndim()? == 0 {
-            Err(ArrayError::MustBeAtLeast { value1: "`dimension`".to_string(), value2: "1".to_string() })
-        } else if self.ndim()? == 1 {
-            Ok(self.clone())
-        } else if self.ndim()? == 2 {
-            let shape = self.get_shape()?;
-            shape[0].is_at_least(&2)?;
-            shape[1].is_at_least(&2)?;
-            shape[0].is_equal(&shape[1])?;
-            if shape[0] == 2 {
-                Array::single(N::from(self[0].to_f64() * self[3].to_f64() - self[1].to_f64() * self[2].to_f64()))
-            } else {
-                let elems = (0..shape[0])
-                    .map(|i| self[i * shape[0]].to_f64())
-                    .collect::<Vec<f64>>();
-                let dets = (0..shape[0])
-                    .map(|i| Self::minor(self, i, 0).det())
-                    .collect::<Vec<Result<Array<N>, _>>>()
-                    .has_error()?.into_iter()
-                    .map(Result::unwrap)
-                    .map(|i| i[0].to_f64())
-                    .collect::<Vec<f64>>();
-                let result = elems.iter().zip(&dets)
-                    .enumerate()
-                    .map(|(i, (&e, &d))| e * f64::powi(-1., i as i32 + 2) * d)
-                    .sum::<f64>();
-                Array::single(N::from(result))
-            }
-        } else {
-            let shape = self.get_shape()?;
-            shape[self.ndim()? - 2].is_at_least(&2)?;
-            shape[self.ndim()? - 1].is_at_least(&2)?;
-            shape[self.ndim()? - 2].is_equal(&shape[self.ndim()? - 1])?;
-            let sub_shape = shape[self.ndim()? - 2 ..].to_vec();
-            let dets = self
-                .ravel()?
-                .split(self.len()? / sub_shape.iter().product::<usize>(), None)?
-                .iter()
-                .map(|arr| arr.reshape(&sub_shape).det())
-                .collect::<Vec<Result<Array<N>, _>>>()
-                .has_error()?.into_iter()
-                .flat_map(Result::unwrap)
-                .collect::<Array<N>>();
-            Ok(dets)
-        }
-    }
 }
 
-impl <N: Numeric> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
+impl <N: NumericOps> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
 
     fn dot(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.dot(other)
@@ -233,22 +175,18 @@ impl <N: Numeric> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
         self.clone()?.matmul(other)
     }
-
-    fn det(&self) -> Result<Array<N>, ArrayError> {
-        self.clone()?.det()
-    }
 }
 
-trait LinalgHelper {
+trait ProductsHelper<N: NumericOps> {
 
-    fn dot_split_array<N: Numeric>(arr: &Array<N>, axis: usize) -> Result<Vec<Array<N>>, ArrayError> {
+    fn dot_split_array(arr: &Array<N>, axis: usize) -> Result<Vec<Array<N>>, ArrayError> {
         arr.split_axis(axis)?
             .into_iter().flatten()
             .collect::<Array<N>>()
             .split(arr.get_shape()?.remove_at(axis).iter().product(), None)
     }
 
-    fn dot_iterate<N: Numeric>(v_arr_1: &[Array<N>], v_arr_2: &[Array<N>]) -> Result<Array<N>, ArrayError> {
+    fn dot_iterate(v_arr_1: &[Array<N>], v_arr_2: &[Array<N>]) -> Result<Array<N>, ArrayError> {
         v_arr_1.iter().flat_map(|a| {
             v_arr_2.iter().map(move |b| a.vdot(b))
         })
@@ -259,13 +197,13 @@ trait LinalgHelper {
             .ravel()
     }
 
-    fn dot_1d<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
-        let v_arr_1 = Self::dot_split_array(arr_1, arr_1.ndim()? - 1)?;
-        let v_arr_2 = Self::dot_split_array(arr_2, 0)?;
-        Self::dot_iterate(&v_arr_1, &v_arr_2)
+    fn dot_1d(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+        let arr_1 = if arr_1.ndim()? > 1 { arr_1.get_rows()? } else { vec![arr_1.clone()] };
+        let arr_2 = if arr_2.ndim()? > 1 { arr_2.get_columns()? } else { vec![arr_2.clone()] };
+        Self::dot_iterate(&arr_1, &arr_2)
     }
 
-    fn dot_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn dot_nd(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
         arr_1.shapes_align(arr_1.ndim()? - 1, &arr_2.get_shape()?, arr_2.ndim()? - 2)?;
         let mut new_shape = arr_1.get_shape()?.remove_at(arr_1.ndim()? - 2);
         new_shape.extend_from_slice(&arr_2.get_shape()?.remove_at(arr_2.ndim()? - 1));
@@ -292,8 +230,8 @@ trait LinalgHelper {
             .transpose(Some(pairs))
     }
 
-    fn inner_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
-        fn inner_split<N: Numeric>(arr: &Array<N>) -> Result<Vec<Array<N>>, ArrayError> {
+    fn inner_nd(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+        fn inner_split<N: NumericOps>(arr: &Array<N>) -> Result<Vec<Array<N>>, ArrayError> {
             let _arr = arr.ravel()?;
             _arr.split(arr.get_shape()?.remove_at(arr.ndim()? - 1).iter().product(), None)
         }
@@ -316,7 +254,7 @@ trait LinalgHelper {
             .reshape(&new_shape)
     }
 
-    fn matmul_iterate<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn matmul_iterate(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
         let (shape_1, shape_2) = (&arr_1.get_shape()?, &arr_2.get_shape()?);
         (0..shape_1[0])
             .flat_map(|i| (0..shape_2[1])
@@ -327,7 +265,7 @@ trait LinalgHelper {
             .reshape(&[shape_1[0], shape_2[1]])
     }
 
-    fn matmul_1d_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn matmul_1d_nd(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
         if arr_1.ndim()? == 1 {
             if arr_2.ndim()? > 2 {
                 let new_shape = arr_2.get_shape()?.remove_at(0);
@@ -375,8 +313,8 @@ trait LinalgHelper {
         }
     }
 
-    fn matmul_nd<N: Numeric>(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
-        fn matmul_split<N: Numeric>(arr: &Array<N>, len: usize, chunk_len: usize) -> Result<Vec<Array<N>>, ArrayError> {
+    fn matmul_nd(arr_1: &Array<N>, arr_2: &Array<N>) -> Result<Array<N>, ArrayError> {
+        fn matmul_split<N: NumericOps>(arr: &Array<N>, len: usize, chunk_len: usize) -> Result<Vec<Array<N>>, ArrayError> {
             let shape_last = (arr.get_shape()?[arr.ndim()? - 2], arr.get_shape()?[arr.ndim()? - 1]);
             let result = arr.split(arr.len()? / chunk_len, Some(0))?
                 .into_iter().cycle().take(len)
@@ -404,26 +342,6 @@ trait LinalgHelper {
             .collect::<Array<N>>()
             .reshape(&new_shape)
     }
-
-    fn minor<N: Numeric>(arr: &Array<N>, row: usize, col: usize) -> Result<Array<N>, ArrayError> {
-        arr.is_dim_supported(&[2])?;
-        if row >= arr.get_shape()?[0] || col >= arr.get_shape()?[1] {
-            return Err(ArrayError::OutOfBounds { value: "Row or column index out of bounds" })
-        }
-
-        let mut sub_shape = arr.get_shape()?;
-        sub_shape[arr.ndim()? - 1] -= 1;
-        sub_shape[arr.ndim()? - 2] -= 1;
-
-        let mut sub_elements = Vec::new();
-        for (i, &element) in arr.get_elements()?.iter().enumerate() {
-            if i / arr.get_shape()?[1] != row && i % arr.get_shape()?[1] != col {
-                sub_elements.push(element);
-            }
-        }
-
-        Array::new(sub_elements, sub_shape)
-    }
 }
 
-impl <N: Numeric> LinalgHelper for Array<N> {}
+impl <N: NumericOps> ProductsHelper<N> for Array<N> {}

@@ -198,12 +198,15 @@ impl <N: Numeric> ArrayExtrema<N> for Array<N> {
             Some(axis) => {
                 let axis = self.normalize_axis(axis);
                 let result = self.apply_along_axis(axis, |arr| arr.max(None));
-                result.reshape(&result.get_shape()?.remove_at(axis))
+                result.reshape(&result.get_shape()?.remove_at_if(axis, result.ndim()? > 1))
             },
             None => {
-                if self.to_array_f64().get_elements()?.iter().any(|i| i.is_nan()) { return Array::single(N::from(f64::NAN)) }
-                let result = self.into_iter().fold(self[0], |a, &b| if a < b { b } else { a });
-                Array::single(result)
+                if self.to_array_f64().get_elements()?.iter().any(|i| i.is_nan()) {
+                    Array::single(N::from(f64::NAN))
+                } else {
+                    let result = self.into_iter().fold(self[0], |a, &b| if a < b { b } else { a });
+                    Array::single(result)
+                }
             }
         }
     }
@@ -222,7 +225,7 @@ impl <N: Numeric> ArrayExtrema<N> for Array<N> {
             Some(axis) => {
                 let axis = self.normalize_axis(axis);
                 let result = self.apply_along_axis(axis, |arr| arr.nanmax(None));
-                result.reshape(&result.get_shape()?.remove_at(axis))
+                result.reshape(&result.get_shape()?.remove_at_if(axis, result.ndim()? > 1))
             },
             None => {
                 if self.to_array_f64().get_elements()?.iter().all(|i| i.is_nan()) {
@@ -249,7 +252,7 @@ impl <N: Numeric> ArrayExtrema<N> for Array<N> {
             Some(axis) => {
                 let axis = self.normalize_axis(axis);
                 let result = self.apply_along_axis(axis, |arr| arr.min(None));
-                result.reshape(&result.get_shape()?.remove_at(axis))
+                result.reshape(&result.get_shape()?.remove_at_if(axis, result.ndim()? > 1))
             },
             None => {
                 if self.to_array_f64().get_elements()?.iter().any(|i| i.is_nan()) { return Array::single(N::from(f64::NAN)) }
@@ -273,7 +276,7 @@ impl <N: Numeric> ArrayExtrema<N> for Array<N> {
             Some(axis) => {
                 let axis = self.normalize_axis(axis);
                 let result = self.apply_along_axis(axis, |arr| arr.nanmin(None));
-                result.reshape(&result.get_shape()?.remove_at(axis))
+                result.reshape(&result.get_shape()?.remove_at_if(axis, result.ndim()? > 1))
             },
             None => {
                 if self.to_array_f64().get_elements()?.iter().all(|i| i.is_nan()) {

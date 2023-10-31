@@ -66,6 +66,8 @@ pub enum ArrayError {
     },
     /// Function is not implemented
     NotImplemented,
+    /// Matrix is singular
+    SingularMatrix,
 }
 
 impl std::error::Error for ArrayError {}
@@ -87,6 +89,7 @@ impl std::fmt::Display for ArrayError {
             ArrayError::MustBeAtLeast { value1, value2 } => write!(f, "`{value1}` must be at least `{value2}`"),
             ArrayError::MustBeOneOf { value1, value2 } => write!(f, "`{value1}` must be one of `{value2}`"),
             ArrayError::NotImplemented => write!(f, "not implemented"),
+            ArrayError::SingularMatrix => write!(f, "matrix is singular"),
         }
     }
 }

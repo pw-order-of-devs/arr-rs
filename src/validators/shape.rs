@@ -10,6 +10,7 @@ pub(crate) trait ValidateShape {
     fn matches_values_len<T>(&self, other: &[T]) -> Result<(), ArrayError>;
     fn matches_shape(&self, other: &[usize]) -> Result<(), ArrayError>;
     fn shapes_align(&self, i: usize, other: &[usize], j: usize) -> Result<(), ArrayError>;
+    fn is_square(&self) -> Result<(), ArrayError>;
 }
 
 impl ValidateShape for Vec<usize> {
@@ -49,6 +50,16 @@ impl ValidateShape for Vec<usize> {
             Ok(())
         }
     }
+
+    fn is_square(&self) -> Result<(), ArrayError> {
+        self.len().is_at_least(&2)?;
+        let last = self.len() - 1;
+        let last_prev = self.len() - 2;
+        self[last].is_at_least(&2)?;
+        self[last_prev].is_at_least(&2)?;
+        self[last].is_equal(&self[last_prev])?;
+        Ok(())
+    }
 }
 
 impl <T: ArrayElement> ValidateShape for Array<T> {
@@ -67,6 +78,15 @@ impl <T: ArrayElement> ValidateShape for Array<T> {
 
     fn shapes_align(&self, i: usize, other: &[usize], j: usize) -> Result<(), ArrayError> {
         self.get_shape()?.shapes_align(i, other, j)
+    }
+
+    fn is_square(&self) -> Result<(), ArrayError> {
+        self.is_dim_unsupported(&[0, 1])?;
+        let shape = self.get_shape()?;
+        shape[0].is_at_least(&2)?;
+        shape[1].is_at_least(&2)?;
+        shape[0].is_equal(&shape[1])?;
+        Ok(())
     }
 }
 

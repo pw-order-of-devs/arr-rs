@@ -79,6 +79,13 @@ impl <T: ArrayElement> ArrayBroadcast<T> for Array<T> {
 
     fn broadcast(&self, other: &Array<T>) -> Result<Array<Tuple2<T, T>>, ArrayError> {
         self.get_shape()?.is_broadcastable(&other.get_shape()?)?;
+        if self.get_shape()? == other.get_shape()? {
+            return self.get_elements()?.into_iter()
+                .zip(other.get_elements()?)
+                .map(|(a, b)| Tuple2(a, b))
+                .collect::<Array<Tuple2<T, T>>>()
+                .reshape(&self.get_shape()?);
+        }
 
         let final_shape = self.broadcast_shape(other.get_shape()?)?;
 

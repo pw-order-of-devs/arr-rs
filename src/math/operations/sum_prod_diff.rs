@@ -179,7 +179,7 @@ impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
         if let Some(axis) = axis {
             let axis = self.normalize_axis(axis);
             let result = self.apply_along_axis(axis, |arr| arr.prod(None));
-            result.reshape(&result.get_shape()?.remove_at(axis))
+            result.reshape(&result.get_shape()?.remove_at_if(axis, result.ndim()? > 1))
         } else {
             Array::single(self.elements.iter().fold(N::one(), |acc, &x| acc * x))
         }
@@ -189,7 +189,7 @@ impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
         if let Some(axis) = axis {
             let axis = self.normalize_axis(axis);
             let result = self.apply_along_axis(axis, |arr| arr.sum(None));
-            result.reshape(&result.get_shape()?.remove_at(axis))
+            result.reshape(&result.get_shape()?.remove_at_if(axis, result.ndim()? > 1))
         } else {
             Array::single(self.elements.iter().fold(N::zero(), |acc, &x| acc + x))
         }
@@ -199,7 +199,7 @@ impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
         if let Some(axis) = axis {
             let axis = self.normalize_axis(axis);
             let result = self.apply_along_axis(axis, |arr| arr.nanprod(None));
-            result.reshape(&result.get_shape()?.remove_at(axis))
+                result.reshape(&result.get_shape()?.remove_at_if(axis, result.ndim()? > 1))
         } else {
             Array::single(self.elements.iter().fold(N::one(), |acc, &x|
                 acc * if x.to_f64().is_nan() { N::one() } else { x }
@@ -211,7 +211,7 @@ impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
         if let Some(axis) = axis {
             let axis = self.normalize_axis(axis);
             let result = self.apply_along_axis(axis, |arr| arr.nansum(None));
-            result.reshape(&result.get_shape()?.remove_at(axis))
+                result.reshape(&result.get_shape()?.remove_at_if(axis, result.ndim()? > 1))
         } else {
             Array::single(self.elements.iter().fold(N::zero(), |acc, &x|
                 acc + if x.to_f64().is_nan() { N::zero() } else { x }
