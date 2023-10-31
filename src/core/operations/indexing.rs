@@ -4,7 +4,7 @@ use crate::{
     extensions::prelude::*,
 };
 
-/// ArrayTrait - Array Indexing functions
+/// `ArrayTrait` - Array Indexing functions
 pub trait ArrayIndexing<T: ArrayElement> where Self: Sized + Clone {
 
     /// Return an index of element at the given coordinates
@@ -29,6 +29,10 @@ pub trait ArrayIndexing<T: ArrayElement> where Self: Sized + Clone {
     /// let idx_3 = arr.index_at(&[1, 1, 1]).unwrap();
     /// assert_eq!(7, idx_3);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn index_at(&self, coords: &[usize]) -> Result<usize, ArrayError>;
 
     /// Return coordinates at the given index of element
@@ -53,6 +57,10 @@ pub trait ArrayIndexing<T: ArrayElement> where Self: Sized + Clone {
     /// let coord_3 = arr.index_to_coord(7).unwrap();
     /// assert_eq!(vec![1, 1, 1], coord_3);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn index_to_coord(&self, idx: usize) -> Result<Vec<usize>, ArrayError>;
 
     /// Return an index of element at the given coordinates
@@ -77,6 +85,10 @@ pub trait ArrayIndexing<T: ArrayElement> where Self: Sized + Clone {
     /// let at_3 = arr.at(&[1, 1, 1]).unwrap();
     /// assert_eq!(8, at_3);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn at(&self, coords: &[usize]) -> Result<T, ArrayError>;
 
     /// Return a subarray of provided range
@@ -98,6 +110,10 @@ pub trait ArrayIndexing<T: ArrayElement> where Self: Sized + Clone {
     /// let expected = Array::<i32>::flat(vec![1, 2, 3, 4]).unwrap();
     /// assert_eq!(expected, arr.slice(0..1).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn slice(&self, range: std::ops::Range<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Return a subarray consisting on values on given indices.
@@ -121,6 +137,10 @@ pub trait ArrayIndexing<T: ArrayElement> where Self: Sized + Clone {
     /// let slice_1 = arr.indices_at(&[3, 4, 2, 7, 5, 6, 0, 1]).unwrap();
     /// assert_eq!(format!("{expected}"), format!("{slice_1}"));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn indices_at(&self, indices: &[usize]) -> Result<Array<T>, ArrayError>;
 }
 
@@ -171,7 +191,7 @@ impl <T: ArrayElement> ArrayIndexing<T> for Array<T> {
             Ok(self.clone())
         } else {
             let new_shape =
-                if range.len() > 1 { vec![range.len()].into_iter().chain(self.shape[1..].iter().cloned()).collect() }
+                if range.len() > 1 { vec![range.len()].into_iter().chain(self.shape[1..].iter().copied()).collect() }
                 else { self.shape[1..].to_vec() };
 
             let items: usize = new_shape.iter().product();
@@ -186,7 +206,7 @@ impl <T: ArrayElement> ArrayIndexing<T> for Array<T> {
         }
     }
 
-    fn indices_at(&self, indices: &[usize]) -> Result<Array<T>, ArrayError> {
+    fn indices_at(&self, indices: &[usize]) -> Result<Self, ArrayError> {
         if self.ndim()? == 1 {
             for &i in indices {
                 if i >= self.len()? { return Err(ArrayError::OutOfBounds { value: "indices" }) }
@@ -224,11 +244,11 @@ impl <T: ArrayElement> ArrayIndexing<T> for Result<Array<T>, ArrayError> {
         self.clone()?.at(coords)
     }
 
-    fn slice(&self, range: std::ops::Range<usize>) -> Result<Array<T>, ArrayError> {
+    fn slice(&self, range: std::ops::Range<usize>) -> Self {
         self.clone()?.slice(range)
     }
 
-    fn indices_at(&self, indices: &[usize]) -> Result<Array<T>, ArrayError> {
+    fn indices_at(&self, indices: &[usize]) -> Self {
         self.clone()?.indices_at(indices)
     }
 }

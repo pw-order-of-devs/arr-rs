@@ -50,17 +50,17 @@ case(array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), &[2, 3, 4], Err(ArrayErr
 
 #[rstest(
 array, range, expected,
-case(array!(i32, [1, 2, 3, 4, 5, 6, 7, 8]), 0 .. 4, array!(i32, [1, 2, 3, 4])),
-case(array!(i32, [1, 2, 3, 4, 5, 6, 7, 8]), 0 .. 6, array!(i32, [1, 2, 3, 4, 5, 6])),
-case(array!(i32, [[1, 2], [3, 4], [5, 6], [7, 8]]), 0 .. 1, array!(i32, [1, 2])),
-case(array!(i32, [[1, 2], [3, 4], [5, 6], [7, 8]]), 0 .. 2, array!(i32, [[1, 2], [3, 4]])),
-case(array!(i32, [[1, 2], [3, 4], [5, 6], [7, 8]]), 1 .. 2, array!(i32, [3, 4])),
-case(array!(i32, [[1, 2], [3, 4], [5, 6], [7, 8]]), 2 .. 4, array!(i32, [[5, 6], [7, 8]])),
-case(array!(i32, [[1, 2, 3, 4], [5, 6, 7, 8]]), 0 .. 1, array!(i32, [1, 2, 3, 4])),
-case(array!(i32, [[1, 2, 3, 4], [5, 6, 7, 8]]), 0 .. 2, array!(i32, [[1, 2, 3, 4], [5, 6, 7, 8]])),
-case(array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), 0 .. 1, array!(i32, [[1, 2], [3, 4]])),
-case(array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), 2 .. 3, array!(i32, [[5, 6], [7, 8]])),
-case(array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), 3 .. 10, Err(ArrayError::OutOfBounds { value: "slice range" })),
+case(array!(i32, [1, 2, 3, 4, 5, 6, 7, 8]), 0..4, array!(i32, [1, 2, 3, 4])),
+case(array!(i32, [1, 2, 3, 4, 5, 6, 7, 8]), 0..6, array!(i32, [1, 2, 3, 4, 5, 6])),
+case(array!(i32, [[1, 2], [3, 4], [5, 6], [7, 8]]), 0..1, array!(i32, [1, 2])),
+case(array!(i32, [[1, 2], [3, 4], [5, 6], [7, 8]]), 0..2, array!(i32, [[1, 2], [3, 4]])),
+case(array!(i32, [[1, 2], [3, 4], [5, 6], [7, 8]]), 1..2, array!(i32, [3, 4])),
+case(array!(i32, [[1, 2], [3, 4], [5, 6], [7, 8]]), 2..4, array!(i32, [[5, 6], [7, 8]])),
+case(array!(i32, [[1, 2, 3, 4], [5, 6, 7, 8]]), 0..1, array!(i32, [1, 2, 3, 4])),
+case(array!(i32, [[1, 2, 3, 4], [5, 6, 7, 8]]), 0..2, array!(i32, [[1, 2, 3, 4], [5, 6, 7, 8]])),
+case(array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), 0..1, array!(i32, [[1, 2], [3, 4]])),
+case(array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), 2..3, array!(i32, [[5, 6], [7, 8]])),
+case(array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), 3..10, Err(ArrayError::OutOfBounds { value: "slice range" })),
 )] fn test_slice(array: Result<Array<i32>, ArrayError>, range: std::ops::Range<usize>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.slice(range))
 }

@@ -11,10 +11,14 @@ pub enum ConvolveMode {
     Same,
 }
 
-/// ConvolveMode trait
+/// `ConvolveMode` trait
 pub trait ConvolveModeType {
 
-    /// Parse input to ConvolveMode type
+    /// Parse input to `ConvolveMode` type
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn to_mode(self) -> Result<ConvolveMode, ArrayError>;
 }
 

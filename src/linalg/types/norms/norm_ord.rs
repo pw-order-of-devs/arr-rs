@@ -17,10 +17,14 @@ pub enum NormOrd {
     Nuc,
 }
 
-/// NormOrd trait
+/// `NormOrd` trait
 pub trait NormOrdType: Clone {
 
-    /// Parse input to NormOrd type
+    /// Parse input to `NormOrd` type
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn to_ord(self) -> Result<NormOrd, ArrayError>;
 }
 
@@ -50,9 +54,8 @@ fn parse_ord(value: &str) -> Result<NormOrd, ArrayError> {
         "-inf" => Ok(NormOrd::NegInf),
         "fro" => Ok(NormOrd::Fro),
         "nuc" => Ok(NormOrd::Nuc),
-        _ => match i32::from_str(value) {
-            Ok(ord) => Ok(NormOrd::Int(ord)),
-            Err(_) => Err(ArrayError::ParameterError { param: "`mode`", message: "must be one of {`inf`, `-inf`, `fro`, `nuc`} or an integer" })
-        }
+        _ => i32::from_str(value).map_or(
+            Err(ArrayError::ParameterError { param: "`mode`", message: "must be one of {`inf`, `-inf`, `fro`, `nuc`} or an integer" }),
+            |ord| Ok(NormOrd::Int(ord)))
     }
 }

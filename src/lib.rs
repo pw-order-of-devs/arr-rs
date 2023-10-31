@@ -24,17 +24,29 @@
 //!     .map(|item| item * 2)
 //!     .filter(|item| item % 3 == 0)
 //!     .ravel()
-//!     .slice(0 .. 2);
+//!     .slice(0..2);
 //! ```
 //!
 //! # Crate Features
 //! - `macros` - create array macro (enabled by default)
 //!
 
+#![forbid(unsafe_code)]
+#![deny(clippy::all)]
+#![deny(clippy::cargo)]
+#![deny(clippy::complexity)]
+#![deny(clippy::correctness)]
+#![deny(clippy::nursery)]
+#![deny(clippy::pedantic)]
+#![deny(clippy::perf)]
+#![deny(clippy::style)]
+#![deny(clippy::suspicious)]
 #![deny(missing_docs)]
 #![deny(missing_debug_implementations)]
-#![doc(test(attr(allow(unused_variables), deny(warnings))))]
-#![cfg_attr(doc_cfg, feature(doc_cfg))]
+#![allow(clippy::module_name_repetitions)]
+#![allow(clippy::redundant_pub_crate)]
+#![allow(clippy::similar_names)]
+#![cfg_attr(test, deny(rust_2018_idioms))]
 
 /// core functionality - common for modules
 pub mod core;

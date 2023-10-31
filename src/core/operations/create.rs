@@ -4,7 +4,7 @@ use crate::{
     validators::prelude::*,
 };
 
-/// ArrayTrait - Array Create functions
+/// `ArrayTrait` - Array Create functions
 pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
 
     /// Creates new array
@@ -26,6 +26,10 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
     /// assert_eq!("[[1, 2], [3, 4]]", format!("{arr}"));
     /// assert_eq!("[[1, 2],\n [3, 4]]", format!("{arr:#}"));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn new(elements: Vec<T>, shape: Vec<usize>) -> Result<Self, ArrayError>;
 
     /// Creates new array
@@ -51,6 +55,10 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
     /// assert_eq!("[[[1, 2], [3, 4]]]", format!("{arr}"));
     /// assert_eq!("[[[1, 2],\n  [3, 4]]]", format!("{arr:#}"));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn create(elements: Vec<T>, shape: Vec<usize>, ndmin: Option<usize>) -> Result<Self, ArrayError>;
 
     /// Creates new array with single element
@@ -68,6 +76,10 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
     /// assert_eq!(vec![1], arr.get_elements().unwrap());
     /// assert_eq!(vec![1], arr.get_shape().unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn single(element: T) -> Result<Self, ArrayError>;
 
     /// Creates new flat array
@@ -83,6 +95,10 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
     ///
     /// assert_eq!(array!(i32, [1, 2, 3, 4]), Array::<i32>::flat(vec![1, 2, 3, 4]));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn flat(elements: Vec<T>) -> Result<Self, ArrayError>;
 
     /// Creates new empty array
@@ -94,17 +110,21 @@ pub trait ArrayCreate<T: ArrayElement> where Self: Sized + Clone {
     ///
     /// assert!(Array::<i32>::empty().is_empty().unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn empty() -> Result<Self, ArrayError>;
 }
 
 impl <T: ArrayElement> ArrayCreate<T> for Array<T> {
 
-    fn new(elements: Vec<T>, shape: Vec<usize>) -> Result<Array<T>, ArrayError> {
+    fn new(elements: Vec<T>, shape: Vec<usize>) -> Result<Self, ArrayError> {
         shape.matches_values_len(&elements)?;
         Ok(Self { elements, shape, })
     }
 
-    fn create(elements: Vec<T>, shape: Vec<usize>, ndmin: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn create(elements: Vec<T>, shape: Vec<usize>, ndmin: Option<usize>) -> Result<Self, ArrayError> {
         let ndmin = ndmin.unwrap_or(0);
         let array = Self::new(elements, shape.clone());
         if ndmin > shape.len() {

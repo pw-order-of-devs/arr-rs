@@ -6,7 +6,7 @@ macro_rules! array_parse_shape {
         let mut _string = $str.to_string();
         for i in (0..$ndim).rev() {
             let tmp_str = _string.replace(&format!("{},{}", "]".repeat(i), "[".repeat(i)), "]#[");
-            _string = _string[0 .. _string.find(&"]".repeat(i)).unwrap() + i].to_string();
+            _string = _string[0.._string.find(&"]".repeat(i)).unwrap() + i].to_string();
             shape.push(tmp_str.split("]#[").count());
         };
         shape
@@ -28,7 +28,7 @@ macro_rules! array_parse_input {
     }};
 }
 
-/// Wrapper for Tuple array_create!
+/// Wrapper for Tuple `array_create!`
 #[macro_export]
 macro_rules! array_tuple {
     ($tt:ty, $str:expr) => {{
@@ -59,7 +59,7 @@ macro_rules! array_tuple {
     }};
 }
 
-/// Wrapper for List array_create!
+/// Wrapper for List `array_create!`
 #[macro_export]
 macro_rules! array_list {
     ($tt:ty, $str:expr) => {{
@@ -105,7 +105,7 @@ macro_rules! array_list {
     }};
 }
 
-/// Wrapper for char array_create!
+/// Wrapper for char `array_create!`
 #[macro_export]
 macro_rules! array_char {
     ($str:expr) => {{
@@ -137,7 +137,7 @@ macro_rules! array_char {
     }};
 }
 
-/// Wrapper for String array_create!
+/// Wrapper for String `array_create!`
 #[macro_export]
 macro_rules! array_string {
     ($str:expr) => {{

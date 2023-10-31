@@ -44,7 +44,7 @@ let res = arr
     .map(|item| item * 2)
     .filter(|item| item % 3 == 0)
     .ravel()
-    .slice(0 .. 2);
+    .slice(0..2);
 ```
 
 ### Benchmark

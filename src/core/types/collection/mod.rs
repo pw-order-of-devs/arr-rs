@@ -7,7 +7,7 @@ use crate::core::types::ArrayElement;
 pub trait CollectionElement<T: ArrayElement> {}
 
 /// List type for array
-#[derive(Debug, Clone, PartialOrd, PartialEq)]
+#[derive(Debug, Clone, PartialOrd, PartialEq, Eq)]
 pub struct List<T: ArrayElement>(pub Vec<T>);
 
 impl<T: ArrayElement + FromStr> FromStr for List<T>
@@ -25,10 +25,10 @@ impl<T: ArrayElement + FromStr> FromStr for List<T>
             if item.is_err() {
                 return Err(ParseListError::Parse("error parsing list value"))
             }
-            items.push(item.unwrap())
+            items.push(item.unwrap());
         }
 
-        Ok(List(items))
+        Ok(Self(items))
     }
 }
 
@@ -37,15 +37,15 @@ impl <T: ArrayElement> CollectionElement<T> for List<T> {}
 impl <T: ArrayElement> ArrayElement for List<T> {
 
     fn zero() -> Self {
-        List(vec![])
+        Self(vec![])
     }
 
     fn one() -> Self {
-        List(vec![])
+        Self(vec![])
     }
 
     fn is_nan(&self) -> bool {
-        self.0.iter().any(|i| i.is_nan())
+        self.0.iter().any(ArrayElement::is_nan)
     }
 }
 
@@ -53,7 +53,7 @@ impl <T: ArrayElement> Display for List<T> {
 
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "[{}]", self.0.iter()
-            .map(|i| i.to_string())
+            .map(ToString::to_string)
             .collect::<Vec<String>>()
             .join(", "))
     }

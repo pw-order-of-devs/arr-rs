@@ -17,10 +17,14 @@ pub enum CompareOp {
     LessEqual,
 }
 
-/// CompareOp trait
+/// `CompareOp` trait
 pub trait CompareOpType {
 
-    /// Parse input to CompareOp type
+    /// Parse input to `CompareOp` type
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn parse_type(self) -> Result<CompareOp, ArrayError>;
 }
 

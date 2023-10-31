@@ -31,7 +31,7 @@ impl <N: NumericOps> LinalgHelper<N> for Array<N> {
         let elements = self
             .transpose(None)
             .get_elements()?;
-        let result = parse_elements(elements, cols, col_len);
+        let result = parse_elements(&elements, cols, col_len);
         Ok(result)
     }
 
@@ -44,7 +44,7 @@ impl <N: NumericOps> LinalgHelper<N> for Array<N> {
         let rows = self.get_shape()?[0];
         let elements = self
             .get_elements()?;
-        let result = parse_elements(elements, rows, row_len);
+        let result = parse_elements(&elements, rows, row_len);
         Ok(result)
     }
 
@@ -53,7 +53,7 @@ impl <N: NumericOps> LinalgHelper<N> for Array<N> {
         let matrix = self
             .get_elements()?
             .chunks(self.get_shape()?[1])
-            .map(|chunk| chunk.to_vec())
+            .map(<[N]>::to_vec)
             .collect();
         Ok(matrix)
     }
@@ -62,7 +62,7 @@ impl <N: NumericOps> LinalgHelper<N> for Array<N> {
         let (r, c) = (matrix.len(), matrix[0].len());
         let array = matrix.iter()
             .flatten()
-            .cloned()
+            .copied()
             .collect::<Vec<N>>();
         Self::new(array, vec![r, c])
     }
@@ -88,52 +88,53 @@ impl <N: NumericOps> LinalgHelper<N> for Array<N> {
         let n = self.get_shape()?[0];
         let mut h = self.clone();
 
-        for k in 0 .. n - 2 {
+        for k in 0..n - 2 {
             let column = h.get_columns()?[k].clone();
             let x = column.into_iter().skip(k + 1).take(n - (k + 1)).collect();
-            let mut v = Array::<N>::zeros_like(&x)?;
+            let mut v = Self::zeros_like(&x)?;
             let x_norm = x.norm(None::<NormOrd>, None, None)?[0];
             v[0] = N::from(x.sign()?[0]) * x_norm;
             v = x.clone() - v;
             let v_norm = v.norm(None::<NormOrd>, None, None)?[0];
             if v_norm != N::zero() { v /= v_norm; }
 
-            let mut hh = Array::concatenate(h.get_rows()?[k + 1..].to_vec(), None)
+            let mut hh = Self::concatenate(h.get_rows()?[k + 1..].to_vec(), None)
                 .reshape(&[n - k - 1, n])?;
-            hh = Array::concatenate(hh.get_columns()?[k..].to_vec(), None)?
+            hh = Self::concatenate(hh.get_columns()?[k..].to_vec(), None)?
                 .reshape(&[n - k, n - k - 1])
                 .transpose(None)?;
             let outer = v.outer(&v.dot(&hh)?)?;
             hh -= (outer * N::from(2))?;
             let mut h_m = h.to_matrix()?;
             let hh_m = hh.to_matrix()?;
-            for i in 0 .. hh_m.len() { for j in 0 .. hh_m[0].len() {
+            for i in 0..hh_m.len() { for j in 0..hh_m[0].len() {
                 h_m[i + k + 1][j + k] = hh_m[i][j];
             } }
-            h = Array::from_matrix(&h_m)?;
+            h = Self::from_matrix(&h_m)?;
 
-            let mut hh = Array::concatenate(h.get_columns()?[k + 1..].to_vec(), None)
+            let mut hh = Self::concatenate(h.get_columns()?[k + 1..].to_vec(), None)
                 .reshape(&[n - k - 1, n])
                 .transpose(None)?;
             let outer = hh.dot(&v).outer(&v)?;
             hh -= (outer * N::from(2))?;
             let mut h_m = h.to_matrix()?;
             let hh_m = hh.to_matrix()?;
-            for i in 0 .. hh_m.len() { for j in 0 .. hh_m[0].len() {
+            for i in 0..hh_m.len() { for j in 0..hh_m[0].len() {
                 h_m[i][j + k + 1] = hh_m[i][j];
             } }
-            h = Array::from_matrix(&h_m)?;
+            h = Self::from_matrix(&h_m)?;
         }
 
         Ok(h)
     }
 }
 
-fn parse_elements<N: NumericOps>(elements: Vec<N>, count_1: usize, count_2: usize) -> Vec<Array<N>> {
+fn parse_elements<N: NumericOps>(elements: &[N], count_1: usize, count_2: usize) -> Vec<Array<N>> {
     (0..count_1)
         .map(|i| elements
-            .clone()
-            .into_iter()
+            .to_vec()
+            .iter()
+            .copied()
             .skip(i * count_2)
             .take(count_2)
             .collect())

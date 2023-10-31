@@ -7,7 +7,7 @@ use crate::{
     validators::prelude::*,
 };
 
-/// ArrayTrait - Array Linalg Norms functions
+/// `ArrayTrait` - Array Linalg Norms functions
 pub trait ArrayLinalgNorms<N: NumericOps> where Self: Sized + Clone {
 
     /// Calculates matrix or vector norm
@@ -30,6 +30,10 @@ pub trait ArrayLinalgNorms<N: NumericOps> where Self: Sized + Clone {
     /// assert_eq!(expected, array_a.norm(None::<NormOrd>, None, None));
     /// assert_eq!(expected, array_b.norm(None::<NormOrd>, None, None));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn norm(&self, ord: Option<impl NormOrdType>, axis: Option<Vec<isize>>, keepdims: Option<bool>) -> Result<Array<N>, ArrayError>;
 
     /// Compute the determinant of an array
@@ -41,12 +45,16 @@ pub trait ArrayLinalgNorms<N: NumericOps> where Self: Sized + Clone {
     ///
     /// assert_eq!(Array::single(-14), Array::new(vec![3, 8, 4, 6], vec![2, 2]).det());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn det(&self) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
 
-    fn norm(&self, ord: Option<impl NormOrdType>, axis: Option<Vec<isize>>, keepdims: Option<bool>) -> Result<Array<N>, ArrayError> {
+    fn norm(&self, ord: Option<impl NormOrdType>, axis: Option<Vec<isize>>, keepdims: Option<bool>) -> Result<Self, ArrayError> {
 
         fn norm_simple<N: NumericOps>(array: &Array<N>, keepdims: Option<bool>) -> Result<Array<N>, ArrayError> {
             let ndim = array.ndim()?;
@@ -71,7 +79,7 @@ impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
             }
         }
 
-        let axis = axis.unwrap_or((0..ndim as isize).collect());
+        let axis = axis.unwrap_or_else(|| (0..ndim.to_isize()).collect());
         match axis.len() {
             1 => {
                 let axis = Some(axis[0]);
@@ -86,17 +94,17 @@ impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
                     NormOrd::Int(1) => self.abs().sum(axis),
                     NormOrd::Int(2) => self.multiply(self).abs()?.sum(axis).sqrt(),
                     NormOrd::Int(value) => self.abs()
-                        .float_power(&Array::single(N::from(value))?)
+                        .float_power(&Self::single(N::from(value))?)
                         .sum(axis)
-                        .float_power(&Array::single(N::from(value)).reciprocal()?),
+                        .float_power(&Self::single(N::from(value)).reciprocal()?),
                     NormOrd::Fro | NormOrd::Nuc => {
                         Err(ArrayError::ParameterError { param: "`ord`", message: "invalid norm order for vectors." })
                     },
                 }
             }
             2 => {
-                let row_axis = self.normalize_axis(axis[0]) as isize;
-                let col_axis = self.normalize_axis(axis[1]) as isize;
+                let row_axis = self.normalize_axis(axis[0]).to_isize();
+                let col_axis = self.normalize_axis(axis[1]).to_isize();
                 if row_axis == col_axis {
                     return Err(ArrayError::ParameterError { param: "`axis`", message: "duplicate axes given." });
                 }
@@ -137,7 +145,7 @@ impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
         }
     }
 
-    fn det(&self) -> Result<Array<N>, ArrayError> {
+    fn det(&self) -> Result<Self<>, ArrayError> {
         if self.ndim()? == 0 {
             Err(ArrayError::MustBeAtLeast { value1: "`dimension`".to_string(), value2: "1".to_string() })
         } else if self.ndim()? == 1 {
@@ -146,23 +154,23 @@ impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
             let shape = self.get_shape()?;
             self.is_square()?;
             if shape[0] == 2 {
-                Array::single(N::from(self[0].to_f64() * self[3].to_f64() - self[1].to_f64() * self[2].to_f64()))
+                Self::single(N::from(self[0].to_f64().mul_add(self[3].to_f64(), -self[1].to_f64() * self[2].to_f64())))
             } else {
                 let elems = (0..shape[0])
                     .map(|i| self[i * shape[0]].to_f64())
                     .collect::<Vec<f64>>();
                 let dets = (0..shape[0])
                     .map(|i| Self::minor(self, i, 0).det())
-                    .collect::<Vec<Result<Array<N>, _>>>()
+                    .collect::<Vec<Result<Self, _>>>()
                     .has_error()?.into_iter()
                     .map(Result::unwrap)
                     .map(|i| i[0].to_f64())
                     .collect::<Vec<f64>>();
                 let result = elems.iter().zip(&dets)
                     .enumerate()
-                    .map(|(i, (&e, &d))| e * f64::powi(-1., i as i32 + 2) * d)
+                    .map(|(i, (&e, &d))| e * f64::powi(-1., i.to_i32() + 2) * d)
                     .sum::<f64>();
-                Array::single(N::from(result))
+                Self::single(N::from(result))
             }
         } else {
             let shape = self.get_shape()?;
@@ -173,10 +181,10 @@ impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
                 .split(self.len()? / sub_shape.iter().product::<usize>(), None)?
                 .iter()
                 .map(|arr| arr.reshape(&sub_shape).det())
-                .collect::<Vec<Result<Array<N>, _>>>()
+                .collect::<Vec<Result<Self, _>>>()
                 .has_error()?.into_iter()
                 .flat_map(Result::unwrap)
-                .collect::<Array<N>>();
+                .collect::<Self>();
             Ok(dets)
         }
     }
@@ -184,11 +192,11 @@ impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
 
 impl <N: NumericOps> ArrayLinalgNorms<N> for Result<Array<N>, ArrayError> {
 
-    fn norm(&self, ord: Option<impl NormOrdType>, axis: Option<Vec<isize>>, keepdims: Option<bool>) -> Result<Array<N>, ArrayError> {
+    fn norm(&self, ord: Option<impl NormOrdType>, axis: Option<Vec<isize>>, keepdims: Option<bool>) -> Self {
         self.clone()?.norm(ord, axis, keepdims)
     }
 
-    fn det(&self) -> Result<Array<N>, ArrayError> {
+    fn det(&self) -> Self {
         self.clone()?.det()
     }
 }

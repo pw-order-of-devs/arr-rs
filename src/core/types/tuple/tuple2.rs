@@ -6,7 +6,7 @@ use crate::core::prelude::*;
 pub(crate) type TupleH2 <T, S> = (Array<T>, Array<S>);
 
 /// Tuple2 type for array
-#[derive(Debug, Copy, Clone, PartialOrd, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialOrd, PartialEq, Eq)]
 pub struct Tuple2<S: ArrayElement, T: ArrayElement>(pub S, pub T);
 
 impl<S: ArrayElement + FromStr, T: ArrayElement + FromStr> FromStr for Tuple2<S, T>
@@ -30,18 +30,18 @@ impl<S: ArrayElement + FromStr, T: ArrayElement + FromStr> FromStr for Tuple2<S,
             return Err(ParseTupleError::Parse("error parsing tuple value"))
         }
 
-        Ok(Tuple2(x.unwrap(), y.unwrap()))
+        Ok(Self(x.unwrap(), y.unwrap()))
     }
 }
 
 impl <S: ArrayElement, T: ArrayElement> ArrayElement for Tuple2<S, T> {
 
     fn zero() -> Self {
-        Tuple2(S::zero(), T::zero())
+        Self(S::zero(), T::zero())
     }
 
     fn one() -> Self {
-        Tuple2(S::one(), T::one())
+        Self(S::one(), T::one())
     }
 
     fn is_nan(&self) -> bool {
@@ -61,6 +61,6 @@ impl <S: ArrayElement, T: ArrayElement> TupleElement<T> for Tuple2<S, T> {
     type Output = Self;
 
     fn from_tuple(tuple: (S, T)) -> Self::Output {
-        Tuple2(tuple.0, tuple.1)
+        Self(tuple.0, tuple.1)
     }
 }

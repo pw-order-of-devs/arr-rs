@@ -4,7 +4,7 @@ use crate::{
     extensions::prelude::*,
 };
 
-/// ArrayTrait - Array Search functions
+/// `ArrayTrait` - Array Search functions
 pub trait ArraySearch<T: ArrayElement> where Self: Sized + Clone {
 
     /// Returns the indices of the maximum values along an axis.
@@ -24,6 +24,10 @@ pub trait ArraySearch<T: ArrayElement> where Self: Sized + Clone {
     /// let arr = array!(f64, [[f64::NAN, 4.], [2., 3.]]);
     /// assert_eq!(array!(usize, [0]), arr.argmax(None, None));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn argmax(&self, axis: Option<isize>, keepdims: Option<bool>) -> Result<Array<usize>, ArrayError>;
 
     /// Returns the indices of the minimum values along an axis.
@@ -47,6 +51,10 @@ pub trait ArraySearch<T: ArrayElement> where Self: Sized + Clone {
     /// assert_eq!(array!(usize, [0, 1]), arr.argmin(Some(0), None));
     /// assert_eq!(array!(usize, [0, 0]), arr.argmin(Some(1), None));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn argmin(&self, axis: Option<isize>, keepdims: Option<bool>) -> Result<Array<usize>, ArrayError>;
 }
 
@@ -56,20 +64,17 @@ impl <T: ArrayElement> ArraySearch<T> for Array<T> {
         if let Some(axis) = axis {
             let axis = self.normalize_axis(axis);
             let result = self.apply_along_axis(axis, |arr| arr.argmax(None, keepdims));
-            if let Some(true) = keepdims { result }
+            if keepdims == Some(true) { result }
             else { result.reshape(&self.get_shape()?.remove_at(axis)) }
         } else {
             if self.is_empty()? { return Err(ArrayError::ParameterError { param: "`array`", message: "cannot be empty" }) }
-            let result = match self.get_elements()?.iter().position(|item| item.is_nan()) {
-                Some(i) => Array::single(i),
-                None => {
-                    let sorted = self.sort(None, Some("quicksort"))?.get_elements()?;
-                    let max_pos = self.get_elements()?.iter().position(|item| item == &sorted[sorted.len() - 1]).unwrap();
-                    Array::single(max_pos)
-                }
+            let result = if let Some(i) = self.get_elements()?.iter().position(ArrayElement::is_nan) { Array::single(i) } else {
+                let sorted = self.sort(None, Some("quicksort"))?.get_elements()?;
+                let max_pos = self.get_elements()?.iter().position(|item| item == &sorted[sorted.len() - 1]).unwrap();
+                Array::single(max_pos)
             };
 
-            if let Some(true) = keepdims { result.atleast(self.ndim()?) }
+            if keepdims == Some(true) { result.atleast(self.ndim()?) }
             else { result }
         }
     }
@@ -78,20 +83,17 @@ impl <T: ArrayElement> ArraySearch<T> for Array<T> {
         if let Some(axis) = axis {
             let axis = self.normalize_axis(axis);
             let result = self.apply_along_axis(axis, |arr| arr.argmin(None, keepdims));
-            if let Some(true) = keepdims { result }
+            if keepdims == Some(true) { result }
             else { result.reshape(&self.get_shape()?.remove_at(axis)) }
         } else {
             if self.is_empty()? { return Err(ArrayError::ParameterError { param: "`array`", message: "cannot be empty" }) }
-            let result = match self.get_elements()?.iter().position(|item| item.is_nan()) {
-                Some(i) => Array::single(i),
-                None => {
-                    let sorted = self.sort(None, Some("quicksort"))?.get_elements()?;
-                    let max_pos = self.get_elements()?.iter().position(|item| item == &sorted[0]).unwrap();
-                    Array::single(max_pos)
-                }
+            let result = if let Some(i) = self.get_elements()?.iter().position(ArrayElement::is_nan) { Array::single(i) } else {
+                let sorted = self.sort(None, Some("quicksort"))?.get_elements()?;
+                let max_pos = self.get_elements()?.iter().position(|item| item == &sorted[0]).unwrap();
+                Array::single(max_pos)
             };
 
-            if let Some(true) = keepdims { result.atleast(self.ndim()?) }
+            if keepdims == Some(true) { result.atleast(self.ndim()?) }
             else { result }
         }
     }

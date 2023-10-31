@@ -2,6 +2,7 @@ use crate::{
     alphanumeric::prelude::*,
     core::prelude::*,
 };
+use crate::prelude::Numeric;
 
 impl ArrayElement for char {
 
@@ -129,6 +130,6 @@ impl Alphanumeric for char {
     }
 
     fn _count(&self, sub: &str) -> usize {
-        if *self == sub.chars().next().unwrap_or(' ') { 1 } else { 0 }
+        (*self == sub.chars().next().unwrap_or(' ')).to_usize()
     }
 }

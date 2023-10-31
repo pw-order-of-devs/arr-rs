@@ -5,7 +5,7 @@ use crate::{
     numeric::prelude::*,
 };
 
-/// ArrayTrait - Array Floating functions
+/// `ArrayTrait` - Array Floating functions
 pub trait ArrayFloating<N: Floating> where Self: Sized + Clone {
 
     /// Returns element-wise True where signbit is set (less than zero)
@@ -18,6 +18,10 @@ pub trait ArrayFloating<N: Floating> where Self: Sized + Clone {
     /// let arr = Array::flat(vec![1., -2., -3., 4.]);
     /// assert_eq!(Array::flat(vec![false, true, true, false]), arr.signbit());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn signbit(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Change the sign of x1 to that of x2, element-wise
@@ -35,6 +39,10 @@ pub trait ArrayFloating<N: Floating> where Self: Sized + Clone {
     /// let other = Array::flat(vec![-1., 2., -3., 4.]);
     /// assert_eq!(Array::flat(vec![-1., 2., -3., 4.]), arr.copysign(&other.unwrap()));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn copysign(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 
     /// Decompose the elements of x into man and twos exp
@@ -49,6 +57,10 @@ pub trait ArrayFloating<N: Floating> where Self: Sized + Clone {
     /// assert_eq!(Array::flat(vec![0., 0.5, 0.5, 0.75, 0.5, 0.625, 0.75, 0.875, 0.5]).unwrap(), result.0);
     /// assert_eq!(Array::flat(vec![0, 1, 2, 2, 3, 3, 3, 3, 4]).unwrap(), result.1);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn frexp(&self) -> Result<(Array<N>, Array<i32>), ArrayError>;
 
     /// Returns x1 * 2**x2, element-wise. Inverse of frexp
@@ -62,6 +74,10 @@ pub trait ArrayFloating<N: Floating> where Self: Sized + Clone {
     /// let other = Array::flat(vec![0, 1, 2, 2, 3, 3, 3, 3, 4]);
     /// assert_eq!(Array::arange(0., 8., None), arr.ldexp(&other.unwrap()));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn ldexp(&self, other: &Array<i32>) -> Result<Array<N>, ArrayError>;
 
     /// Return the next floating-point value after x1 towards x2, element-wise
@@ -74,6 +90,10 @@ pub trait ArrayFloating<N: Floating> where Self: Sized + Clone {
     /// let expected = Array::flat(vec![1. + f64::EPSILON, 2. - f64::EPSILON]);
     /// assert_eq!(expected, Array::flat(vec![1., 2.]).nextafter(&Array::flat(vec![2., 1.]).unwrap()));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn nextafter(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 
     /// Return the distance between x and the nearest adjacent number
@@ -85,6 +105,10 @@ pub trait ArrayFloating<N: Floating> where Self: Sized + Clone {
     ///
     /// assert_eq!(Array::flat(vec![f64::EPSILON, f64::EPSILON * 2.]), Array::flat(vec![1., 2.]).spacing());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn spacing(&self) -> Result<Array<N>, ArrayError>;
 }
 
@@ -94,12 +118,12 @@ impl <N: Floating> ArrayFloating<N> for Array<N> {
         self.map(|e| e.to_f64().is_sign_negative())
     }
 
-    fn copysign(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn copysign(&self, other: &Self) -> Result<Self, ArrayError> {
         self.zip(other)?
             .map(|item| N::from(item.0.to_f64().copysign(item.1.to_f64())))
     }
 
-    fn frexp(&self) -> Result<(Array<N>, Array<i32>), ArrayError> {
+    fn frexp(&self) -> Result<(Self, Array<i32>), ArrayError> {
 
         fn _frexp(x: f64) -> (f64, i32) {
             let sign = x.signum();
@@ -130,7 +154,7 @@ impl <N: Floating> ArrayFloating<N> for Array<N> {
         ))
     }
 
-    fn ldexp(&self, other: &Array<i32>) -> Result<Array<N>, ArrayError> {
+    fn ldexp(&self, other: &Array<i32>) -> Result<Self, ArrayError> {
 
         fn _ldexp(x: f64, exp: i32) -> f64 {
             if x == 0. { return x }
@@ -147,10 +171,10 @@ impl <N: Floating> ArrayFloating<N> for Array<N> {
             .map(|item| N::from(_ldexp(item.0.to_f64(), item.1)))
     }
 
-    fn nextafter(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn nextafter(&self, other: &Self) -> Result<Self, ArrayError> {
 
         fn _nextafter(x: f64, y: f64) -> f64 {
-            if x == y { x }
+            if (x - y).abs() < 1e-24 { x }
             else if x < y { x + f64::EPSILON }
             else { x - f64::EPSILON }
         }
@@ -159,7 +183,7 @@ impl <N: Floating> ArrayFloating<N> for Array<N> {
             .map(|item| N::from(_nextafter(item.0.to_f64(), item.1.to_f64())))
     }
 
-    fn spacing(&self) -> Result<Array<N>, ArrayError> {
+    fn spacing(&self) -> Result<Self, ArrayError> {
 
         fn _spacing(x: f64) -> f64 {
             let bits = x.to_bits();
@@ -179,7 +203,7 @@ impl <N: Floating> ArrayFloating<N> for Result<Array<N>, ArrayError> {
         self.clone()?.signbit()
     }
 
-    fn copysign(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn copysign(&self, other: &Array<N>) -> Self {
         self.clone()?.copysign(other)
     }
 
@@ -187,15 +211,15 @@ impl <N: Floating> ArrayFloating<N> for Result<Array<N>, ArrayError> {
         self.clone()?.frexp()
     }
 
-    fn ldexp(&self, other: &Array<i32>) -> Result<Array<N>, ArrayError> {
+    fn ldexp(&self, other: &Array<i32>) -> Self {
         self.clone()?.ldexp(other)
     }
 
-    fn nextafter(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn nextafter(&self, other: &Array<N>) -> Self {
         self.clone()?.nextafter(other)
     }
 
-    fn spacing(&self) -> Result<Array<N>, ArrayError> {
+    fn spacing(&self) -> Self {
         self.clone()?.spacing()
     }
 }

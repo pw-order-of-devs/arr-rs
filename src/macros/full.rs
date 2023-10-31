@@ -1,4 +1,4 @@
-/// Create an array of fill_value
+/// Create an array of `fill_value`
 ///
 /// # Examples
 ///

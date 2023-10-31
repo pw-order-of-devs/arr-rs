@@ -12,22 +12,26 @@ impl <M: Numeric, N: Numeric> Numeric for Tuple2<M, N>
     fn rand(range: RangeInclusive<Self>) -> Self {
         let start = range.start();
         let end = range.end();
-        Tuple2(
+        Self(
             Numeric::rand(RangeInclusive::new(start.0, end.0)),
             Numeric::rand(RangeInclusive::new(start.1, end.1)),
         )
     }
 
     fn from_usize(value: usize) -> Self {
-        Tuple2(Numeric::from_usize(value), Numeric::from_usize(value))
+        Self(Numeric::from_usize(value), Numeric::from_usize(value))
     }
 
     fn from_f64(value: f64) -> Self {
-        Tuple2(Numeric::from_f64(value), Numeric::from_f64(value))
+        Self(Numeric::from_f64(value), Numeric::from_f64(value))
     }
 
     fn to_usize(&self) -> usize {
         self.0.to_usize()
+    }
+
+    fn to_isize(&self) -> isize {
+        self.0.to_isize()
     }
 
     fn to_i32(&self) -> i32 {
@@ -43,7 +47,7 @@ impl <M: Numeric, N: Numeric> Numeric for Tuple2<M, N>
     }
 
     fn max(&self) -> Self {
-        Tuple2(self.0.max(), self.1.max())
+        Self(self.0.max(), self.1.max())
     }
 
     fn bitwise_and(&self, other: &Self) -> Self {
@@ -96,6 +100,6 @@ impl <M: Numeric, N: Numeric> Numeric for Tuple2<M, N>
 impl <M: Numeric, N: Numeric> From<(M, N)> for Tuple2<M, N> {
 
     fn from(value: (M, N)) -> Self {
-        Tuple2(value.0, value.1)
+        Self(value.0, value.1)
     }
 }
