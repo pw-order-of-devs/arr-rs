@@ -7,9 +7,9 @@ use crate::core::types::ArrayElement;
 
 /// Generic Tuple trait for array
 pub trait TupleElement<T: ArrayElement> {
-    /// Input type for TupleElement
+    /// Input type for `TupleElement`
     type Input;
-    /// Output type for TupleElement
+    /// Output type for `TupleElement`
     type Output;
 
     /// parse type from tuple

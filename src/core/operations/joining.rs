@@ -5,7 +5,7 @@ use crate::{
     validators::prelude::*,
 };
 
-/// ArrayTrait - Array Joining functions
+/// `ArrayTrait` - Array Joining functions
 pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
 
     /// Join a sequence of arrays along an existing axis
@@ -29,6 +29,10 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// let expected = array!(i32, [[1, 2], [3, 4], [5, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::concatenate(vec![arr, other], Some(0)).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn concatenate(arrs: Vec<Array<T>>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Join a sequence of arrays along a new axis
@@ -52,6 +56,10 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// let expected = array!(i32, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::stack(vec![arr, other], Some(0)).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn stack(arrs: Vec<Array<T>>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Stack arrays in sequence vertically (row wise)
@@ -74,6 +82,10 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// let expected = array!(i32, [[1], [2], [3], [4], [5], [6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::vstack(vec![arr, other]).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn vstack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
 
     /// Stack arrays in sequence horizontally (column wise)
@@ -96,6 +108,10 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// let expected = array!(i32, [[1, 4], [2, 5], [3, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::hstack(vec![arr, other]).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn hstack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
 
     /// Stack arrays in sequence depth wise (along third axis)
@@ -118,10 +134,14 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// let expected = array!(i32, [[[1, 4]], [[2, 5]], [[3, 6]]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::dstack(vec![arr, other]).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn dstack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
 
     /// Stack 1d or 2d arrays as columns into a 2d array
-    /// row_stack is an alias for vstack
+    /// `row_stack` is an alias for vstack
     ///
     /// # Arguments
     ///
@@ -136,6 +156,10 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// let expected = array!(i32, [[1, 4], [2, 5], [3, 6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::column_stack(vec![arr, other]).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn column_stack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
 
     /// Stack arrays in sequence vertically (row wise)
@@ -158,6 +182,10 @@ pub trait ArrayJoining<T: ArrayElement> where Self: Sized + Clone {
     /// let expected = array!(i32, [[1], [2], [3], [4], [5], [6]]).unwrap();
     /// assert_eq!(expected, Array::<i32>::row_stack(vec![arr, other]).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn row_stack(arrs: Vec<Array<T>>) -> Result<Array<T>, ArrayError>;
 }
 
@@ -169,15 +197,8 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
             if let Some(axis) = axis { arrs.validate_stack_shapes(axis, axis)?; }
 
             let (mut arrs, initial) = (arrs.clone(), arrs[0].clone());
-            println!("{initial:?}");
             let result = arrs.remove_at(0).into_iter()
-                .fold(initial, |a, b| {
-                    println!();
-                    println!("{a:?}");
-                    println!("{b:?}");
-                    println!("{axis:?}");
-                    a.append(&b, axis).unwrap()
-                });
+                .fold(initial, |a, b| a.append(&b, axis).unwrap());
             Ok(result)
         }
     }
@@ -216,14 +237,17 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
 
     fn hstack(arrs: Vec<Self>) -> Result<Self, ArrayError> {
         if arrs.is_empty() { return Self::empty() }
-        arrs.iter().map(|a| a.ndim()).collect::<Vec<Result<usize, ArrayError>>>().has_error()?;
+        arrs.iter()
+            .map(Self::ndim)
+            .collect::<Vec<Result<usize, ArrayError>>>()
+            .has_error()?;
         if arrs.iter().all(|arr| arr.ndim().unwrap() == 1) {
             Self::concatenate(arrs, Some(0))
         } else {
             let arrs = arrs.iter()
                 .map(|arr| arr.atleast(2)).collect::<Vec<Result<Self, _>>>()
                 .has_error()?.into_iter()
-                .map(|a| a.unwrap())
+                .map(Result::unwrap)
                 .collect::<Vec<Self<>>>();
             arrs.validate_stack_shapes(1, 0)?;
 
@@ -244,7 +268,7 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
                 .map(|arr| arr.atleast(3))
                 .collect::<Vec<Result<Self, _>>>()
                 .has_error()?.into_iter()
-                .map(|a| a.unwrap())
+                .map(Result::unwrap)
                 .collect::<Vec<Self<>>>();
             arrs.validate_stack_shapes(2, 0)?;
 
@@ -267,24 +291,27 @@ impl <T: ArrayElement> ArrayJoining<T> for Array<T> {
                 return Err(ArrayError::ParameterError { param: "arrs", message: "all input arrays must have the same first dimension", });
             }
 
-            arrs.iter().map(|a| a.ndim()).collect::<Vec<Result<usize, ArrayError>>>().has_error()?;
-            arrs.iter().for_each(|array| {
+            arrs.iter()
+                .map(Self::ndim)
+                .collect::<Vec<Result<usize, ArrayError>>>()
+                .has_error()?;
+            for array in &arrs {
                 if array.ndim().unwrap() == 1 { total_cols += 1; }
                 else { total_cols += array.shape[1]; }
-            });
+            }
 
             let (mut new_elements, mut new_col_idx) = (vec![T::zero(); num_rows * total_cols], 0);
-            arrs.iter().for_each(|array| {
+            for array in &arrs {
                 let array_cols = if array.ndim().unwrap() == 1 { 1 } else { array.shape[1] };
-                (0 .. num_rows).for_each(|row| {
+                (0..num_rows).for_each(|row| {
                     (0..array_cols).for_each(|col| {
                         let src_idx = row * array_cols + col;
                         let dst_idx = row * total_cols + new_col_idx + col;
                         new_elements[dst_idx] = array.elements[src_idx].clone();
-                    })
+                    });
                 });
                 new_col_idx += array_cols;
-            });
+            }
 
             Self::new(new_elements, vec![num_rows, total_cols])
         }

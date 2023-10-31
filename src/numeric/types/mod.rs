@@ -7,10 +7,10 @@ pub mod floating;
 /// Numeric types definition
 pub mod numeric;
 
-/// NumericOps types definition
+/// `NumericOps` types definition
 pub mod numeric_ops;
 
-/// SignedOps types definition
+/// `SignedOps` types definition
 pub mod signed_ops;
 
 /// Tuple types definition

@@ -5,7 +5,7 @@ use crate::{
 };
 use crate::core::types::compare::CompareOpType;
 
-/// ArrayTrait - Alphanumeric Array operations
+/// `ArrayTrait` - Alphanumeric Array operations
 pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
 
     /// Return (self == other) element-wise
@@ -24,6 +24,10 @@ pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
     /// let other = Array::flat(vec!["aaa".to_string(), "bbbbb".to_string()]).unwrap();
     /// assert_eq!(expected, arr.equal(&other));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
 
     /// Return (self != other) element-wise
@@ -42,6 +46,10 @@ pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
     /// let other = Array::flat(vec!["aaa".to_string(), "bbbbb".to_string()]).unwrap();
     /// assert_eq!(expected, arr.not_equal(&other));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn not_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
 
     /// Return (self >= other) element-wise
@@ -60,6 +68,10 @@ pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
     /// let other = Array::flat(vec!["aaa".to_string(), "aba".to_string(), "bbbbb".to_string()]).unwrap();
     /// assert_eq!(expected, arr.greater_equal(&other));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn greater_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
 
     /// Return (self <= other) element-wise
@@ -78,6 +90,10 @@ pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
     /// let other = Array::flat(vec!["aaa".to_string(), "aba".to_string(), "bbbbb".to_string()]).unwrap();
     /// assert_eq!(expected, arr.less_equal(&other));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn less_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
 
     /// Return (self > other) element-wise
@@ -96,6 +112,10 @@ pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
     /// let other = Array::flat(vec!["aaa".to_string(), "aba".to_string(), "bbbbb".to_string()]).unwrap();
     /// assert_eq!(expected, arr.greater(&other));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn greater(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
 
     /// Return (self < other) element-wise
@@ -114,9 +134,13 @@ pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
     /// let other = Array::flat(vec!["aaa".to_string(), "aba".to_string(), "bbbbb".to_string()]).unwrap();
     /// assert_eq!(expected, arr.less(&other));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn less(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError>;
 
-    /// Performs element-wise comparison of two string arrays using the comparison operator specified by cmp_op
+    /// Performs element-wise comparison of two string arrays using the comparison operator specified by `cmp_op`
     ///
     /// # Arguments
     ///
@@ -149,12 +173,16 @@ pub trait ArrayStringCompare<N: Alphanumeric> where Self: Sized + Clone {
     /// let expected = Array::flat(vec![false, false]);
     /// assert_eq!(expected, arr.compare(&other, "<"));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn compare(&self, other: &Array<N>, cmp_op: impl CompareOpType) -> Result<Array<bool>, ArrayError>;
 }
 
 impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
 
-    fn equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+    fn equal(&self, other: &Self) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0._equal(tuple.1))
@@ -162,7 +190,7 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn not_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+    fn not_equal(&self, other: &Self) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0._not_equal(tuple.1))
@@ -170,7 +198,7 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn greater_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+    fn greater_equal(&self, other: &Self) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0._greater_equal(tuple.1))
@@ -178,7 +206,7 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn less_equal(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+    fn less_equal(&self, other: &Self) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0._less_equal(tuple.1))
@@ -186,7 +214,7 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn greater(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+    fn greater(&self, other: &Self) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0._greater(tuple.1))
@@ -194,7 +222,7 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn less(&self, other: &Array<N>) -> Result<Array<bool>, ArrayError> {
+    fn less(&self, other: &Self) -> Result<Array<bool>, ArrayError> {
         let broadcasted = self.broadcast(other)?;
         let elements = broadcasted.clone().into_iter()
             .map(|tuple| tuple.0._less(tuple.1))
@@ -202,7 +230,7 @@ impl <N: Alphanumeric> ArrayStringCompare<N> for Array<N> {
         Array::new(elements, broadcasted.get_shape()?)
     }
 
-    fn compare(&self, other: &Array<N>, cmp_op: impl CompareOpType) -> Result<Array<bool>, ArrayError> {
+    fn compare(&self, other: &Self, cmp_op: impl CompareOpType) -> Result<Array<bool>, ArrayError> {
         let cmp_op = cmp_op.parse_type()?;
         match cmp_op {
             CompareOp::Equals => self.equal(other),

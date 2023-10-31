@@ -6,8 +6,9 @@ use crate::{
     extensions::prelude::*,
     validators::prelude::*,
 };
+use crate::prelude::Numeric;
 
-/// ArrayTrait - Array Manipulate functions
+/// `ArrayTrait` - Array Manipulate functions
 pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
 
     /// Insert values along the given axis for the given indices
@@ -28,6 +29,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).insert(&[1, 3], &Array::single(1.).unwrap(), None);
     /// assert_eq!(array!(f64, [1., 1., 2., 3., 1., 4.]), arr);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn insert(&self, indices: &[usize], values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Delete values along the given axis
@@ -47,6 +52,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).delete(&[2, 3], None);
     /// assert_eq!(array!(f64, [1., 2.]), arr);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn delete(&self, indices: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Append values to the end of an array
@@ -66,6 +75,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr = Array::new(vec![1., 2., 3., 4.], vec![4]).append(&Array::flat(vec![1., 3.]).unwrap(), None);
     /// assert_eq!(array!(f64, [1., 2., 3., 4., 1., 3.]), arr);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn append(&self, values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError>;
 
     /// Reshapes an array
@@ -84,6 +97,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr = arr.reshape(&[2, 2]);
     /// assert_eq!(array!(f64, [[1., 2.], [3., 4.]]), arr);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn reshape(&self, shape: &[usize]) -> Result<Array<T>, ArrayError>;
 
     /// Resizes an array,
@@ -106,6 +123,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let array = arr.resize(&[8]);
     /// assert_eq!(array!(f64, [1, 2, 3, 4, 1, 2, 3, 4]), array);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn resize(&self, shape: &[usize]) -> Result<Array<T>, ArrayError>;
 
     /// Find the unique elements of an array
@@ -124,6 +145,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr = Array::new(vec![1, 2, 3, 2, 1], vec![5]).unwrap();
     /// assert_eq!(array!(i32, [1, 2, 3]), arr.unique(None));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn unique(&self, axis: Option<isize>) -> Result<Array<T>, ArrayError>;
 
     /// Return a contiguous flattened array
@@ -144,6 +169,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr_3 = Array::new(vec![1,2,3,4,5,6,7,8], vec![2, 2, 2]).unwrap();
     /// assert_eq!(expected, arr_3.ravel().get_shape().unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn ravel(&self) -> Result<Array<T>, ArrayError>;
 
     /// Convert array to at least n dimension
@@ -161,6 +190,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// assert_eq!(array!(i32, [[1]]), arr.atleast(2));
     /// assert_eq!(array!(i32, [[[1]]]), arr.atleast(3));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn atleast(&self, n: usize) -> Result<Array<T>, ArrayError>;
 
     /// Trim the leading and/or trailing zeros from a 1D array
@@ -173,6 +206,10 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr = Array::flat(vec![0, 0, 1, 2, 3, 4, 0, 0]);
     /// assert_eq!(array!(i32, [1, 2, 3, 4]), arr.trim_zeros());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn trim_zeros(&self) -> Result<Array<T>, ArrayError>;
 
     /// Performs cycle().take(n), returning flattened array
@@ -189,12 +226,16 @@ pub trait ArrayManipulate<T: ArrayElement> where Array<T>: Sized + Clone {
     /// let arr = Array::flat(vec![1, 2, 3, 4]);
     /// assert_eq!(array!(i32, [1, 2]), arr.cycle_take(2));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn cycle_take(&self, n: usize) -> Result<Array<T>, ArrayError>;
 }
 
 impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
 
-    fn insert(&self, indices: &[usize], values: &Self, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn insert(&self, indices: &[usize], values: &Self, axis: Option<usize>) -> Result<Self, ArrayError> {
         if indices.iter().any(|&i| i > self.shape[axis.unwrap_or(0)]) { return Err(ArrayError::OutOfBounds { value: "index" }) }
         values.ndim()?.is_dim_supported(&(1 ..= self.ndim()?).collect::<Vec<usize>>())?;
 
@@ -206,7 +247,7 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
             let mut values = values.to_array_ndim(self.ndim()?)?;
             let values_shape_tmp = values.get_shape()?.swap_ext(0, axis);
 
-            for i in (0 .. self.ndim()?).collect::<Vec<usize>>().remove_at(axis).reverse_ext() {
+            for i in (0..self.ndim()?).collect::<Vec<usize>>().remove_at(axis).reverse_ext() {
                 let self_shape_at_i = self.get_shape()?[i];
                 if values_shape_tmp[i] > self_shape_at_i || self_shape_at_i % values_shape_tmp[i] != 0 {
                     return Err(ArrayError::BroadcastShapeMismatch)
@@ -222,26 +263,26 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
                     let values =
                         if values.len()? == self_rem_len { values.repeat(&[indices.len()], Some(0))? }
                         else { values };
-                    values.moveaxis(vec![axis as isize], vec![0])
+                    values.moveaxis(vec![axis.to_isize()], vec![0])
                         .ravel()
                         .split(indices.len(), None)?
                 } else { vec![values] };
 
             for (i, v) in indices.to_vec().reverse_ext().into_iter().zip(values.reverse_ext()) {
-                arrays.insert(i, v.clone())
+                arrays.insert(i, v.clone());
             }
 
             let partial = arrays.into_iter()
                 .map(|arr| arr.get_elements())
                 .collect::<Vec<Result<Vec<T>, _>>>()
                 .has_error()?.into_iter()
-                .flat_map(|v| v.unwrap())
-                .collect::<Array<T>>();
+                .flat_map(Result::unwrap)
+                .collect::<Self>();
             let new_shape = self.get_shape()?
                 .update_at(axis, partial.len()? / self_rem_len)
                 .swap_ext(0, axis);
             let partial = partial.reshape(&new_shape)?;
-            let transpose_shape = (1 .. self.ndim()? as isize).collect::<Vec<isize>>().insert_at(axis, 0);
+            let transpose_shape = (1..self.ndim()?.to_isize()).collect::<Vec<isize>>().insert_at(axis, 0);
             partial.transpose(Some(transpose_shape))
         } else {
             values.ndim()?.is_dim_supported(&[1])?;
@@ -257,9 +298,9 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
         }
     }
 
-    fn delete(&self, indices: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn delete(&self, indices: &[usize], axis: Option<usize>) -> Result<Self, ArrayError> {
         let mut indices = indices.to_vec();
-        indices.sort();
+        indices.sort_unstable();
         indices.dedup();
         indices = indices.reverse_ext();
 
@@ -268,12 +309,12 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
         } else {
             let mut elements = self.get_elements()?;
             if indices.iter().any(|&i| i >= elements.len()) { return Err(ArrayError::OutOfBounds { value: "index" }) }
-            indices.iter().for_each(|&i| { elements.remove(i); });
+            for &i in &indices { elements.remove(i); }
             elements.to_array()
         }
     }
 
-    fn append(&self, values: &Self, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn append(&self, values: &Self, axis: Option<usize>) -> Result<Self, ArrayError> {
         if let Some(axis) = axis {
             self.axis_in_bounds(axis)?;
             if self.ndim().is_equal(&values.ndim()).is_err() {
@@ -287,10 +328,10 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
             let self_rem_len = self_rem.into_iter().product::<usize>();
             let values = values.split_axis(axis)?;
             arrays.extend_from_slice(&values);
-            let array = arrays.into_iter().flatten().collect::<Array<T>>();
+            let array = arrays.into_iter().flatten().collect::<Self>();
             let new_shape = self.get_shape()?.update_at(axis, array.len()? / self_rem_len);
             let tmp_shape = new_shape.clone().swap_ext(0, axis);
-            let transpose_shape = (1 .. self.ndim()? as isize).collect::<Vec<isize>>().insert_at(axis, 0);
+            let transpose_shape = (1..self.ndim()?.to_isize()).collect::<Vec<isize>>().insert_at(axis, 0);
             array.reshape(&tmp_shape).transpose(Some(transpose_shape)).reshape(&new_shape)
         } else {
             let mut elements = self.get_elements()?;
@@ -299,19 +340,19 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
         }
     }
 
-    fn reshape(&self, shape: &[usize]) -> Result<Array<T>, ArrayError> {
+    fn reshape(&self, shape: &[usize]) -> Result<Self, ArrayError> {
         shape.to_vec().matches_values_len(&self.get_elements()?)?;
-        Array::new(self.elements.clone(), shape.to_vec())
+        Self::new(self.elements.clone(), shape.to_vec())
     }
 
-    fn resize(&self, shape: &[usize]) -> Result<Array<T>, ArrayError> {
+    fn resize(&self, shape: &[usize]) -> Result<Self, ArrayError> {
         self.get_elements()?.into_iter().cycle()
             .take(shape.iter().product::<usize>())
             .collect::<Self>()
             .reshape(shape)
     }
 
-    fn unique(&self, axis: Option<isize>) -> Result<Array<T>, ArrayError> {
+    fn unique(&self, axis: Option<isize>) -> Result<Self, ArrayError> {
         if let Some(axis) = axis {
             let axis = self.normalize_axis(axis);
             self.apply_along_axis(axis, |arr| arr.unique(None))
@@ -324,11 +365,11 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
         }
     }
 
-    fn ravel(&self) -> Result<Array<T>, ArrayError> {
+    fn ravel(&self) -> Result<Self, ArrayError> {
         self.elements.to_array()
     }
 
-    fn atleast(&self, n: usize) -> Result<Array<T>, ArrayError> {
+    fn atleast(&self, n: usize) -> Result<Self, ArrayError> {
         match n {
             0 => Ok(self.clone()),
             1 => Self::atleast_1d(self),
@@ -338,7 +379,7 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
         }
     }
 
-    fn trim_zeros(&self) -> Result<Array<T>, ArrayError> {
+    fn trim_zeros(&self) -> Result<Self, ArrayError> {
         self.is_dim_supported(&[1])?;
 
         self.get_elements()?
@@ -351,62 +392,62 @@ impl <T: ArrayElement> ArrayManipulate<T> for Array<T> {
             .to_array()
     }
 
-    fn cycle_take(&self, n: usize) -> Result<Array<T>, ArrayError> {
-        Ok(self.into_iter().cycle().take(n).cloned().collect::<Array<T>>())
+    fn cycle_take(&self, n: usize) -> Result<Self, ArrayError> {
+        Ok(self.into_iter().cycle().take(n).cloned().collect())
     }
 }
 
 impl <T: ArrayElement> ArrayManipulate<T> for Result<Array<T>, ArrayError> {
 
-    fn insert(&self, indices: &[usize], values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn insert(&self, indices: &[usize], values: &Array<T>, axis: Option<usize>) -> Self {
         self.clone()?.insert(indices, values, axis)
     }
 
-    fn delete(&self, indices: &[usize], axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn delete(&self, indices: &[usize], axis: Option<usize>) -> Self {
         self.clone()?.delete(indices, axis)
     }
 
-    fn append(&self, values: &Array<T>, axis: Option<usize>) -> Result<Array<T>, ArrayError> {
+    fn append(&self, values: &Array<T>, axis: Option<usize>) -> Self {
         self.clone()?.append(values, axis)
     }
 
-    fn reshape(&self, shape: &[usize]) -> Result<Array<T>, ArrayError> {
+    fn reshape(&self, shape: &[usize]) -> Self {
         self.clone()?.reshape(shape)
     }
 
-    fn resize(&self, shape: &[usize]) -> Result<Array<T>, ArrayError> {
+    fn resize(&self, shape: &[usize]) -> Self {
         self.clone()?.resize(shape)
     }
 
-    fn unique(&self, axis: Option<isize>) -> Result<Array<T>, ArrayError> {
+    fn unique(&self, axis: Option<isize>) -> Self {
         self.clone()?.unique(axis)
     }
 
-    fn ravel(&self) -> Result<Array<T>, ArrayError> {
+    fn ravel(&self) -> Self {
         self.clone()?.ravel()
     }
 
-    fn atleast(&self, n: usize) -> Result<Array<T>, ArrayError> {
+    fn atleast(&self, n: usize) -> Self {
         self.clone()?.atleast(n)
     }
 
-    fn trim_zeros(&self) -> Result<Array<T>, ArrayError> {
+    fn trim_zeros(&self) -> Self {
         self.clone()?.trim_zeros()
     }
 
-    fn cycle_take(&self, n: usize) -> Result<Array<T>, ArrayError> {
+    fn cycle_take(&self, n: usize) -> Self {
         self.clone()?.cycle_take(n)
     }
 }
 
 impl <T: ArrayElement> Array<T> {
 
-    fn atleast_1d(&self) -> Result<Array<T>, ArrayError> {
+    fn atleast_1d(&self) -> Result<Self, ArrayError> {
         if !self.ndim()? >= 1 { Ok(self.clone()) }
         else { self.reshape(&[1]) }
     }
 
-    fn atleast_2d(&self) -> Result<Array<T>, ArrayError> {
+    fn atleast_2d(&self) -> Result<Self, ArrayError> {
         if self.ndim()? >= 2 { Ok(self.clone()) }
         else {
             match self.ndim()? {
@@ -417,7 +458,7 @@ impl <T: ArrayElement> Array<T> {
         }
     }
 
-    fn atleast_3d(&self) -> Result<Array<T>, ArrayError> {
+    fn atleast_3d(&self) -> Result<Self, ArrayError> {
         if self.ndim()? >= 3 { Ok(self.clone()) }
         else {
             match self.ndim()? {
@@ -433,12 +474,12 @@ impl <T: ArrayElement> Array<T> {
 impl <T: ArrayElement> Array<T> {
 
     pub(crate) fn normalize_axis(&self, axis: isize) -> usize {
-        if axis < 0 { (axis + self.ndim().unwrap() as isize) as usize }
-        else { axis as usize }
+        if axis < 0 { (axis + self.ndim().unwrap().to_isize()).to_usize() }
+        else { axis.to_usize() }
     }
 
     pub(crate) fn normalize_axis_dim(&self, axis: isize, ndim: usize) -> usize {
-        if axis < 0 { (self.ndim().unwrap() as isize + axis + ndim as isize) as usize }
-        else { axis as usize }
+        if axis < 0 { (self.ndim().unwrap().to_isize() + axis + ndim.to_isize()).to_usize() }
+        else { axis.to_usize() }
     }
 }

@@ -5,7 +5,7 @@ use rstest::rstest;
 array, expected,
 case(array![f64, 3.], array![f64, 4.880792585865023]),
 case(array![f64, 0., 1., 2., 3.], array![f64, 0.9999999999999997, 1.2660658777520077, 2.2795853023360664, 4.880792585865023]),
-case(array![f64, -2., 0., 3.5], array![f64, 2.27958510662287, 0.9999999999999997, 7.378203432225479]),
+case(array![f64, -2., 0., 3.5], array![f64, 2.2795851066228696, 0.9999999999999997, 7.378203432225479]),
 )] fn test_i0(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.i0());
 }

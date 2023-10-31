@@ -4,7 +4,7 @@ use crate::{
     errors::prelude::*,
 };
 
-/// ArrayTrait - Alphanumeric Array operations
+/// `ArrayTrait` - Alphanumeric Array operations
 pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
 
     /// Check if all characters in the string are alphabetic and there is at least one character
@@ -18,6 +18,10 @@ pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["abcd".to_string(), "abc12".to_string(), "".to_string()]);
     /// assert_eq!(expected, arr.is_alpha());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_alpha(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Check if all characters in the string are alphanumeric and there is at least one character
@@ -31,6 +35,10 @@ pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["abcd".to_string(), "abc12".to_string(), "".to_string()]);
     /// assert_eq!(expected, arr.is_alnum());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_alnum(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Check if all characters in the string are decimal and there is at least one character
@@ -44,6 +52,10 @@ pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["12345".to_string(), "abc12".to_string(), "".to_string()]);
     /// assert_eq!(expected, arr.is_decimal());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_decimal(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Check if all characters in the string are numeric and there is at least one character
@@ -57,6 +69,10 @@ pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["2".to_string(), "12345".to_string(), "a".to_string(), "abc12".to_string(), "1/4".to_string(), "VIII".to_string(), "".to_string()]);
     /// assert_eq!(expected, arr.is_numeric());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_numeric(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Check if all characters in the string are digits and there is at least one character
@@ -70,6 +86,10 @@ pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["2".to_string(), "12345".to_string(), "a".to_string(), "abc12".to_string(), "".to_string()]);
     /// assert_eq!(expected, arr.is_digit());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_digit(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Check if all characters in the string are whitespace and there is at least one character
@@ -83,6 +103,10 @@ pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["2".to_string(), "12345".to_string(), "a".to_string(), "abc12".to_string(), " ".to_string(), "    ".to_string()]);
     /// assert_eq!(expected, arr.is_space());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_space(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Check if all characters in the string are lowercase and there is at least one character
@@ -96,6 +120,10 @@ pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["a".to_string(), "abc12".to_string(), "1234".to_string(), "aBc12".to_string(), "".to_string()]);
     /// assert_eq!(expected, arr.is_lower());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_lower(&self) -> Result<Array<bool>, ArrayError>;
 
     /// Check if all characters in the string are uppercase and there is at least one character
@@ -109,6 +137,10 @@ pub trait ArrayStringValidate<N: Alphanumeric> where Self: Sized + Clone {
     /// let arr = Array::flat(vec!["A".to_string(), "ABC12".to_string(), "1234".to_string(), "aBc12".to_string(), "".to_string()]);
     /// assert_eq!(expected, arr.is_upper());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_upper(&self) -> Result<Array<bool>, ArrayError>;
 }
 
@@ -116,14 +148,14 @@ impl <N: Alphanumeric> ArrayStringValidate<N> for Array<N> {
 
     fn is_alpha(&self) -> Result<Array<bool>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_alphabetic()))
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(char::is_alphabetic))
             .collect();
         Array::new(elements, self.get_shape()?)
     }
 
     fn is_alnum(&self) -> Result<Array<bool>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_alphanumeric()))
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(char::is_alphanumeric))
             .collect();
         Array::new(elements, self.get_shape()?)
     }
@@ -137,7 +169,7 @@ impl <N: Alphanumeric> ArrayStringValidate<N> for Array<N> {
 
     fn is_numeric(&self) -> Result<Array<bool>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_numeric()))
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(char::is_numeric))
             .collect();
         Array::new(elements, self.get_shape()?)
     }
@@ -151,7 +183,7 @@ impl <N: Alphanumeric> ArrayStringValidate<N> for Array<N> {
 
     fn is_space(&self) -> Result<Array<bool>, ArrayError> {
         let elements = self.clone().into_iter()
-            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(|c| c.is_whitespace()))
+            .map(|item| !item.to_string().is_empty() && item.to_string().chars().all(char::is_whitespace))
             .collect();
         Array::new(elements, self.get_shape()?)
     }
@@ -160,7 +192,7 @@ impl <N: Alphanumeric> ArrayStringValidate<N> for Array<N> {
         let elements = self.clone().into_iter()
             .map(|item| {
                 let filtered = item.to_string().chars().filter(|c| c.is_alphabetic()).collect::<String>();
-                !filtered.is_empty() && filtered.chars().all(|c| c.is_lowercase())
+                !filtered.is_empty() && filtered.chars().all(char::is_lowercase)
             })
             .collect();
         Array::new(elements, self.get_shape()?)
@@ -170,7 +202,7 @@ impl <N: Alphanumeric> ArrayStringValidate<N> for Array<N> {
         let elements = self.clone().into_iter()
             .map(|item| {
                 let filtered = item.to_string().chars().filter(|c| c.is_alphabetic()).collect::<String>();
-                !filtered.is_empty() && filtered.chars().all(|c| c.is_uppercase())
+                !filtered.is_empty() && filtered.chars().all(char::is_uppercase)
             })
             .collect();
         Array::new(elements, self.get_shape()?)

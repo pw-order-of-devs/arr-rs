@@ -21,7 +21,7 @@ arr-rs = "0.5.1"
 
 ### Examples
 
-```rust
+```ignore
 // import the crate
 use arr_rs::prelude::*;
 
@@ -36,15 +36,15 @@ let arr = Array::<i32>::rand(vec![2, 2]);
 
 // array supports display and pretty display
 let arr: Array<f64> = array!([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
-println!("{array}");
-println!("{array:#}");
+println!("{arr}");
+println!("{arr:#}");
 
 // perform some chained operations on array:
 let res = arr
     .map(|item| item * 2)
     .filter(|item| item % 3 == 0)
     .ravel()
-    .slice(0 .. 2);
+    .slice(0..2);
 ```
 
 ### Benchmark

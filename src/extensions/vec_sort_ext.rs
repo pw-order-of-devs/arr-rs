@@ -14,7 +14,7 @@ impl <N: Clone + PartialOrd> VecSort<N> for Vec<N> {
         let left = &self[..mid].to_vec().merge_sort();
         let right = &self[mid..].to_vec().merge_sort();
 
-        let mut result = Vec::new();
+        let mut result = Self::new();
         let (mut i, mut j) = (0, 0);
         while i < left.len() && j < right.len() {
             if left[i] < right[j] {
@@ -33,18 +33,15 @@ impl <N: Clone + PartialOrd> VecSort<N> for Vec<N> {
     fn quick_sort(&self) -> Self {
         if self.len() <= 1 { return self.clone(); }
         let mut array = self.clone().into_iter();
-        match array.next() {
-            None => vec![],
-            Some(pivot) => {
-                let (lower, higher): (Vec<_>, Vec<_>) = array.partition(|it| it < &pivot);
-                let lower = lower.quick_sort();
-                let higher = higher.quick_sort();
-                lower.into_iter()
-                    .chain(core::iter::once(pivot))
-                    .chain(higher)
-                    .collect()
-            }
-        }
+        array.next().map_or_else(Self::new, |pivot| {
+            let (lower, higher): (Self, Self) = array.partition(|it| it < &pivot);
+            let lower = lower.quick_sort();
+            let higher = higher.quick_sort();
+            lower.into_iter()
+                .chain(core::iter::once(pivot))
+                .chain(higher)
+                .collect()
+        })
     }
 
     fn heap_sort(&self) -> Self {
@@ -61,7 +58,7 @@ impl <N: Clone + PartialOrd> VecSort<N> for Vec<N> {
                 }
                 if array[root] < array[child] {
                     array.swap(root, child);
-                    root = child
+                    root = child;
                 } else {
                     break;
                 }
@@ -69,20 +66,20 @@ impl <N: Clone + PartialOrd> VecSort<N> for Vec<N> {
         }
 
         if self.len() <= 1 { return self.clone(); }
-        let array = &mut self.to_vec();
-        for start in (0 .. array.len() / 2).rev() {
-            shift_down(array, start, self.len() - 1)
+        let array = &mut self.clone();
+        for start in (0..array.len() / 2).rev() {
+            shift_down(array, start, self.len() - 1);
         }
-        for end in (1 .. self.len()).rev() {
+        for end in (1..self.len()).rev() {
             array.swap(0, end);
-            shift_down(array, 0, end - 1)
+            shift_down(array, 0, end - 1);
         }
-        array.to_owned()
+        array.clone()
     }
 
     fn tim_sort(&self) -> Self {
 
-        fn calc_min_run(n: usize) -> usize {
+        const fn calc_min_run(n: usize) -> usize {
             let (mut n, mut r) = (n, 0);
             while n >= 32 {
                 r |= n & 1;
@@ -104,8 +101,8 @@ impl <N: Clone + PartialOrd> VecSort<N> for Vec<N> {
         fn merge<T: Clone + PartialOrd>(arr: &mut [T], left: usize, mid: usize, right: usize) {
             let len1 = mid - left + 1;
             let len2 = right - mid;
-            let left_arr = arr[left..mid + 1].to_vec();
-            let right_arr = arr[mid + 1..right + 1].to_vec();
+            let left_arr = arr[left..=mid].to_vec();
+            let right_arr = arr[mid + 1..=right].to_vec();
 
             let mut i = 0;
             let mut j = 0;
@@ -129,14 +126,14 @@ impl <N: Clone + PartialOrd> VecSort<N> for Vec<N> {
         let (array, n) = (&mut self.clone(), self.len());
         let min_run = calc_min_run(n);
 
-        for start in (0 .. n).step_by(min_run) {
+        for start in (0..n).step_by(min_run) {
             let end = std::cmp::min(start + min_run - 1, n - 1);
             insertion_sort(array, start, end);
         }
 
         let mut size = min_run;
         while size < n {
-            for left in (0 .. n).step_by(2 * size) {
+            for left in (0..n).step_by(2 * size) {
                 let mid = std::cmp::min(n - 1, left + size - 1);
                 let right = std::cmp::min(left + 2 * size - 1, n - 1);
                 if mid < right { merge(array, left, mid, right); }

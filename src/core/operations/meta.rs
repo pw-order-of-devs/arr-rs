@@ -3,7 +3,7 @@ use crate::{
     errors::prelude::*,
 };
 
-/// ArrayTrait - Array Metadata functions
+/// `ArrayTrait` - Array Metadata functions
 pub trait ArrayMeta<T: Clone> where Self: Sized + Clone {
 
     /// Obtain the vector containing array elements
@@ -16,6 +16,10 @@ pub trait ArrayMeta<T: Clone> where Self: Sized + Clone {
     /// let arr = Array::new(vec![1,2,3,4], vec![4]).unwrap();
     /// assert_eq!(vec![1, 2, 3, 4], arr.get_elements().unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn get_elements(&self) -> Result<Vec<T>, ArrayError>;
 
     /// Obtain the vector containing array shape
@@ -28,6 +32,10 @@ pub trait ArrayMeta<T: Clone> where Self: Sized + Clone {
     /// let arr = Array::new(vec![1,2,3,4], vec![4]).unwrap();
     /// assert_eq!(vec![4], arr.get_shape().unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn get_shape(&self) -> Result<Vec<usize>, ArrayError>;
 
     /// Count of array dimensions
@@ -45,6 +53,10 @@ pub trait ArrayMeta<T: Clone> where Self: Sized + Clone {
     /// let ndim_2 = arr_2.ndim().unwrap();
     /// assert_eq!(2, ndim_2);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn ndim(&self) -> Result<usize, ArrayError>;
 
     /// Count of array elements
@@ -58,6 +70,10 @@ pub trait ArrayMeta<T: Clone> where Self: Sized + Clone {
     /// let len = arr.len().unwrap();
     /// assert_eq!(4, len);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn len(&self) -> Result<usize, ArrayError>;
 
     /// Check if array element count equals zero
@@ -75,6 +91,10 @@ pub trait ArrayMeta<T: Clone> where Self: Sized + Clone {
     /// let empty_2 = arr_2.is_empty().unwrap();
     /// assert_eq!(true, empty_2);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn is_empty(&self) -> Result<bool, ArrayError>;
 }
 

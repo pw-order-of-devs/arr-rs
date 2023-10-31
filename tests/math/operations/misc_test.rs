@@ -15,10 +15,10 @@ case(array_arange![f64, -1., 2.], array_arange![f64, 1., 3.], None, array![f64, 
 case(array_arange![f64, -1., 2.], array_arange![f64, 1., 3.], Some(ConvolveMode::Full), array![f64, -1., -2., -2., 4., 7., 6.]),
 case(array_arange![f64, -1., 2.], array_arange![f64, 1., 3.], Some(ConvolveMode::Valid), array![f64, -2., 4.]),
 case(array_arange![f64, -1., 2.], array_arange![f64, 1., 3.], Some(ConvolveMode::Same), array![f64, -2., -2., 4., 7.]),
-case(array_arange![f64, -8., 6.], array_arange![f64, 1., 5.], None, array![f64, -8., -23., -44., -70., -100., -85., -70., -55., -40., -25., -10.,  5., 20., 35., 50., 58., 58., 49., 30.]),
-case(array_arange![f64, -8., 6.], array_arange![f64, 1., 5.], Some(ConvolveMode::Full), array![f64, -8., -23., -44., -70., -100., -85., -70., -55., -40., -25., -10.,  5., 20., 35., 50., 58., 58., 49., 30.]),
-case(array_arange![f64, -8., 6.], array_arange![f64, 1., 5.], Some(ConvolveMode::Valid), array![f64, -100., -85., -70., -55., -40., -25., -10.,  5., 20., 35., 50.]),
-case(array_arange![f64, -8., 6.], array_arange![f64, 1., 5.], Some(ConvolveMode::Same), array![f64, -44., -70., -100., -85., -70., -55., -40., -25., -10.,  5., 20., 35., 50., 58., 58.]),
+case(array_arange![f64, -8., 6.], array_arange![f64, 1., 5.], None, array![f64, -8., -23., -44., -70., -100., -85., -70., -55., -40., -25., -10., 5., 20., 35., 50., 58., 58., 49., 30.]),
+case(array_arange![f64, -8., 6.], array_arange![f64, 1., 5.], Some(ConvolveMode::Full), array![f64, -8., -23., -44., -70., -100., -85., -70., -55., -40., -25., -10., 5., 20., 35., 50., 58., 58., 49., 30.]),
+case(array_arange![f64, -8., 6.], array_arange![f64, 1., 5.], Some(ConvolveMode::Valid), array![f64, -100., -85., -70., -55., -40., -25., -10., 5., 20., 35., 50.]),
+case(array_arange![f64, -8., 6.], array_arange![f64, 1., 5.], Some(ConvolveMode::Same), array![f64, -44., -70., -100., -85., -70., -55., -40., -25., -10., 5., 20., 35., 50., 58., 58.]),
 )] fn test_convolve(array: Result<Array<f64>, ArrayError>, other: Result<Array<f64>, ArrayError>, mode: Option<ConvolveMode>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.convolve(&other.unwrap(), mode))
 }
