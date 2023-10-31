@@ -3,8 +3,8 @@ use arr_rs::prelude::*;
 
 #[rstest(
 array, expected,
-case(array![f64, 1., 2., 3., 4.], array![f64, std::f64::consts::E,  7.38905609893065, 20.085536923187668, 54.598150033144236]),
-case(array!(f64, [[1., 2.], [3., 4.]]), array!(f64, [[std::f64::consts::E,  7.38905609893065], [20.085536923187668, 54.598150033144236]])),
+case(array![f64, 1., 2., 3., 4.], array![f64, std::f64::consts::E, 7.38905609893065, 20.085536923187668, 54.598150033144236]),
+case(array!(f64, [[1., 2.], [3., 4.]]), array!(f64, [[std::f64::consts::E, 7.38905609893065], [20.085536923187668, 54.598150033144236]])),
 )] fn test_exp(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.exp())
 }
@@ -51,8 +51,8 @@ case(array!(f64, [[1., 10.], [1., 10.]]), array!(f64, [[0., 1.], [0., 1.]])),
 
 #[rstest(
 array, expected,
-case(array![f64, 2., 4., 8., 20.], array![f64, 1.0986122886681098, 1.6094379124341003, 2.1972245773362196, 3.044522437723423]),
-case(array![f64, [2., 4.], [8., 20.]], array![f64, [1.0986122886681098, 1.6094379124341003], [2.1972245773362196, 3.044522437723423]]),
+case(array![f64, 2., 4., 8., 20.], array![f64, 1.0986122886681096, 1.6094379124341003, 2.1972245773362196, 3.044522437723423]),
+case(array![f64, [2., 4.], [8., 20.]], array![f64, [1.0986122886681096, 1.6094379124341003], [2.1972245773362196, 3.044522437723423]]),
 )] fn test_log_1p(array: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.log_1p())
 }

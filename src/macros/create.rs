@@ -12,23 +12,37 @@
 /// ```
 #[macro_export]
 macro_rules! array {
+    (Tuple2<$t1:ty, $t2:ty>, $($x:expr),* $(,)*) => {{
+        array_tuple!(Tuple2<$t1, $t2>, format!("{:?}", vec![$(vec![$x],)*]))
+    }};
+    (Tuple3<$t1:ty, $t2:ty, $t3:ty>, $($x:expr),* $(,)*) => {{
+        array_tuple!(Tuple3<$t1, $t2, $t3>, format!("{:?}", vec![$($x,)*]))
+    }};
+    (List<$tt:ty>, $x:expr) => {{
+        array_list!(List<$tt>, format!("{:?}", vec![$x]))
+    }};
+    (char, $($x:expr),* $(,)*) => {{
+        array_char!(format!("{:?}", vec![$($x,)*]))
+    }};
+    (String, $($x:expr),* $(,)*) => {{
+        array_string!(format!("{:?}", vec![$($x,)*]))
+    }};
     ($tt:ty, $($x:expr),* $(,)*) => {{
-        let string = format!("{:?}", vec![$($x,)*]).replace(" ", "");
+        let string = format!("{:?}", vec![$($x,)*])
+            .replace("\", \"", "\",\"")
+            .replace("], [", "],[");
         let ndim = string.find(|p| p != '[').unwrap_or(1) - 1;
         let ndim = if ndim == 0 { 1 } else { ndim };
 
         // get shape
-        let mut _string = string.clone();
-        let mut shape = Vec::new();
-        for i in (0..ndim).rev() {
-            let tmp_str = _string.replace(&format!("{},{}", "]".repeat(i), "[".repeat(i)), "]#[");
-            _string = _string[0 .. _string.find(&"]".repeat(i)).unwrap() + i].to_string();
-            shape.push(tmp_str.split("#").count());
-        };
+        let shape = array_parse_shape!(ndim, string.clone());
 
         // get array elements
         let elems = string
-            .replace("[", "").replace("]", "").replace(" ", "")
+            .replace("[", "")
+            .replace("]", "")
+            .replace(", ", ",")
+            .replace("\"", "")
             .split_terminator(',')
             .map(|e| e.parse().unwrap())
             .collect::<Vec<_>>();

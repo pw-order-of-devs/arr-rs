@@ -12,7 +12,7 @@ pub(crate) trait ValidateUnique {
 impl <T: Clone + Debug + Eq + Hash> ValidateUnique for Vec<T> {
 
     fn is_unique(&self) -> Result<(), ArrayError> {
-        let unique_len = HashSet::<T>::from_iter(self.iter().cloned()).len();
+        let unique_len = self.iter().cloned().collect::<HashSet<T>>().len();
         if self.len() == unique_len {
             Ok(())
         } else {

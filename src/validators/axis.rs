@@ -34,7 +34,7 @@ impl <T: ArrayElement> ValidateAxis for Array<T> {
 impl <T: ArrayElement> ValidateAxis for Vec<Array<T>> {
 
     fn axis_in_bounds(&self, axis: usize) -> Result<(), ArrayError> {
-        self.iter().map(|a| a.ndim()).collect::<Vec<Result<usize, ArrayError>>>().has_error()?;
+        self.iter().map(Array::ndim).collect::<Vec<Result<usize, ArrayError>>>().has_error()?;
         if self.iter().any(|a| axis >= a.ndim().unwrap()) {
             Err(ArrayError::AxisOutOfBounds)
         } else {
@@ -47,7 +47,7 @@ impl <T: ArrayElement> ValidateAxis for Vec<Array<T>> {
             return Ok(())
         }
 
-        self.iter().map(|a| a.ndim()).collect::<Vec<Result<usize, ArrayError>>>().has_error()?;
+        self.iter().map(Array::ndim).collect::<Vec<Result<usize, ArrayError>>>().has_error()?;
         if self.iter().any(|a| axis.unwrap() >= a.ndim().unwrap()) {
             Err(ArrayError::AxisOutOfBounds)
         } else {

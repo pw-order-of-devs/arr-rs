@@ -4,7 +4,7 @@ use crate::{
     extensions::prelude::*,
 };
 
-/// ArrayTrait - Array Sort functions
+/// `ArrayTrait` - Array Sort functions
 pub trait ArraySort<T: ArrayElement> where Self: Sized + Clone {
 
     /// Sort an array
@@ -25,6 +25,10 @@ pub trait ArraySort<T: ArrayElement> where Self: Sized + Clone {
     /// let arr = array!(i32, [[1, 4], [3, 1]]);
     /// assert_eq!(array!(i32, [[1, 4], [1, 3]]), arr.sort(Some(-1), None::<&str>));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<T>, ArrayError>;
 
     /// Returns the indices that would sort an array
@@ -45,12 +49,16 @@ pub trait ArraySort<T: ArrayElement> where Self: Sized + Clone {
     /// let arr = array!(i32, [[1, 4], [3, 1]]);
     /// assert_eq!(array!(usize, [[0, 1], [1, 0]]), arr.argsort(Some(-1), None::<&str>));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn argsort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<usize>, ArrayError>;
 }
 
 impl <T: ArrayElement> ArraySort<T> for Array<T> {
 
-    fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<T>, ArrayError> {
+    fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Self, ArrayError> {
         let kind = match kind {
             Some(k) => k.parse_type()?,
             None => SortKind::Quicksort,
@@ -103,7 +111,7 @@ impl <T: ArrayElement> ArraySort<T> for Array<T> {
 
 impl <T: ArrayElement> ArraySort<T> for Result<Array<T>, ArrayError> {
 
-    fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Result<Array<T>, ArrayError> {
+    fn sort(&self, axis: Option<isize>, kind: Option<impl SortKindType>) -> Self {
         self.clone()?.sort(axis, kind)
     }
 

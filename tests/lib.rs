@@ -5,5 +5,6 @@ mod alphanumeric;
 mod boolean;
 mod core;
 mod macros;
+mod linalg;
 mod math;
 mod numeric;

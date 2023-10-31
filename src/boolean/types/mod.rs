@@ -37,7 +37,7 @@ impl Numeric for bool {
 
     fn rand(_: RangeInclusive<Self>) -> Self {
         let mut rng = rand::thread_rng();
-        rng.gen::<bool>()
+        rng.gen::<Self>()
     }
 
     fn from_usize(value: usize) -> Self {
@@ -45,19 +45,23 @@ impl Numeric for bool {
     }
 
     fn from_f64(value: f64) -> Self {
-        value == 1.
+        (value - 1.).abs() < 1e-24
     }
 
     fn to_usize(&self) -> usize {
-        *self as usize
+        <usize as From<_>>::from(*self)
+    }
+
+    fn to_isize(&self) -> isize {
+        <isize as From<_>>::from(*self)
     }
 
     fn to_i32(&self) -> i32 {
-        *self as i32
+        <i32 as From<_>>::from(*self)
     }
 
     fn to_f64(&self) -> f64 {
-        self.to_usize() as f64
+        <f64 as From<_>>::from(<u16 as From<_>>::from(*self))
     }
 
     fn is_inf(&self) -> bool {
@@ -93,7 +97,7 @@ impl Numeric for bool {
     }
 
     fn binary_repr(&self) -> String {
-        format!("{:b}", *self as usize)
+        format!("{:b}", self.to_usize())
     }
 }
 

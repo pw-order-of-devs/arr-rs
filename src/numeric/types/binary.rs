@@ -9,10 +9,14 @@ pub enum BitOrder {
     Little,
 }
 
-/// BitOrder trait
+/// `BitOrder` trait
 pub trait BitOrderType {
 
-    /// Parse input to BitOrder type
+    /// Parse input to `BitOrder` type
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn to_bit_order(self) -> Result<BitOrder, ArrayError>;
 }
 
@@ -22,6 +26,7 @@ impl BitOrderType for BitOrder {
         Ok(self)
     }
 }
+
 impl BitOrderType for &str {
 
     fn to_bit_order(self) -> Result<BitOrder, ArrayError> {
@@ -32,6 +37,7 @@ impl BitOrderType for &str {
         }
     }
 }
+
 impl BitOrderType for String {
 
     fn to_bit_order(self) -> Result<BitOrder, ArrayError> {

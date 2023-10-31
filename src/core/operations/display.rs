@@ -18,12 +18,12 @@ fn build_string<T: ArrayElement>(arr: &Array<T>, precision: Option<usize>, alter
         format!("[{}]", arr.get_elements().unwrap()[0])
     } else if arr.ndim().unwrap_or(0) == 1 {
         let elements = arr.get_elements().unwrap().into_iter()
-            .map(|e| format_with_precision(e, precision))
+            .map(|e| format_with_precision(&e, precision))
             .collect::<Vec<String>>()
             .join(", ");
         format!("[{elements}]")
     } else {
-        let arrays = arr.split_axis(0).unwrap_or(vec![]).into_iter()
+        let arrays = arr.split_axis(0).unwrap_or_default().into_iter()
             .map(|arr| arr.reshape(&arr.get_shape().unwrap().remove_at(0)).unwrap())
             .map(|arr| build_string(&arr, precision, alternate, prefix + 1))
             .collect::<Vec<String>>();
@@ -32,7 +32,7 @@ fn build_string<T: ArrayElement>(arr: &Array<T>, precision: Option<usize>, alter
     }
 }
 
-fn format_with_precision<T: ArrayElement>(elem: T, precision: Option<usize>) -> String {
+fn format_with_precision<T: ArrayElement>(elem: &T, precision: Option<usize>) -> String {
     if precision.is_some() {
         format!("{elem:.p$}", elem = elem, p = precision.unwrap())
     } else {
@@ -40,7 +40,7 @@ fn format_with_precision<T: ArrayElement>(elem: T, precision: Option<usize>) -> 
     }
 }
 
-/// Wrapper for Result<Array<T>, ArrayError> for implementation of Display trait
+/// Wrapper for `Result<Array<T>, ArrayError>` for implementation of Display trait
 #[derive(Clone, Debug)]
 pub struct PrintableResult<T: ArrayElement> {
     /// inner field - result to print

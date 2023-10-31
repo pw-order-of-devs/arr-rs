@@ -3,6 +3,7 @@ use crate::{
     core::prelude::*,
     extensions::prelude::*,
 };
+use crate::prelude::Numeric;
 
 impl ArrayElement for String {
 
@@ -62,8 +63,8 @@ impl Alphanumeric for String {
             self.as_str()[..width].to_string()
         } else {
             let char = fill_char.to_string();
-            let diff = (width - self.len()) as f64 / 2.;
-            format!("{}{}{}", char.repeat(diff.ceil() as usize), self, char.repeat(diff.floor() as usize))
+            let diff = (width - self.len()).to_f64() / 2.;
+            format!("{}{}{}", char.repeat(diff.ceil().to_usize()), self, char.repeat(diff.floor().to_usize()))
         }
     }
 
@@ -72,41 +73,35 @@ impl Alphanumeric for String {
     }
 
     fn _partition(&self, sep: Self) -> Tuple3<Self, Self, Self> {
-        if let Some(index) = self.find(&sep) {
+        self.find(&sep).map_or_else(|| Tuple3(self.clone(), Self::new(), Self::new()), |index| {
             let (before, rest) = self.split_at(index);
             let (_, after) = rest.split_at(sep.len());
             Tuple3(before.to_string(), sep, after.to_string())
-        } else {
-            Tuple3(self.clone(), "".to_string(), "".to_string())
-        }
+        })
     }
 
     fn _rpartition(&self, sep: Self) -> Tuple3<Self, Self, Self> {
-        if let Some(index) = self.rfind(&sep) {
+        self.rfind(&sep).map_or_else(|| Tuple3(self.clone(), Self::new(), Self::new()), |index| {
             let (before, rest) = self.split_at(index);
             let (_, after) = rest.split_at(sep.len());
             Tuple3(before.to_string(), sep, after.to_string())
-        } else {
-            Tuple3(self.clone(), "".to_string(), "".to_string())
-        }
+        })
     }
 
     fn _split(&self, sep: Self, max_split: Option<usize>) -> List<Self> {
-        let result: Vec<&str> = if let Some(split) = max_split {
-            self.splitn(split, &sep).collect()
-        } else {
-            str::split(self, &sep).collect()
-        };
-        List(result.into_iter().map(|s| s.to_string()).collect())
+        let result: Vec<&str> = max_split.map_or_else(
+            || str::split(self, &sep).collect(),
+            |split| self.splitn(split, &sep).collect());
+        List(result.into_iter().map(ToString::to_string).collect())
     }
 
     fn _rsplit(&self, sep: Self, max_split: Option<usize>) -> List<Self> {
-        List(self.chars().rev().collect::<String>()._split(sep, max_split).0.reverse_ext())
+        List(self.chars().rev().collect::<Self>()._split(sep, max_split).0.reverse_ext())
     }
 
     fn _splitlines(&self, keep_ends: bool) -> List<Self> {
         let mut text = self.clone();
-        let mut lines: Vec<String> = Vec::new();
+        let mut lines: Vec<Self> = Vec::new();
         let mut i = 0;
 
         loop {
@@ -116,14 +111,14 @@ impl Alphanumeric for String {
                     if keep_ends {
                         lines.push(text.drain(0 ..= i + 1).collect());
                     } else {
-                        lines.push(text.drain(0 .. i).collect());
-                        text.drain(0 .. 2);
+                        lines.push(text.drain(0..i).collect());
+                        text.drain(0..2);
                     }
                 } else if keep_ends {
                     lines.push(text.drain(0 ..= i).collect());
                 } else {
-                    lines.push(text.drain(0 .. i).collect());
-                    text.drain(0 .. 1);
+                    lines.push(text.drain(0..i).collect());
+                    text.drain(0..1);
                 }
                 i = 0;
             } else {
@@ -147,7 +142,7 @@ impl Alphanumeric for String {
                 break;
             }
 
-            replaced_string.replace_range(index .. index + old.len(), new.as_str());
+            replaced_string.replace_range(index..index + old.len(), new.as_str());
             replaced_count += 1;
         }
 
@@ -167,7 +162,7 @@ impl Alphanumeric for String {
     }
 
     fn _lstrip(&self, chars: Self) -> Self {
-        self.chars().rev().collect::<String>()._rstrip(chars).chars().rev().collect()
+        self.chars().rev().collect::<Self>()._rstrip(chars).chars().rev().collect()
     }
 
     fn _rjust(&self, width: usize, fill_char: char) -> Self {
@@ -215,6 +210,6 @@ impl Alphanumeric for String {
     }
 
     fn _count(&self, sub: &str) -> usize {
-        self.match_indices(sub).collect::<Vec<(usize, &str)>>().len()
+        self.match_indices(sub).count()
     }
 }

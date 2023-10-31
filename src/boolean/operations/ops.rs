@@ -19,7 +19,7 @@ impl <N: BoolNumeric + From<<N as Not>::Output>> Not for Array<N> {
             .map(|x| (!x).into())
             .collect();
 
-        Array::new(elements, self.shape).unwrap()
+        Self::new(elements, self.shape).unwrap()
     }
 }
 
