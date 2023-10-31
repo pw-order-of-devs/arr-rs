@@ -1,5 +1,12 @@
 # 📑 Changelog
 
+## [v0.6.0](https://github.com/pw-order-of-devs/arr-rs/compare/v0.5.1...v0.6.0)
+
+### 🚀 Enhancements
+
+- ArrayAlphanumeric: zfill, translate [\#128](https://github.com/pw-order-of-devs/arr-rs/issues/128)
+- [partial]: linear algebra [\#134](https://github.com/pw-order-of-devs/arr-rs/issues/134)
+
 ## [v0.5.1](https://github.com/pw-order-of-devs/arr-rs/compare/v0.5.0...v0.5.1)
 
 ### 🚀 Enhancements
