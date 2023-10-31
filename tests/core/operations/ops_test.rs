@@ -71,7 +71,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![1, 2, 3, 4], vec![4]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![4]), false),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]), true),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
-#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `Ok([4])`,\n right: `Ok([2, 2])`")]
+#[should_panic(expected = "assertion `left == right` failed\n  left: Ok([4])\n right: Ok([2, 2])")]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
 )] fn test_eq(array1: Result<Array<i32>, ArrayError>, array2: Result<Array<i32>, ArrayError>, expected: bool) {
     assert_eq!(expected, array1 == array2);
@@ -83,7 +83,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![1, 2, 3, 4], vec![4]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![4]), true),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]), false),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), true),
-#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `Ok([4])`,\n right: `Ok([2, 2])`")]
+#[should_panic(expected = "assertion `left == right` failed\n  left: Ok([4])\n right: Ok([2, 2])")]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
 )] fn test_ne(array1: Result<Array<i32>, ArrayError>, array2: Result<Array<i32>, ArrayError>, expected: bool) {
     assert_eq!(expected, array1 != array2);
@@ -97,7 +97,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![4]
 case(Array::new(vec![2, 2, 2, 2], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]), std::cmp::Ordering::Greater),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]), std::cmp::Ordering::Equal),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), std::cmp::Ordering::Less),
-#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `Ok([4])`,\n right: `Ok([2, 2])`")]
+#[should_panic(expected = "assertion `left == right` failed\n  left: Ok([4])\n right: Ok([2, 2])")]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), std::cmp::Ordering::Greater),
 )] fn test_partial_cmp(array1: Result<Array<i32>, ArrayError>, array2: Result<Array<i32>, ArrayError>, expected: std::cmp::Ordering) {
     assert_eq!(expected, array1.partial_cmp(&array2).unwrap());
@@ -109,7 +109,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![1, 2, 3, 4], vec![4]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![4]), true),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]), false),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), true),
-#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `Ok([4])`,\n right: `Ok([2, 2])`")]
+#[should_panic(expected = "assertion `left == right` failed\n  left: Ok([4])\n right: Ok([2, 2])")]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
 )] fn test_lt(array1: Result<Array<i32>, ArrayError>, array2: Result<Array<i32>, ArrayError>, expected: bool) {
     assert_eq!(expected, array1.lt(&array2));
@@ -121,7 +121,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![1, 2, 3, 4], vec![4]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![4]), true),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]), true),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), true),
-#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `Ok([4])`,\n right: `Ok([2, 2])`")]
+#[should_panic(expected = "assertion `left == right` failed\n  left: Ok([4])\n right: Ok([2, 2])")]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
 )] fn test_le(array1: Result<Array<i32>, ArrayError>, array2: Result<Array<i32>, ArrayError>, expected: bool) {
     assert_eq!(expected, array1.le(&array2));
@@ -133,7 +133,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![1, 2, 3, 4], vec![4]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![4]), false),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]), false),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
-#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `Ok([4])`,\n right: `Ok([2, 2])`")]
+#[should_panic(expected = "assertion `left == right` failed\n  left: Ok([4])\n right: Ok([2, 2])")]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
 )] fn test_gt(array1: Result<Array<i32>, ArrayError>, array2: Result<Array<i32>, ArrayError>, expected: bool) {
     assert_eq!(expected, array1.gt(&array2));
@@ -145,7 +145,7 @@ case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![1, 2, 3, 4], vec![4]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![4]), false),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![1, 2, 3, 4], vec![2, 2]), true),
 case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
-#[should_panic(expected = "assertion failed: `(left == right)`\n  left: `Ok([4])`,\n right: `Ok([2, 2])`")]
+#[should_panic(expected = "assertion `left == right` failed\n  left: Ok([4])\n right: Ok([2, 2])")]
 case(Array::new(vec![1, 2, 3, 4], vec![4]), Array::new(vec![2, 2, 2, 2], vec![2, 2]), false),
 )] fn test_ge(array1: Result<Array<i32>, ArrayError>, array2: Result<Array<i32>, ArrayError>, expected: bool) {
     assert_eq!(expected, array1.ge(&array2));
