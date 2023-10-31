@@ -4,7 +4,7 @@ use crate::{
     extensions::prelude::*,
 };
 
-/// ArrayTrait - Array Count functions
+/// `ArrayTrait` - Array Count functions
 pub trait ArrayCount<T: ArrayElement> where Self: Sized + Clone {
 
     /// Sort an array
@@ -25,6 +25,10 @@ pub trait ArrayCount<T: ArrayElement> where Self: Sized + Clone {
     /// let arr = array!(i32, [[0, 1, 7, 0], [3, 0, 2, 19]]);
     /// assert_eq!(array!(usize, [1, 1, 2, 1]), arr.count_nonzero(Some(0), None));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn count_nonzero(&self, axis: Option<isize>, keepdims: Option<bool>) -> Result<Array<usize>, ArrayError>;
 }
 
@@ -34,14 +38,14 @@ impl <T: ArrayElement> ArrayCount<T> for Array<T> {
         if let Some(axis) = axis {
             let axis = self.normalize_axis(axis);
             let result = self.apply_along_axis(axis, |arr| arr.count_nonzero(None, keepdims));
-            if let Some(true) = keepdims { result }
+            if keepdims == Some(true) { result }
             else { result.reshape(&self.get_shape()?.remove_at(axis)) }
         } else {
-            let filtered = self.get_elements()?.into_iter()
-                .filter(|e| e != &T::zero())
-                .collect::<Vec<T>>();
-            let result = Array::single(filtered.len());
-            if let Some(true) = keepdims { result.atleast(self.ndim()?) }
+            let result = Array::single(self
+                .get_elements()?
+                .into_iter()
+                .filter(|e| e != &T::zero()).count());
+            if keepdims == Some(true) { result.atleast(self.ndim()?) }
             else { result }
         }
     }

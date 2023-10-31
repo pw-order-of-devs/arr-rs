@@ -74,6 +74,6 @@ impl <N: SignedNumericOps> Neg for Array<N> {
             .map(|a| -a)
             .collect();
 
-        Array::new(elements, self.shape).unwrap()
+        Self::new(elements, self.shape).unwrap()
     }
 }

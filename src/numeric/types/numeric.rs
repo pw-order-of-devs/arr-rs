@@ -19,33 +19,53 @@ pub trait Numeric: ArrayElement + Clone + Copy + Display + Debug + PartialEq + P
 
     /// Convert from usize
     fn from_usize(value: usize) -> Self;
+
     /// Convert from f64
     fn from_f64(value: f64) -> Self;
 
     /// Convert to usize
     fn to_usize(&self) -> usize;
+
+    /// Convert to isize
+    fn to_isize(&self) -> isize;
+
     /// Convert to i32
     fn to_i32(&self) -> i32;
+
     /// Convert to f64
     fn to_f64(&self) -> f64;
 
     /// Check if is infinity
     fn is_inf(&self) -> bool;
+
     /// Get max value for type
+    #[must_use]
     fn max(&self) -> Self;
 
     /// bitwise and operation
+    #[must_use]
     fn bitwise_and(&self, other: &Self) -> Self;
+
     /// bitwise or operation
+    #[must_use]
     fn bitwise_or(&self, other: &Self) -> Self;
+
     /// bitwise xor operation
+    #[must_use]
     fn bitwise_xor(&self, other: &Self) -> Self;
+
     /// bitwise not operation
+    #[must_use]
     fn bitwise_not(&self) -> Self;
+
     /// left shift operation
+    #[must_use]
     fn left_shift(&self, other: &Self) -> Self;
+
     /// right shift operation
+    #[must_use]
     fn right_shift(&self, other: &Self) -> Self;
+
     /// binary representation of number
     fn binary_repr(&self) -> String;
 }
@@ -85,6 +105,10 @@ macro_rules! impl_numeric {
 
             fn to_usize(&self) -> usize {
                 *self as usize
+            }
+
+            fn to_isize(&self) -> isize {
+                *self as isize
             }
 
             fn to_i32(&self) -> i32 {
@@ -179,6 +203,10 @@ macro_rules! impl_numeric_float {
 
             fn to_usize(&self) -> usize {
                 *self as usize
+            }
+
+            fn to_isize(&self) -> isize {
+                *self as isize
             }
 
             fn to_i32(&self) -> i32 {

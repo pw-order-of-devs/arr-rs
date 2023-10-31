@@ -3,11 +3,11 @@ use arr_rs::prelude::*;
 
 #[rstest(
 array, expected,
-case(Array::new(vec![1, 2, 3, 4], vec![4]), array!(i32, [3, 6, 9, 12])),
-case(Array::new(vec![1, 2, 3, 4], vec![2, 2]), array!(i32, [[3, 6], [9, 12]])),
-case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![8]), array!(i32, [3, 6, 9, 12, 3, 6, 9, 12])),
-case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 4]), array!(i32, [[3, 6, 9, 12], [3, 6, 9, 12]])),
-case(Array::new(vec![1, 2, 3, 4, 1, 2, 3, 4], vec![2, 2, 2]), array!(i32, [[[3, 6], [9, 12]], [[3, 6], [9, 12]]])),
+case(array!(i32, [1, 2, 3, 4]), array!(i32, [3, 6, 9, 12])),
+case(array!(i32, [[1, 2], [3, 4]]), array!(i32, [[3, 6], [9, 12]])),
+case(array!(i32, [1, 2, 3, 4, 1, 2, 3, 4]), array!(i32, [3, 6, 9, 12, 3, 6, 9, 12])),
+case(array!(i32, [[1, 2, 3, 4], [1, 2, 3, 4]]), array!(i32, [[3, 6, 9, 12], [3, 6, 9, 12]])),
+case(array!(i32, [[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), array!(i32, [[[3, 6], [9, 12]], [[3, 6], [9, 12]]])),
 )] fn test_iter_array(array: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     let shape = array.clone().unwrap().get_shape().unwrap();
     let iterated = array.unwrap().into_iter()
@@ -115,8 +115,8 @@ case(array!(i32, [[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), 1, 576),
 
 #[rstest(
 array, other, expected,
-case(array!(i32, [1, 2, 3, 4]), array!(i32, [5, 6, 7, 8]), Array::flat(vec![Tuple2(1, 5), Tuple2(2, 6), Tuple2(3, 7), Tuple2(4, 8)])),
-case(array!(i32, [[1, 2], [3, 4]]), array!(i32, [[5, 6], [7, 8]]), Array::new(vec![Tuple2(1, 5), Tuple2(2, 6), Tuple2(3, 7), Tuple2(4, 8)], vec![2, 2])),
+case(array!(i32, [1, 2, 3, 4]), array!(i32, [5, 6, 7, 8]), array_flat!(Tuple2<i32, i32>, Tuple2(1, 5), Tuple2(2, 6), Tuple2(3, 7), Tuple2(4, 8))),
+case(array!(i32, [[1, 2], [3, 4]]), array!(i32, [[5, 6], [7, 8]]), array!(Tuple2<i32, i32>, [[(1, 5), (2, 6)], [(3, 7), (4, 8)]])),
 )] fn test_zip(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<Tuple2<i32, i32>>, ArrayError>) {
     assert_eq!(expected, array.unwrap().zip(&other.unwrap()));
 }

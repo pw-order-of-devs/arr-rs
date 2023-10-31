@@ -3,218 +3,218 @@ use arr_rs::prelude::*;
 
 #[rstest(
 array, other, expected,
-case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["".to_string(), "".to_string()]), Array::flat(vec!["abc".to_string(), "cde".to_string()])),
-case(Array::flat(vec!["abc".to_string(), "cde".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string()]), Array::flat(vec!["abcdd".to_string(), "cdeff".to_string()])),
-case(Array::new(vec!["abc".to_string(), "cde".to_string(), "abc".to_string(), "cde".to_string()], vec![2, 2]), Array::flat(vec!["dd".to_string(), "ff".to_string()]), Array::new(vec!["abcdd".to_string(), "cdeff".to_string(), "abcdd".to_string(), "cdeff".to_string()], vec![2, 2])),
-case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec!["dd".to_string(), "ff".to_string(), "ff".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_flat!(String, "abc", "cde"), array_flat!(String, "", ""), array_flat!(String, "abc", "cde")),
+case(array_flat!(String, "abc", "cde"), array_flat!(String, "dd", "ff"), array_flat!(String, "abcdd", "cdeff")),
+case(array!(String, [["abc", "cde"], ["abc", "cde"]]), array_flat!(String, "dd", "ff"), array!(String, [["abcdd", "cdeff"], ["abcdd", "cdeff"]])),
+case(array_flat!(String, "a", "a"), array_flat!(String, "dd", "ff", "ff"), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_add(array: Result<Array<String>, ArrayError>, other: Result<Array<String>, ArrayError>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.add(&other.unwrap()))
 }
 
 #[rstest(
 array, counts, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), Array::flat(vec![1, 1]), Array::flat(vec!["a".to_string(), "b".to_string()])),
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), Array::flat(vec![3, 4]), Array::flat(vec!["aaa".to_string(), "bbbb".to_string()])),
-case(Array::new(vec!["ab".to_string(), "cd".to_string(), "ab".to_string(), "cd".to_string()], vec![2, 2]), Array::flat(vec![2, 2]), Array::new(vec!["abab".to_string(), "cdcd".to_string(), "abab".to_string(), "cdcd".to_string()], vec![2, 2])),
-case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1, 1]), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_flat!(String, "a", "b"), array_flat!(usize, 1, 1), array_flat!(String, "a", "b")),
+case(array_flat!(String, "a", "b"), array_flat!(usize, 3, 4), array_flat!(String, "aaa", "bbbb")),
+case(array!(String, [["ab", "cd"], ["ab", "cd"]]), array_flat!(usize, 2, 2), array!(String, [["abab", "cdcd"], ["abab", "cdcd"]])),
+case(array_flat!(String, "a", "a"), array_flat!(usize, 1, 1, 1), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_multiply(array: Result<Array<String>, ArrayError>, counts: Result<Array<usize>, ArrayError>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.multiply(&counts.unwrap()))
 }
 
 #[rstest(
 array, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), Array::flat(vec!["A".to_string(), "B".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), Array::flat(vec!["Aaa".to_string(), "Bbbb".to_string()])),
-case(Array::new(vec!["ab".to_string(), "cd".to_string(), "ab".to_string(), "cd".to_string()], vec![2, 2]), Array::new(vec!["Ab".to_string(), "Cd".to_string(), "Ab".to_string(), "Cd".to_string()], vec![2, 2])),
+case(array_flat!(String, "a", "b"), array_flat!(String, "A", "B")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(String, "Aaa", "Bbbb")),
+case(array!(String, [["ab", "cd"], ["ab", "cd"]]), array!(String, [["Ab", "Cd"], ["Ab", "Cd"]])),
 )] fn test_char_capitalize(array: Result<Array<String>, ArrayError>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.capitalize())
 }
 
 #[rstest(
 array, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), Array::flat(vec!["a".to_string(), "b".to_string()])),
-case(Array::flat(vec!["A".to_string(), "B".to_string()]), Array::flat(vec!["a".to_string(), "b".to_string()])),
-case(Array::flat(vec!["AaA".to_string(), "bBbB".to_string()]), Array::flat(vec!["aaa".to_string(), "bbbb".to_string()])),
-case(Array::new(vec!["aB21".to_string(), "Cd32".to_string(), "2aA3".to_string(), "c32d".to_string()], vec![2, 2]), Array::new(vec!["ab21".to_string(), "cd32".to_string(), "2aa3".to_string(), "c32d".to_string()], vec![2, 2])),
+case(array_flat!(String, "a", "b"), array_flat!(String, "a", "b")),
+case(array_flat!(String, "A", "B"), array_flat!(String, "a", "b")),
+case(array_flat!(String, "AaA", "bBbB"), array_flat!(String, "aaa", "bbbb")),
+case(array!(String, [["aB21", "Cd32"], ["2aA3", "c32d"]]), array!(String, [["ab21", "cd32"], ["2aa3", "c32d"]])),
 )] fn test_char_lower(array: Result<Array<String>, ArrayError>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.lower())
 }
 
 #[rstest(
 array, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), Array::flat(vec!["A".to_string(), "B".to_string()])),
-case(Array::flat(vec!["A".to_string(), "B".to_string()]), Array::flat(vec!["A".to_string(), "B".to_string()])),
-case(Array::flat(vec!["AaA".to_string(), "bBbB".to_string()]), Array::flat(vec!["AAA".to_string(), "BBBB".to_string()])),
-case(Array::new(vec!["aB21".to_string(), "Cd32".to_string(), "2aA3".to_string(), "c32d".to_string()], vec![2, 2]), Array::new(vec!["AB21".to_string(), "CD32".to_string(), "2AA3".to_string(), "C32D".to_string()], vec![2, 2])),
+case(array_flat!(String, "a", "b"), array_flat!(String, "A", "B")),
+case(array_flat!(String, "A", "B"), array_flat!(String, "A", "B")),
+case(array_flat!(String, "AaA", "bBbB"), array_flat!(String, "AAA", "BBBB")),
+case(array!(String, [["aB21", "Cd32"], ["2aA3", "c32d"]]), array!(String, [["AB21", "CD32"], ["2AA3", "C32D"]])),
 )] fn test_char_upper(array: Result<Array<String>, ArrayError>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.upper())
 }
 
 #[rstest(
 array, expected,
-case(Array::flat(vec!["a".to_string(), "B".to_string()]), Array::flat(vec!["A".to_string(), "b".to_string()])),
-case(Array::flat(vec!["AaA".to_string(), "bBbB".to_string()]), Array::flat(vec!["aAa".to_string(), "BbBb".to_string()])),
-case(Array::new(vec!["aB21".to_string(), "Cd32".to_string(), "2aA3".to_string(), "c32d".to_string()], vec![2, 2]), Array::new(vec!["Ab21".to_string(), "cD32".to_string(), "2Aa3".to_string(), "C32D".to_string()], vec![2, 2])),
+case(array_flat!(String, "a", "B"), array_flat!(String, "A", "b")),
+case(array_flat!(String, "AaA", "bBbB"), array_flat!(String, "aAa", "BbBb")),
+case(array!(String, [["aB21", "Cd32"], ["2aA3", "c32d"]]), array!(String, [["Ab21", "cD32"], ["2Aa3", "C32D"]])),
 )] fn test_char_swapcase(array: Result<Array<String>, ArrayError>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.swapcase())
 }
 
 #[rstest(
 array, width, fill_char, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["  a  ".to_string(), "  b  ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec![" aaa ".to_string(), " bbbb".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5, 6).unwrap(), None, Array::flat(vec![" aaa ".to_string(), " bbbb ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["**aaa*".to_string(), "*bbbb*".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["**aaa*".to_string(), "#bbbb#".to_string()])),
-case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1, 1]).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
-case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1]).unwrap(), Some(Array::flat(vec!['*', '*', '*']).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_flat!(String, "a", "b"), array_flat!(usize, 5).unwrap(), None, array_flat!(String, "  a  ", "  b  ")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 5).unwrap(), None, array_flat!(String, " aaa ", " bbbb")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 5, 6).unwrap(), None, array_flat!(String, " aaa ", " bbbb ")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 6).unwrap(), Some(array_single!(char, '*').unwrap()), array_flat!(String, "**aaa*", "*bbbb*")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 6).unwrap(), Some(array_flat!(char, '*', '#').unwrap()), array_flat!(String, "**aaa*", "#bbbb#")),
+case(array_flat!(String, "a", "a"), array_flat!(usize, 1, 1, 1).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
+case(array_flat!(String, "a", "a"), array_flat!(usize, 1, 1).unwrap(), Some(array_flat!(char, '*', '*', '*').unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_center(array: Result<Array<String>, ArrayError>, width: Array<usize>, fill_char: Option<Array<char>>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.center(&width, fill_char))
 }
 
 #[rstest(
 array, sep, expected,
-case(Array::single("aa".to_string()), Array::single("-".to_string()), Array::flat(vec!["a-a".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), Array::flat(vec!["-".to_string(), ".".to_string()]), Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["-".to_string(), ".".to_string(), "&".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, "aa"), array_single!(String, "-"), array_flat!(String, "a-a")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(String, "-", "."), array_flat!(String, "a-a-a", "b.b.b.b")),
+case(array_flat!(String, "aa", "bb"), array_flat!(String, "-", ".", "&"), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_join(array: Result<Array<String>, ArrayError>, sep: Result<Array<String>, ArrayError>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.join(&sep.unwrap()))
 }
 
 #[rstest(
 array, sep, expected,
-case(Array::single("a-a-a".to_string()), Array::single("-".to_string()), Array::single(Tuple3("a".to_string(), "-".to_string(), "a-a".to_string()))),
-case(Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]), Array::single("-".to_string()), Array::flat(vec![Tuple3("a".to_string(), "-".to_string(), "a-a".to_string()), Tuple3("b".to_string(), "-".to_string(), "b-b-b".to_string())])),
-case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Array::flat(vec!["-".to_string(), ".".to_string()]), Array::flat(vec![Tuple3("a".to_string(), "-".to_string(), "a-a".to_string()), Tuple3("b".to_string(), ".".to_string(), "b.b.b".to_string())])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["-".to_string(), ".".to_string(), "&".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, "a-a-a"), array_single!(String, "-"), array_single!(Tuple3<String, String, String>, ("a", "-", "a-a"))),
+case(array_flat!(String, "a-a-a", "b-b-b-b"), array_single!(String, "-"), array_flat!(Tuple3<String, String, String>, ("a", "-", "a-a"), ("b", "-", "b-b-b"))),
+case(array_flat!(String, "a-a-a", "b.b.b.b"), array_flat!(String, "-", "."), array_flat!(Tuple3<String, String, String>, ("a", "-", "a-a"), ("b", ".", "b.b.b"))),
+case(array_flat!(String, "aa", "bb"), array_flat!(String, "-", ".", "&"), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_partition(array: Result<Array<String>, ArrayError>, sep: Result<Array<String>, ArrayError>, expected: Result<Array<Tuple3<String, String, String>>, ArrayError>) {
     assert_eq!(expected, ArrayStringManipulate::partition(&array.unwrap(), &sep.unwrap()))
 }
 
 #[rstest(
 array, sep, expected,
-case(Array::single("a-a-a".to_string()), Array::single("-".to_string()), Array::single(Tuple3("a-a".to_string(), "-".to_string(), "a".to_string()))),
-case(Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]), Array::single("-".to_string()), Array::flat(vec![Tuple3("a-a".to_string(), "-".to_string(), "a".to_string()), Tuple3("b-b-b".to_string(), "-".to_string(), "b".to_string())])),
-case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Array::flat(vec!["-".to_string(), ".".to_string()]), Array::flat(vec![Tuple3("a-a".to_string(), "-".to_string(), "a".to_string()), Tuple3("b.b.b".to_string(), ".".to_string(), "b".to_string())])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["-".to_string(), ".".to_string(), "&".to_string()]), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, "a-a-a"), array_single!(String, "-"), array_single!(Tuple3<String, String, String>, ("a-a", "-", "a"))),
+case(array_flat!(String, "a-a-a", "b-b-b-b"), array_single!(String, "-"), array_flat!(Tuple3<String, String, String>, ("a-a", "-", "a"), ("b-b-b", "-", "b"))),
+case(array_flat!(String, "a-a-a", "b.b.b.b"), array_flat!(String, "-", "."), array_flat!(Tuple3<String, String, String>, ("a-a", "-", "a"), ("b.b.b", ".", "b"))),
+case(array_flat!(String, "aa", "bb"), array_flat!(String, "-", ".", "&"), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_rpartition(array: Result<Array<String>, ArrayError>, sep: Result<Array<String>, ArrayError>, expected: Result<Array<Tuple3<String, String, String>>, ArrayError>) {
     assert_eq!(expected, array.rpartition(&sep.unwrap()))
 }
 
 #[rstest(
 array, sep, max_split, expected,
-case(Array::single("a a a".to_string()), None, None, Array::single(List(vec!["a".to_string(), "a".to_string(), "a".to_string()]))),
-case(Array::single("a a a".to_string()), None, Some(Array::single(3).unwrap()), Array::single(List(vec!["a".to_string(), "a".to_string(), "a".to_string()]))),
-case(Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]), Some(Array::single("-".to_string()).unwrap()), None, Array::flat(vec![List(vec!["a".to_string(), "a".to_string(), "a".to_string()]), List(vec!["b".to_string(), "b".to_string(), "b".to_string(), "b".to_string()])])),
-case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string()]).unwrap()), None, Array::flat(vec![List(vec!["a".to_string(), "a".to_string(), "a".to_string()]), List(vec!["b".to_string(), "b".to_string(), "b".to_string(), "b".to_string()])])),
-case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string()]).unwrap()), Some(Array::single(2).unwrap()), Array::flat(vec![List(vec!["a".to_string(), "a-a".to_string()]), List(vec!["b".to_string(), "b.b.b".to_string()])])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string(), "&".to_string()]).unwrap()), None, Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, "a a a"), None, None, array_single!(List<String>, vec!["a", "a", "a"])),
+case(array_single!(String, "a a a"), None, Some(array_single!(usize, 3).unwrap()), array_single!(List<String>, vec!["a", "a", "a"])),
+case(array_flat!(String, "a-a-a", "b-b-b-b"), Some(array_single!(String, "-").unwrap()), None, array_flat!(List<String>, vec!["a", "a", "a"], vec!["b", "b", "b", "b"])),
+case(array_flat!(String, "a-a-a", "b.b.b.b"), Some(array_flat!(String, "-", ".").unwrap()), None, array_flat!(List<String>, vec!["a", "a", "a"], vec!["b", "b", "b", "b"])),
+case(array_flat!(String, "a-a-a", "b.b.b.b"), Some(array_flat!(String, "-", ".").unwrap()), Some(array_single!(usize, 2).unwrap()), array_flat!(List<String>, vec!["a", "a-a"], vec!["b", "b.b.b"])),
+case(array_flat!(String, "aa", "bb"), Some(array_flat!(String, "-", ".", "&").unwrap()), None, Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_split(array: Result<Array<String>, ArrayError>, sep: Option<Array<String>>, max_split: Option<Array<usize>>, expected: Result<Array<List<String>>, ArrayError>) {
     assert_eq!(expected, ArrayStringManipulate::split(&array, sep, max_split))
 }
 
 #[rstest(
 array, sep, max_split, expected,
-case(Array::single("a a a".to_string()), None, None, Array::single(List(vec!["a".to_string(), "a".to_string(), "a".to_string()]))),
-case(Array::flat(vec!["a-a-a".to_string(), "b-b-b-b".to_string()]), Some(Array::single("-".to_string()).unwrap()), None, Array::flat(vec![List(vec!["a".to_string(), "a".to_string(), "a".to_string()]), List(vec!["b".to_string(), "b".to_string(), "b".to_string(), "b".to_string()])])),
-case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string()]).unwrap()), None, Array::flat(vec![List(vec!["a".to_string(), "a".to_string(), "a".to_string()]), List(vec!["b".to_string(), "b".to_string(), "b".to_string(), "b".to_string()])])),
-case(Array::flat(vec!["a-a-a".to_string(), "b.b.b.b".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string()]).unwrap()), Some(Array::single(2).unwrap()), Array::flat(vec![List(vec!["a-a".to_string(), "a".to_string()]), List(vec!["b.b.b".to_string(), "b".to_string()])])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec!["-".to_string(), ".".to_string(), "&".to_string()]).unwrap()), None, Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, "a a a"), None, None, array_single!(List<String>, vec!["a", "a", "a"])),
+case(array_flat!(String, "a-a-a", "b-b-b-b"), Some(array_single!(String, "-").unwrap()), None, array_flat!(List<String>, vec!["a", "a", "a"], vec!["b", "b", "b", "b"])),
+case(array_flat!(String, "a-a-a", "b.b.b.b"), Some(array_flat!(String, "-", ".").unwrap()), None, array_flat!(List<String>, vec!["a", "a", "a"], vec!["b", "b", "b", "b"])),
+case(array_flat!(String, "a-a-a", "b.b.b.b"), Some(array_flat!(String, "-", ".").unwrap()), Some(array_single!(usize, 2).unwrap()), array_flat!(List<String>, vec!["a-a", "a"], vec!["b.b.b", "b"])),
+case(array_flat!(String, "aa", "bb"), Some(array_flat!(String, "-", ".", "&").unwrap()), None, Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_rsplit(array: Result<Array<String>, ArrayError>, sep: Option<Array<String>>, max_split: Option<Array<usize>>, expected: Result<Array<List<String>>, ArrayError>) {
     assert_eq!(expected, ArrayStringManipulate::rsplit(&array, sep, max_split))
 }
 
 #[rstest(
 array, keep_ends, expected,
-case(Array::single("a\na\ra\r\na".to_string()), None, Array::single(List(vec!["a".to_string(), "a".to_string(), "a".to_string(), "a".to_string()]))),
-case(Array::single("a\na\ra\r\na".to_string()), Some(Array::single(true).unwrap()), Array::single(List(vec!["a\n".to_string(), "a\r".to_string(), "a\r\n".to_string(), "a".to_string()]))),
-case(Array::flat(vec!["a\na".to_string(), "b\nb".to_string()]), Some(Array::single(true).unwrap()), Array::flat(vec![List(vec!["a\n".to_string(), "a".to_string()]), List(vec!["b\n".to_string(), "b".to_string()])])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec![false, false, false]).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, "a\na\ra\r\na"), None, array_single!(List<String>, vec!["a", "a", "a", "a"])),
+case(array_single!(String, "a\na\ra\r\na"), Some(array_single!(bool, true).unwrap()), array_single!(List<String>, vec!["a\n", "a\r", "a\r\n", "a"])),
+case(array_flat!(String, "a\na", "b\nb"), Some(array_single!(bool, true).unwrap()), array_flat!(List<String>, vec!["a\n", "a"], vec!["b\n", "b"])),
+case(array_flat!(String, "aa", "bb"), Some(array_flat!(bool, false, false, false).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_splitlines(array: Result<Array<String>, ArrayError>, keep_ends: Option<Array<bool>>, expected: Result<Array<List<String>>, ArrayError>) {
     assert_eq!(expected, ArrayStringManipulate::splitlines(&array.unwrap(), keep_ends))
 }
 
 #[rstest(
 array, old, new, count, expected,
-case(Array::single("abba".to_string()), Array::single("bb".to_string()), Array::single("cc".to_string()), None, Array::single("acca".to_string())),
-case(Array::single("abbddbba".to_string()), Array::single("bb".to_string()), Array::single("cc".to_string()), Some(1), Array::single("accddbba".to_string())),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["aa".to_string(), "bb".to_string()]), Array::flat(vec!["aa".to_string(), "bb".to_string(), "cc".to_string()]), None, Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, "abba"), array_single!(String, "bb"), array_single!(String, "cc"), None, array_single!(String, "acca")),
+case(array_single!(String, "abbddbba"), array_single!(String, "bb"), array_single!(String, "cc"), Some(1), array_single!(String, "accddbba")),
+case(array_flat!(String, "aa", "bb"), array_flat!(String, "aa", "bb"), array_flat!(String, "aa", "bb", "cc"), None, Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_replace(array: Result<Array<String>, ArrayError>, old: Result<Array<String>, ArrayError>, new: Result<Array<String>, ArrayError>, count: Option<usize>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, ArrayStringManipulate::replace(&array, &old.unwrap(), &new.unwrap(), count))
 }
 
 #[rstest(
 array, chars, expected,
-case(Array::single(" abcba ".to_string()), None, Array::single("abcba".to_string())),
-case(Array::single("abcba".to_string()), Some(Array::single("ab".to_string()).unwrap()), Array::single("c".to_string())),
-case(Array::flat(vec!["abcba".to_string()]), Some(Array::flat(vec!["ab".to_string(), "a".to_string()]).unwrap()), Array::flat(vec!["c".to_string(), "bcb".to_string()])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec!["aa".to_string(), "bb".to_string(), "cc".to_string()]).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, " abcba "), None, array_single!(String, "abcba")),
+case(array_single!(String, "abcba"), Some(array_single!(String, "ab").unwrap()), array_single!(String, "c")),
+case(array_flat!(String, "abcba"), Some(array_flat!(String, "ab", "a").unwrap()), array_flat!(String, "c", "bcb")),
+case(array_flat!(String, "aa", "bb"), Some(array_flat!(String, "aa", "bb", "cc").unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_strip(array: Result<Array<String>, ArrayError>, chars: Option<Array<String>>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.strip(chars))
 }
 
 #[rstest(
 array, chars, expected,
-case(Array::single(" abcba ".to_string()), None, Array::single("abcba ".to_string())),
-case(Array::single("abcba".to_string()), Some(Array::single("ab".to_string()).unwrap()), Array::single("cba".to_string())),
-case(Array::flat(vec!["abcba".to_string()]), Some(Array::flat(vec!["ab".to_string(), "a".to_string()]).unwrap()), Array::flat(vec!["cba".to_string(), "bcba".to_string()])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec!["aa".to_string(), "bb".to_string(), "cc".to_string()]).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, " abcba "), None, array_single!(String, "abcba ")),
+case(array_single!(String, "abcba"), Some(array_single!(String, "ab").unwrap()), array_single!(String, "cba")),
+case(array_flat!(String, "abcba"), Some(array_flat!(String, "ab", "a").unwrap()), array_flat!(String, "cba", "bcba")),
+case(array_flat!(String, "aa", "bb"), Some(array_flat!(String, "aa", "bb", "cc").unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_lstrip(array: Result<Array<String>, ArrayError>, chars: Option<Array<String>>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.lstrip(chars))
 }
 
 #[rstest(
 array, chars, expected,
-case(Array::single(" abcba ".to_string()), None, Array::single(" abcba".to_string())),
-case(Array::single("abcba".to_string()), Some(Array::single("ab".to_string()).unwrap()), Array::single("abc".to_string())),
-case(Array::flat(vec!["abcba".to_string()]), Some(Array::flat(vec!["ab".to_string(), "a".to_string()]).unwrap()), Array::flat(vec!["abc".to_string(), "abcb".to_string()])),
-case(Array::flat(vec!["aa".to_string(), "bb".to_string()]), Some(Array::flat(vec!["aa".to_string(), "bb".to_string(), "cc".to_string()]).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_single!(String, " abcba "), None, array_single!(String, " abcba")),
+case(array_single!(String, "abcba"), Some(array_single!(String, "ab").unwrap()), array_single!(String, "abc")),
+case(array_flat!(String, "abcba"), Some(array_flat!(String, "ab", "a").unwrap()), array_flat!(String, "abc", "abcb")),
+case(array_flat!(String, "aa", "bb"), Some(array_flat!(String, "aa", "bb", "cc").unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_rstrip(array: Result<Array<String>, ArrayError>, chars: Option<Array<String>>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.rstrip(chars))
 }
 
 #[rstest(
 array, width, fill_char, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["a    ".to_string(), "b    ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["aaa  ".to_string(), "bbbb ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5, 6).unwrap(), None, Array::flat(vec!["aaa  ".to_string(), "bbbb  ".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["aaa***".to_string(), "bbbb**".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["aaa***".to_string(), "bbbb##".to_string()])),
-case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1, 1]).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
-case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1]).unwrap(), Some(Array::flat(vec!['*', '*', '*']).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_flat!(String, "a", "b"), array_flat!(usize, 5).unwrap(), None, array_flat!(String, "a    ", "b    ")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 5).unwrap(), None, array_flat!(String, "aaa  ", "bbbb ")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 5, 6).unwrap(), None, array_flat!(String, "aaa  ", "bbbb  ")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 6).unwrap(), Some(array_single!(char, '*').unwrap()), array_flat!(String, "aaa***", "bbbb**")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 6).unwrap(), Some(array_flat!(char, '*', '#').unwrap()), array_flat!(String, "aaa***", "bbbb##")),
+case(array_flat!(String, "a", "a"), array_flat!(usize, 1, 1, 1).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
+case(array_flat!(String, "a", "a"), array_flat!(usize, 1, 1).unwrap(), Some(array_flat!(char, '*', '*', '*').unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_ljust(array: Result<Array<String>, ArrayError>, width: Array<usize>, fill_char: Option<Array<char>>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.ljust(&width, fill_char))
 }
 
 #[rstest(
 array, width, fill_char, expected,
-case(Array::flat(vec!["a".to_string(), "b".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["    a".to_string(), "    b".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5).unwrap(), None, Array::flat(vec!["  aaa".to_string(), " bbbb".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 5, 6).unwrap(), None, Array::flat(vec!["  aaa".to_string(), "  bbbb".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::single('*').unwrap()), Array::flat(vec!["***aaa".to_string(), "**bbbb".to_string()])),
-case(Array::flat(vec!["aaa".to_string(), "bbbb".to_string()]), array_flat!(usize, 6).unwrap(), Some(Array::flat(vec!['*', '#']).unwrap()), Array::flat(vec!["***aaa".to_string(), "##bbbb".to_string()])),
-case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1, 1]).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
-case(Array::flat(vec!["a".to_string(), "a".to_string()]), Array::flat(vec![1, 1]).unwrap(), Some(Array::flat(vec!['*', '*', '*']).unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
+case(array_flat!(String, "a", "b"), array_flat!(usize, 5).unwrap(), None, array_flat!(String, "    a", "    b")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 5).unwrap(), None, array_flat!(String, "  aaa", " bbbb")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 5, 6).unwrap(), None, array_flat!(String, "  aaa", "  bbbb")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 6).unwrap(), Some(array_single!(char, '*').unwrap()), array_flat!(String, "***aaa", "**bbbb")),
+case(array_flat!(String, "aaa", "bbbb"), array_flat!(usize, 6).unwrap(), Some(array_flat!(char, '*', '#').unwrap()), array_flat!(String, "***aaa", "##bbbb")),
+case(array_flat!(String, "a", "a"), array_flat!(usize, 1, 1, 1).unwrap(), None, Err(ArrayError::BroadcastShapeMismatch)),
+case(array_flat!(String, "a", "a"), array_flat!(usize, 1, 1).unwrap(), Some(array_flat!(char, '*', '*', '*').unwrap()), Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_char_rjust(array: Result<Array<String>, ArrayError>, width: Array<usize>, fill_char: Option<Array<char>>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.rjust(&width, fill_char))
 }
 
 #[rstest(
 array, width, expected,
-case(Array::flat(vec!["5".to_string(), "-5".to_string()]), 4, Array::flat(vec!["0005".to_string(), "-005".to_string()])),
-case(Array::flat(vec!["12345".to_string(), "67890".to_string()]), 3, Array::flat(vec!["12345".to_string(), "67890".to_string()])),
-case(Array::flat(vec!["-12345".to_string(), "-67890".to_string()]), 3, Array::flat(vec!["-12345".to_string(), "-67890".to_string()])),
-case(Array::flat(vec!["12345".to_string(), "67890".to_string()]), 10, Array::flat(vec!["0000012345".to_string(), "0000067890".to_string()])),
-case(Array::flat(vec!["-12345".to_string(), "-67890".to_string()]), 10, Array::flat(vec!["-000012345".to_string(), "-000067890".to_string()])),
+case(array_flat!(String, "5", "-5"), 4, array_flat!(String, "0005", "-005")),
+case(array_flat!(String, "12345", "67890"), 3, array_flat!(String, "12345", "67890")),
+case(array_flat!(String, "-12345", "-67890"), 3, array_flat!(String, "-12345", "-67890")),
+case(array_flat!(String, "12345", "67890"), 10, array_flat!(String, "0000012345", "0000067890")),
+case(array_flat!(String, "-12345", "-67890"), 10, array_flat!(String, "-000012345", "-000067890")),
 )] fn test_char_zfill(array: Result<Array<String>, ArrayError>, width: usize, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.zfill(width))
 }
 
 #[rstest(
-case(Array::flat(vec!["hello".to_string(), "world".to_string()]), vec![('l', 'w'), ('o', 'd')], Array::flat(vec!["hewwd".to_string(), "wdrwd".to_string()])),
-case(Array::flat(vec!["abc".to_string(), "def".to_string()]), vec![('a', 'x'), ('b', 'y'), ('c', 'z')], Array::flat(vec!["xyz".to_string(), "def".to_string()])),
-case(Array::flat(vec!["apple".to_string(), "banana".to_string()]), vec![('a', 'A'), ('e', 'E'), ('i', 'I'), ('o', 'O'), ('u', 'U')], Array::flat(vec!["ApplE".to_string(), "bAnAnA".to_string()])),
-case(Array::flat(vec!["12345".to_string(), "67890".to_string()]), vec![('1', 'a'), ('3', 'b'), ('5', 'c'), ('7', 'd'), ('9', 'e')], Array::flat(vec!["a2b4c".to_string(), "6d8e0".to_string()])),
+case(array_flat!(String, "hello", "world"), vec![('l', 'w'), ('o', 'd')], array_flat!(String, "hewwd", "wdrwd")),
+case(array_flat!(String, "abc", "def"), vec![('a', 'x'), ('b', 'y'), ('c', 'z')], array_flat!(String, "xyz", "def")),
+case(array_flat!(String, "apple", "banana"), vec![('a', 'A'), ('e', 'E'), ('i', 'I'), ('o', 'O'), ('u', 'U')], array_flat!(String, "ApplE", "bAnAnA")),
+case(array_flat!(String, "12345", "67890"), vec![('1', 'a'), ('3', 'b'), ('5', 'c'), ('7', 'd'), ('9', 'e')], array_flat!(String, "a2b4c", "6d8e0")),
 array, table, expected,
 )] fn test_char_translate(array: Result<Array<String>, ArrayError>, table: Vec<(char, char)>, expected: Result<Array<String>, ArrayError>) {
     assert_eq!(expected, array.translate(table))

@@ -49,7 +49,7 @@ pub(crate) trait ArrayExt<T: ArrayElement> {
 
 impl <T: ArrayElement> ArrayExt<T> for Array<T> {
 
-    fn to_array_ndim(&self, ndim: usize) -> Result<Array<T>, ArrayError> {
-        Array::create(self.get_elements()?, self.get_shape()?, Some(ndim))
+    fn to_array_ndim(&self, ndim: usize) -> Result<Self, ArrayError> {
+        Self::create(self.get_elements()?, self.get_shape()?, Some(ndim))
     }
 }

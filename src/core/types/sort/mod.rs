@@ -13,10 +13,14 @@ pub enum SortKind {
     Stable,
 }
 
-/// SortKind trait
+/// `SortKind` trait
 pub trait SortKindType {
 
-    /// Parse input to SortKind type
+    /// Parse input to `SortKind` type
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn parse_type(self) -> Result<SortKind, ArrayError>;
 }
 

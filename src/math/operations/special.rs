@@ -4,7 +4,7 @@ use crate::{
     numeric::prelude::*,
 };
 
-/// ArrayTrait - Array Math Special functions
+/// `ArrayTrait` - Array Math Special functions
 pub trait ArrayMathSpecial<N: NumericOps> where Self: Sized + Clone {
 
     /// Modified Bessel function of the first kind, order 0
@@ -15,8 +15,12 @@ pub trait ArrayMathSpecial<N: NumericOps> where Self: Sized + Clone {
     /// use arr_rs::prelude::*;
     ///
     /// let arr = Array::flat(vec![-2., 0., 3.5]);
-    /// assert_eq!(Array::flat(vec![2.27958510662287, 0.9999999999999997, 7.378203432225479]), arr.i0());
+    /// assert_eq!(Array::flat(vec![2.2795851066228696, 0.9999999999999997, 7.378203432225479]), arr.i0());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn i0(&self) -> Result<Array<N>, ArrayError>;
 
     /// Return the normalized sinc function
@@ -29,16 +33,20 @@ pub trait ArrayMathSpecial<N: NumericOps> where Self: Sized + Clone {
     /// let arr = Array::flat(vec![-1., 0., 1.]);
     /// assert_eq!(Array::flat(vec![3.898_171_832_519_375_5e-17, 1.0, 3.898_171_832_519_375_5e-17]), arr.sinc());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn sinc(&self) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: NumericOps> ArrayMathSpecial<N> for Array<N> {
 
-    fn i0(&self) -> Result<Array<N>, ArrayError> {
+    fn i0(&self) -> Result<Self, ArrayError> {
         self.map(|&x| N::from(i0(x.to_f64())))
     }
 
-    fn sinc(&self) -> Result<Array<N>, ArrayError> {
+    fn sinc(&self) -> Result<Self, ArrayError> {
         self.map(|&x| {
             let y = std::f64::consts::PI *
                 if x == N::zero() { 1.0e-20 }
@@ -50,11 +58,11 @@ impl <N: NumericOps> ArrayMathSpecial<N> for Array<N> {
 
 impl <N: NumericOps> ArrayMathSpecial<N> for Result<Array<N>, ArrayError> {
 
-    fn i0(&self) -> Result<Array<N>, ArrayError> {
+    fn i0(&self) -> Self {
         self.clone()?.i0()
     }
 
-    fn sinc(&self) -> Result<Array<N>, ArrayError> {
+    fn sinc(&self) -> Self {
         self.clone()?.sinc()
     }
 }
@@ -128,7 +136,7 @@ fn chbevl(x: f64, vals: &[f64]) -> f64 {
     for val in vals.iter().skip(1) {
         b2 = b1;
         b1 = b0;
-        b0 = x * b1 - b2 + val;
+        b0 = x.mul_add(b1, -b2) + val;
     }
 
     0.5 * (b0 - b2)

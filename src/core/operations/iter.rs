@@ -28,7 +28,7 @@ impl <N: ArrayElement> FromIterator<N> for Array<N> {
     }
 }
 
-/// ArrayTrait - Array Iterable functions
+/// `ArrayTrait` - Array Iterable functions
 pub trait ArrayIter<T: ArrayElement> where Self: Sized + Clone {
 
     /// Loop over array elements
@@ -45,6 +45,10 @@ pub trait ArrayIter<T: ArrayElement> where Self: Sized + Clone {
     /// let arr = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]).unwrap();
     /// arr.for_each(|item| println!("{item}")).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn for_each<F: FnMut(&T)>(&self, f: F) -> Result<(), ArrayError>;
 
     /// Loop over enumerated array elements
@@ -61,6 +65,10 @@ pub trait ArrayIter<T: ArrayElement> where Self: Sized + Clone {
     /// let arr = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]).unwrap();
     /// arr.for_each_e(|idx, item| println!("{idx}:{item}")).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn for_each_e<F: FnMut(usize, &T)>(&self, f: F) -> Result<(), ArrayError>;
 
     /// Filter over array elements
@@ -78,6 +86,10 @@ pub trait ArrayIter<T: ArrayElement> where Self: Sized + Clone {
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]).unwrap();
     /// arr.filter(|item| item % 2 == 0).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn filter<F: FnMut(&T) -> bool>(&self, f: F)-> Result<Array<T>, ArrayError>;
 
     /// Filter over enumerated array elements
@@ -95,40 +107,42 @@ pub trait ArrayIter<T: ArrayElement> where Self: Sized + Clone {
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]).unwrap();
     /// arr.filter_e(|idx, item| item % (idx + 1) as i32 == 0).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn filter_e<F: FnMut(usize, &T) -> bool>(&self, f: F)-> Result<Array<T>, ArrayError>;
 }
 
 impl <T: ArrayElement> ArrayIter<T> for Array<T> {
 
     fn for_each<F: FnMut(&T)>(&self, f: F) -> Result<(), ArrayError> {
-        self.elements.iter()
-            .for_each(f);
+        self.elements.iter().for_each(f);
         Ok(())
     }
 
     fn for_each_e<F: FnMut(usize, &T)>(&self, mut f: F) -> Result<(), ArrayError> {
-        self.elements.iter().enumerate()
-            .for_each(|(idx, item)| f(idx, item));
+        self.elements.iter().enumerate().for_each(|(idx, item)| f(idx, item));
         Ok(())
     }
 
-    fn filter<F: FnMut(&T) -> bool>(&self, mut f: F) -> Result<Array<T>, ArrayError> {
+    fn filter<F: FnMut(&T) -> bool>(&self, mut f: F) -> Result<Self, ArrayError> {
         self.elements.clone().into_iter()
             .filter(|item| f(item))
-            .collect::<Array<T>>()
+            .collect::<Self>()
             .ravel()
     }
 
-    fn filter_e<F: FnMut(usize, &T) -> bool>(&self, mut f: F) -> Result<Array<T>, ArrayError> {
+    fn filter_e<F: FnMut(usize, &T) -> bool>(&self, mut f: F) -> Result<Self, ArrayError> {
         self.elements.clone().into_iter().enumerate()
             .filter(|(idx, item)| f(*idx, item))
             .map(|i| i.1)
-            .collect::<Array<T>>()
+            .collect::<Self>()
             .ravel()
     }
 }
 
-/// ArrayTrait - Array Iterable functions
+/// `ArrayTrait` - Array Iterable functions
 pub trait ArrayIterMut<S: ArrayElement, T: ArrayElement> where Self: Sized + Clone {
 
     /// Map over array elements
@@ -145,6 +159,10 @@ pub trait ArrayIterMut<S: ArrayElement, T: ArrayElement> where Self: Sized + Clo
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]).unwrap();
     /// arr.map(|item| item * 2).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn map<F: FnMut(&T) -> S>(&self, f: F)-> Result<Array<S>, ArrayError>;
 
     /// Map over enumerated array elements
@@ -161,6 +179,10 @@ pub trait ArrayIterMut<S: ArrayElement, T: ArrayElement> where Self: Sized + Clo
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]).unwrap();
     /// arr.map_e(|idx, item| item * idx as i32).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn map_e<F: FnMut(usize, &T) -> S>(&self, f: F)-> Result<Array<S>, ArrayError>;
 
     /// Filter and map over array elements
@@ -178,6 +200,10 @@ pub trait ArrayIterMut<S: ArrayElement, T: ArrayElement> where Self: Sized + Clo
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]).unwrap();
     /// arr.filter_map(|item| if item % 2 == 0 { Some(*item) } else { None }).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn filter_map<F: FnMut(&T) -> Option<S>>(&self, f: F)-> Result<Array<S>, ArrayError>;
 
     /// Filter and map over enumerated array elements
@@ -195,6 +221,10 @@ pub trait ArrayIterMut<S: ArrayElement, T: ArrayElement> where Self: Sized + Clo
     /// let arr: Array<i32> = Array::new(vec![1, 2, 3, 4, 5, 6, 7, 8], vec![2, 4]).unwrap();
     /// arr.filter_map_e(|idx, item| if item % (idx + 1) as i32 == 0 { Some(*item) } else { None }).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn filter_map_e<F: FnMut(usize, &T) -> Option<S>>(&self, f: F)-> Result<Array<S>, ArrayError>;
 
     /// Fold elements of array elements
@@ -212,6 +242,10 @@ pub trait ArrayIterMut<S: ArrayElement, T: ArrayElement> where Self: Sized + Clo
     /// arr.fold(0, |a, b| a + b).unwrap();
     /// arr.fold(1, |a, b| a * b).unwrap();
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn fold<F: FnMut(&S, &T) -> S>(&self, init: S, f: F) -> Result<S, ArrayError>;
 
     /// 'Zips up' two iterators into a single iterator of pairs
@@ -229,6 +263,10 @@ pub trait ArrayIterMut<S: ArrayElement, T: ArrayElement> where Self: Sized + Clo
     /// let arr_2: Array<i32> = Array::flat(vec![5, 6]).unwrap();
     /// assert_eq!(Array::flat(vec![Tuple2(1, 5), Tuple2(2, 6)]), arr_1.zip(&arr_2));
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn zip(&self, other: &Array<S>) -> Result<Array<Tuple2<T, S>>, ArrayError>;
 }
 

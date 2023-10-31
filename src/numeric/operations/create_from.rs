@@ -5,7 +5,7 @@ use crate::{
     validators::prelude::*,
 };
 
-/// ArrayTrait - Array Create functions
+/// `ArrayTrait` - Array Create functions
 pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
 
     // matrices
@@ -33,6 +33,10 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr = Array::diag(&array!(i32, [[1, 0, 0, 0], [0, 2, 0, 0], [0, 0, 3, 0], [0, 0, 0, 4]]).unwrap(), Some(1)).unwrap();
     /// assert_eq!(expected, arr);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
 
     /// Construct a diagonal array for flattened input
@@ -55,6 +59,10 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// let arr = Array::diagflat(&array!(i32, [[1, 2], [3, 4]]).unwrap(), None).unwrap();
     /// assert_eq!(expected, arr);
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn diagflat(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
 
     /// Return a copy of an array with elements above the k-th diagonal zeroed.
@@ -77,6 +85,10 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// let expected = array!(i32, [[[1, 0], [3, 4]], [[5, 0], [7, 8]]]).unwrap();
     /// assert_eq!(expected, arr.tril(None).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn tril(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
 
     /// Return a copy of an array with elements below the k-th diagonal zeroed.
@@ -99,6 +111,10 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// let expected = array!(i32, [[[1, 2], [0, 4]], [[5, 6], [0, 8]]]).unwrap();
     /// assert_eq!(expected, arr.triu(None).unwrap());
     /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
     fn triu(&self, k: Option<isize>) -> Result<Array<N>, ArrayError>;
 
     /// Generate a Vandermonde matrix
@@ -122,15 +138,18 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     /// let expected = array!(i32, [[1, 1, 1, 1], [1, 2, 4, 8], [1, 3, 9, 27], [1, 4, 16, 64]]).unwrap();
     /// assert_eq!(expected, arr.vander(None, Some(true)).unwrap());
     /// ```
-    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Array<N>, ArrayError>;
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
+    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Self, ArrayError> where Self: Sized;
 }
 
 impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
 
     // ==== matrices
 
-    fn diag(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
-        self.is_dim_supported(&[1, 2])?;
+    fn diag(&self, k: Option<isize>) -> Result<Self, ArrayError> {
 
         fn diag_1d<N: Numeric>(data: &Array<N>, k: isize) -> Result<Array<N>, ArrayError> {
             let size = data.get_shape()?[0];
@@ -140,7 +159,7 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
             let elements = (0..new_shape[0] * new_shape[1])
                 .map(|idx| {
                     let (i, j) = (idx / new_shape[1], idx % new_shape[1]);
-                    if k >= 0 && j == i + k as usize {
+                    if k >= 0 && j == i + k.to_usize() {
                         if i < size { data_elements[i] }
                         else { N::zero() }
                     } else if k < 0 && i == j + abs_k {
@@ -159,8 +178,8 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
             let rows = data.get_shape()?[0];
             let cols = data.get_shape()?[1];
             let (start_row, start_col) =
-                if k >= 0 { (0, k as usize) }
-                else { ((-k) as usize, 0) };
+                if k >= 0 { (0, k.to_usize()) }
+                else { ((-k).to_usize(), 0) };
 
             let data_elements = data.get_elements()?;
             let elements = (start_row..rows)
@@ -171,26 +190,28 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
             Array::new(elements.clone(), vec![elements.len()])
         }
 
+        self.is_dim_supported(&[1, 2])?;
+
         let k = k.unwrap_or(0);
         if self.ndim()? == 1 { diag_1d(self, k) }
         else { diag_2d(self, k) }
     }
 
-    fn diagflat(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+    fn diagflat(&self, k: Option<isize>) -> Result<Self, ArrayError> {
         self.ravel()?.diag(k)
     }
 
-    fn tril(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+    fn tril(&self, k: Option<isize>) -> Result<Self, ArrayError> {
         let k = k.unwrap_or(0);
         self.apply_triangular(k, |j, i, k| j > i + k)
     }
 
-    fn triu(&self, k: Option<isize>) -> Result<Array<N>, ArrayError> {
+    fn triu(&self, k: Option<isize>) -> Result<Self, ArrayError> {
         let k = k.unwrap_or(0);
         self.apply_triangular(k, |j, i, k| j < i + k)
     }
 
-    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Array<N>, ArrayError> {
+    fn vander(&self, n: Option<usize>, increasing: Option<bool>) -> Result<Self, ArrayError> {
         self.is_dim_supported(&[1])?;
 
         let size = self.shape[0];
@@ -198,9 +219,9 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
         let n_columns = n.unwrap_or(size);
         let mut elements = Vec::with_capacity(size * n_columns);
 
-        for item in self.into_iter() {
+        for item in self {
             for i in 0..n_columns {
-                let power = if increasing { i } else { n_columns - i - 1 } as f64;
+                let power = if increasing { i } else { n_columns - i - 1 }.to_f64();
                 elements.push(N::from(item.to_f64().powf(power)));
             }
         }
@@ -211,7 +232,7 @@ impl <N: Numeric> ArrayCreateFrom<N> for Array<N> {
 
 impl <N: Numeric> Array<N> {
 
-    fn apply_triangular<F>(&self, k: isize, compare: F) -> Result<Array<N>, ArrayError>
+    fn apply_triangular<F>(&self, k: isize, compare: F) -> Result<Self, ArrayError>
         where F: Fn(isize, isize, isize) -> bool {
         let last_dim = self.shape.len() - 1;
         let second_last_dim = self.shape.len() - 2;
@@ -226,7 +247,7 @@ impl <N: Numeric> Array<N> {
                     .map(|(idx, &value)| {
                         let i = (idx / self.shape[last_dim]) % self.shape[second_last_dim];
                         let j = idx % self.shape[last_dim];
-                        if compare(j as isize, i as isize, k) { N::zero() } else { value }
+                        if compare(j.to_isize(), i.to_isize(), k) { N::zero() } else { value }
                     })
             })
             .collect();
