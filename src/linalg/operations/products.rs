@@ -111,6 +111,26 @@ pub trait ArrayLinalgProducts<N: NumericOps> where Self: Sized + Clone {
     ///
     /// may returns `ArrayError`
     fn matmul(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Compute tensor dot product along specified axes
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - other array to perform operations with
+    /// * `axes` - int or (2,) array
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::single(70), Array::new(vec![1, 2, 3, 4], vec![2, 2]).tensordot(&Array::new(vec![5, 6, 7, 8], vec![2, 2]).unwrap(), Some(TensorAxes::Int(2))));
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
+    fn tensordot(&self, other: &Array<N>, axes: Option<impl TensorAxesType>) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: NumericOps> ArrayLinalgProducts<N> for Array<N> {
@@ -166,11 +186,76 @@ impl <N: NumericOps> ArrayLinalgProducts<N> for Array<N> {
             else { self.shapes_align(self.ndim()? - 1, &other.get_shape()?, 0)?; }
             Self::matmul_1d_nd(self, other)
         } else if self.ndim()? == 2 && other.ndim()? == 2 {
-            self.shapes_align(0, &other.get_shape()?, 1)?;
+            self.shapes_align(1, &other.get_shape()?, 0)?;
             Self::matmul_iterate(self, other)
         } else {
             Self::matmul_nd(self, other)
         }
+    }
+
+    fn tensordot(&self, other: &Self, axes: Option<impl TensorAxesType>) -> Result<Self, ArrayError> {
+
+        fn normalize_axes<N: NumericOps>(array: &Array<N>, axes: &[isize]) -> Vec<usize> {
+            axes.iter()
+                .map(|&i| array.normalize_axis(i))
+                .collect()
+        }
+
+        fn internal(axes: &[usize], shape: &[usize], ndim: usize, rev: bool) -> (Vec<isize>, Vec<usize>, Vec<usize>) {
+            let notin = (0..ndim)
+                .filter(|k| !axes.contains(k))
+                .collect::<Vec<usize>>();
+            let newaxes: Vec<usize> =
+                if rev { axes.iter().chain(notin.iter()).copied().collect() }
+                else { notin.iter().chain(axes.iter()).copied().collect() };
+            let newaxes = newaxes.iter()
+                .map(|&i| i.to_isize())
+                .collect();
+
+            let mut n2 = 1;
+            for &axis in axes { n2 *= shape[axis] }
+            let newshape = notin.iter()
+                .map(|&ax| shape[ax])
+                .collect::<Vec<usize>>()
+                .iter()
+                .copied().product::<usize>();
+            let newshape =
+                if rev { vec![n2, newshape] }
+                else { vec![newshape, n2] };
+            let old = notin.iter()
+                .map(|&ax| shape[ax.to_usize()])
+                .collect::<Vec<usize>>();
+
+            (newaxes, newshape, old)
+        }
+
+        let (a_axes, b_axes) = match axes {
+            Some(ta) => ta.to_axes()?,
+            None => TensorAxes::Int(2),
+        }.get_vecs()?;
+        let (a_axes, b_axes) = (
+            normalize_axes(self, &a_axes),
+            normalize_axes(other, &b_axes));
+
+        let (na, nb) = (a_axes.len(), b_axes.len());
+        let (a_shape, a_ndim) = (self.get_shape()?, self.ndim()?);
+        let (b_shape, b_ndim) = (other.get_shape()?, other.ndim()?);
+        if na != nb { return Err(ArrayError::ShapesMustMatch { shape_1: a_shape, shape_2: b_shape, }); }
+        for k in 0..na {
+            if a_shape[a_axes[k]] != b_shape[b_axes[k]] {
+                return Err(ArrayError::ShapesMustMatch { shape_1: a_shape, shape_2: b_shape, })
+            }
+        }
+
+        let (newaxes_a, newshape_a, olda) = internal(&a_axes, &a_shape, a_ndim, false);
+        let (newaxes_b, newshape_b, oldb) = internal(&b_axes, &b_shape, b_ndim, true);
+        let a_transposed = self.transpose(Some(newaxes_a)).reshape(&newshape_a)?;
+        let b_transposed = other.transpose(Some(newaxes_b)).reshape(&newshape_b)?;
+
+        let mut new_shape = olda;
+        new_shape.extend_from_slice(&oldb);
+        if new_shape.is_empty() { new_shape = vec![1] }
+        a_transposed.dot(&b_transposed).reshape(&new_shape)
     }
 }
 
@@ -194,6 +279,10 @@ impl <N: NumericOps> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
 
     fn matmul(&self, other: &Array<N>) -> Self {
         self.clone()?.matmul(other)
+    }
+
+    fn tensordot(&self, other: &Array<N>, axes: Option<impl TensorAxesType>) -> Self {
+        self.clone()?.tensordot(other, axes)
     }
 }
 
