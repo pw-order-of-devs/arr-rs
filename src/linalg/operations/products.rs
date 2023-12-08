@@ -131,6 +131,25 @@ pub trait ArrayLinalgProducts<N: NumericOps> where Self: Sized + Clone {
     ///
     /// may returns `ArrayError`
     fn tensordot(&self, other: &Array<N>, axes: Option<impl TensorAxesType>) -> Result<Array<N>, ArrayError>;
+
+    /// Kronecker product of two arrays
+    ///
+    /// # Arguments
+    ///
+    /// * `other` - other array to perform operations with
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::new(vec![1, 2, 2, 4, 3, 6, 4, 8], vec![2, 4]), Array::new(vec![1, 2, 3, 4], vec![2, 2]).kron(&Array::flat(vec![1, 2]).unwrap()));
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
+    fn kron(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: NumericOps> ArrayLinalgProducts<N> for Array<N> {
@@ -257,6 +276,36 @@ impl <N: NumericOps> ArrayLinalgProducts<N> for Array<N> {
         if new_shape.is_empty() { new_shape = vec![1] }
         a_transposed.dot(&b_transposed).reshape(&new_shape)
     }
+
+    fn kron(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        let (a_ndim, b_ndim) = (self.ndim()?.to_isize(), other.ndim()?.to_isize());
+
+        if a_ndim == 0 || b_ndim == 0 {
+            return self.multiply(other)
+        }
+
+        let ndim = std::cmp::max(a_ndim, b_ndim);
+        let (mut a_shape, mut b_shape) = (
+            vec![1; std::cmp::max(0, b_ndim - a_ndim).to_usize()],
+            vec![1; std::cmp::max(0, a_ndim - b_ndim).to_usize()]);
+        a_shape.extend_from_slice(&self.get_shape()?);
+        b_shape.extend_from_slice(&other.get_shape()?);
+
+        let (a_arr, b_arr) = (
+            self.expand_dims((0..b_ndim - a_ndim).collect())?,
+            other.expand_dims((0..a_ndim - b_ndim).collect())?);
+        let (a_arr, b_arr) = (
+            a_arr.expand_dims((1..ndim * 2).step_by(2).collect())?,
+            b_arr.expand_dims((0..ndim * 2).step_by(2).collect())?);
+
+        let new_shape = a_shape
+            .to_array()
+            .multiply(&b_shape.to_array()?)
+            .get_elements()?;
+        // error in multiply?
+        a_arr.multiply(&b_arr)
+            .reshape(&new_shape)
+    }
 }
 
 impl <N: NumericOps> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
@@ -283,6 +332,10 @@ impl <N: NumericOps> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
 
     fn tensordot(&self, other: &Array<N>, axes: Option<impl TensorAxesType>) -> Self {
         self.clone()?.tensordot(other, axes)
+    }
+
+    fn kron(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+        self.clone()?.kron(other)
     }
 }
 
