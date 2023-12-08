@@ -92,3 +92,11 @@ case(array!(i32, [[1, 2, 3], [4, 5, 6]]), array!(i32, [[7, 8, 9, 10], [11, 12, 1
 )] fn test_linalg_tensordot(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, axes: Option<impl TensorAxesType>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.tensordot(&other.unwrap(), axes))
 }
+
+#[rstest(
+array, other, expected,
+case(array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 1, 2), array!(i32, [[1, 2, 2, 4], [3, 6, 4, 8]])),
+// case(array_eye!(i32, 2), array_ones!(i32, 2, 2), array!(i32, [[1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 1, 1], [0, 0, 1, 1]])),
+)] fn test_linalg_kron(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
+    assert_eq!(expected, array.kron(&other.unwrap()))
+}
