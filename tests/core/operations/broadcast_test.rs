@@ -8,6 +8,8 @@ case(array!(i32, [[1], [2], [3]]), array!(i32, [[4], [5], [6]]), vec![(1, 4), (2
 case(array!(i32, [1, 2, 3]), array!(i32, [[4], [5], [6]]), vec![(1, 4), (2, 4), (3, 4), (1, 5), (2, 5), (3, 5), (1, 6), (2, 6), (3, 6)], vec![3, 3], Ok(())),
 case(array!(i32, [[1], [2], [3]]), array!(i32, [[4, 5, 6]]), vec![(1, 4), (1, 5), (1, 6), (2, 4), (2, 5), (2, 6), (3, 4), (3, 5), (3, 6)], vec![3, 3], Ok(())),
 case(array!(i32, [1, 2]), array!(i32, [[2, 4], [5, 6]]), vec![(1, 2), (2, 4), (1, 5), (2, 6)], vec![2, 2], Ok(())),
+case(array!(i32, [[[1, 2], [3, 4]]]), array!(i32, [[[2, 3], [3, 2]], [[2, 4], [2, 4]]]), vec![(1, 2), (2, 3), (3, 3), (4, 2), (1, 2), (2, 4), (3, 2), (4, 4)], vec![2, 2, 2], Ok(())),
+case(array!(i32, [[[[1], [0]]], [[[0], [1]]]]), array!(i32, [[[[1, 1]], [[1, 1]]]]), vec![(1, 1), (1, 1), (0, 1), (0, 1), (1, 1), (1, 1), (0, 1), (0, 1), (0, 1), (0, 1), (1, 1), (1, 1), (0, 1), (0, 1), (1, 1), (1, 1)], vec![2, 2, 2, 2], Ok(())),
 case(array!(i32, [[1, 2, 3], [1, 2, 3]]), array!(i32, [[1, 2, 3, 4], [1, 2, 3, 4]]), vec![(1, 1)], vec![1], Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_broadcast(arr1: Result<Array<i32>, ArrayError>, arr2: Result<Array<i32>, ArrayError>, expected: Vec<(i32, i32)>, expected_shape: Vec<usize>, result: Result<(), ArrayError>) {
     let expected = expected.into_iter().map(Tuple2::from_tuple).collect::<Vec<Tuple2<i32, i32>>>();
@@ -25,6 +27,8 @@ case(array!(i32, [1, 2]), vec![2, 2], array!(i32, [[1, 2], [1, 2]])),
 case(array!(i32, [1, 2]), vec![1, 2, 2], array!(i32, [[[1, 2], [1, 2]]])),
 case(array!(i32, [1, 2]), vec![1, 1, 1, 2], array!(i32, [[[[1, 2]]]])),
 case(array!(i32, [1, 2]), vec![1, 1, 2, 1], array!(i32, [[[[1], [2]]]])),
+case(array!(i32, [[[1, 2], [3, 4]]]), vec![2, 2, 2], array!(i32, [[[1, 2], [3, 4]], [[1, 2], [3, 4]]])),
+case(array!(i32, [[[[1], [0]]], [[[0], [1]]]]), vec![2, 2, 2, 2], array!(i32, [[[[1, 1], [0, 0]], [[1, 1], [0, 0]]], [[[0, 0], [1, 1]], [[0, 0], [1, 1]]]])),
 case(array!(i32, [[1, 2, 3], [1, 2, 3]]), vec![2, 4], Err(ArrayError::BroadcastShapeMismatch)),
 case(array!(i32, [[[1, 2], [3, 4]], [[1, 2], [3, 4]]]), vec![2, 3], Err(ArrayError::BroadcastShapeMismatch)),
 )] fn test_broadcast_to(arr: Result<Array<i32>, ArrayError>, shape: Vec<usize>, expected: Result<Array<i32>, ArrayError>) {

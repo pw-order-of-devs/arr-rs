@@ -1,6 +1,7 @@
 use crate::{
     core::prelude::*,
     errors::prelude::*,
+    extensions::prelude::*,
     validators::prelude::*,
 };
 
@@ -100,53 +101,50 @@ impl <T: ArrayElement> ArrayBroadcast<T> for Array<T> {
         }
 
         let final_shape = self.broadcast_shape(&other.get_shape()?)?;
-
-        let inner_arrays_self = self.extract_inner_arrays();
-        let inner_arrays_other = other.extract_inner_arrays();
-
-        let output_elements = inner_arrays_self.iter().cycle()
-            .zip(inner_arrays_other.iter().cycle())
-            .flat_map( | (inner_self, inner_other) | match (inner_self.len(), inner_other.len()) {
-                (1, _) => inner_self.iter().cycle()
-                    .zip(inner_other.iter())
-                    .take(final_shape[final_shape.len() - 1])
-                    .map(|(a, b) | Tuple2(a.clone(), b.clone()))
-                    .collect::< Vec < _ > > (),
-                (_, 1) => inner_self.iter()
-                    .zip(inner_other.iter().cycle())
-                    .take(final_shape[final_shape.len() - 1])
-                    .map(|(a, b) | Tuple2(a.clone(), b.clone()))
-                    .collect::<Vec < _ > > (),
-                _ => inner_self.iter().cycle()
-                    .zip(inner_other.iter().cycle())
-                    .take(final_shape[final_shape.len() - 1])
-                    .map(|(a, b) | Tuple2(a.clone(), b.clone()))
-                    .collect::< Vec< _ > > (),
-            })
-            .take(final_shape.iter().product())
-            .collect:: < Vec<_ > > ();
-
-        Array::new(output_elements, final_shape)
+        self.broadcast_to(final_shape.clone())?
+            .zip(&other.broadcast_to(final_shape)?)
     }
 
     fn broadcast_to(&self, shape: Vec<usize>) -> Result<Self, ArrayError> {
         self.get_shape()?.is_broadcastable(&shape)?;
 
-        if self.get_shape()?.iter().product::<usize>() == shape.iter().product::<usize>() {
-            self.reshape(&shape)
-        } else {
-            let output_elements: Vec<T> = self.elements
-                .chunks_exact(self.shape[self.shape.len() - 1])
-                .flat_map(|inner| inner.iter()
-                    .cycle()
-                    .take(shape[shape.len() - 1])
-                    .cloned())
-                .cycle()
-                .take(shape.iter().product())
-                .collect();
-
-            Self::new(output_elements, shape)
+        if self.get_shape()? == shape {
+            return Ok(self.clone());
+        } else if self.get_shape()?.iter().product::<usize>() == shape.iter().product::<usize>() {
+            return self.reshape(&shape)
         }
+
+        let mut array  = self.clone();
+        let ones = shape.len() - array.shape.len();
+        let mut new_shape = array.get_shape()?;
+        for _ in 0..ones { new_shape.insert(0, 1); }
+        array = array.reshape(&new_shape)?;
+
+        (0..array.ndim()?).rev()
+            .try_fold(array, |acc, idx| {
+                let (self_len, other_len) = (acc.get_shape()?[idx], shape[idx]);
+                if self_len == other_len { return Ok(acc); }
+
+                let new_shape = acc.get_shape()?.update_at(idx, other_len);
+                let parts = acc.get_shape()?[..=idx].iter().product::<usize>() / self_len;
+                let mult = other_len * self_len;
+
+                let broadcasted = acc
+                    .ravel()
+                    .split(parts, None)?
+                    .into_iter()
+                    .flat_map(|it| it.clone().elements
+                        .into_iter()
+                        .cycle()
+                        .take(it.len().unwrap() * mult)
+                    )
+                    .collect::<Vec<T>>()
+                    .to_array()
+                    .reshape(&new_shape)?;
+
+                Ok(broadcasted)
+            })
+            .reshape(&shape)
     }
 
     fn broadcast_arrays(arrays: Vec<Self>) -> Result<Vec<Self>, ArrayError> {
@@ -209,6 +207,7 @@ impl <T: ArrayElement> Array<T> {
             .collect::<Vec<Result<usize, ArrayError>>>()
             .has_error()?.iter()
             .map(|a| *a.as_ref().unwrap())
+            .rev()
             .collect();
         Ok(result)
     }
@@ -244,16 +243,6 @@ impl <T: ArrayElement> Array<T> {
 
         if is_compatible { Ok(common_shape.into_iter().rev().collect()) }
         else { Err(ArrayError::BroadcastShapeMismatch) }
-    }
-
-    fn extract_inner_arrays(&self) -> Vec<Vec<T>> {
-        match self.shape.len() {
-            1 => vec![self.elements.clone()],
-            _ => self.elements
-                .chunks_exact(*self.shape.last().unwrap())
-                .map(Vec::from)
-                .collect(),
-        }
     }
 
     pub(crate) fn broadcast_h2<S: ArrayElement>(&self, other: &Array<S>) -> Result<TupleH2<T, S>, ArrayError> {

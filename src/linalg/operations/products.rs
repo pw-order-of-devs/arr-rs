@@ -277,7 +277,7 @@ impl <N: NumericOps> ArrayLinalgProducts<N> for Array<N> {
         a_transposed.dot(&b_transposed).reshape(&new_shape)
     }
 
-    fn kron(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn kron(&self, other: &Self) -> Result<Self, ArrayError> {
         let (a_ndim, b_ndim) = (self.ndim()?.to_isize(), other.ndim()?.to_isize());
 
         if a_ndim == 0 || b_ndim == 0 {
@@ -302,7 +302,6 @@ impl <N: NumericOps> ArrayLinalgProducts<N> for Array<N> {
             .to_array()
             .multiply(&b_shape.to_array()?)
             .get_elements()?;
-        // error in multiply?
         a_arr.multiply(&b_arr)
             .reshape(&new_shape)
     }
@@ -334,7 +333,7 @@ impl <N: NumericOps> ArrayLinalgProducts<N> for Result<Array<N>, ArrayError> {
         self.clone()?.tensordot(other, axes)
     }
 
-    fn kron(&self, other: &Array<N>) -> Result<Array<N>, ArrayError> {
+    fn kron(&self, other: &Array<N>) -> Self {
         self.clone()?.kron(other)
     }
 }

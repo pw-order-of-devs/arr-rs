@@ -39,6 +39,9 @@ array, value, expected,
 case(array![f64, 1, 2, 3, 4], array![f64, 2], array![f64, 2, 4, 6, 8]),
 case(array![f64, 1, 2, 3, 4], array![f64, 3], array![f64, 3, 6, 9, 12]),
 case(array!(f64, [[1, 2], [3, 4]]), array!(f64, [[2, 2], [3, 3]]), array!(f64, [[2, 4], [9, 12]])),
+case(array!(f64, [[1, 2, 3], [4, 5, 6], [7, 8, 9]]), array!(f64, [[2, 2, 2], [3, 3, 3], [4, 4, 4]]), array!(f64, [[2, 4, 6], [12, 15, 18], [28, 32, 36]])),
+case(array!(f64, [[[1, 2], [3, 4]], [[5, 6], [7, 8]]]), array!(f64, [[[2, 3], [3, 2]], [[2, 4], [2, 4]]]), array!(f64, [[[2, 6], [9, 8]], [[10, 24], [14, 32]]])),
+case(array!(f64, [[[[1], [0]]], [[[0], [1]]]]), array!(f64, [[[[1, 1]], [[1, 1]]]]), array!(f64, [[[[1, 1], [0, 0]], [[1, 1], [0, 0]]], [[[0, 0], [1, 1]], [[0, 0], [1, 1]]]])),
 )] fn test_multiply(array: Result<Array<f64>, ArrayError>, value: Result<Array<f64>, ArrayError>, expected: Result<Array<f64>, ArrayError>) {
     assert_eq!(expected, array.multiply(&value.unwrap()))
 }
