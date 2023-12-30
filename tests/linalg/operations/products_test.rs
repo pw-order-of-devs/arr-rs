@@ -96,7 +96,10 @@ case(array!(i32, [[1, 2, 3], [4, 5, 6]]), array!(i32, [[7, 8, 9, 10], [11, 12, 1
 #[rstest(
 array, other, expected,
 case(array!(i32, [[1, 2], [3, 4]]), array_flat!(i32, 1, 2), array!(i32, [[1, 2, 2, 4], [3, 6, 4, 8]])),
-// case(array_eye!(i32, 2), array_ones!(i32, 2, 2), array!(i32, [[1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 1, 1], [0, 0, 1, 1]])),
+case(array_eye!(i32, 2), array_ones!(i32, 2, 2), array!(i32, [[1, 1, 0, 0], [1, 1, 0, 0], [0, 0, 1, 1], [0, 0, 1, 1]])),
+case(array!(i32, [[5, 6], [7, 8]]), array!(i32, [[1, 2], [3, 4]]), array!(i32, [[5, 10, 6, 12], [15, 20, 18, 24], [7, 14, 8, 16], [21, 28, 24, 32]])),
+case(array_ones!(i32, 3, 3), array!(i32, [[2, 3], [4, 5]]), array!(i32, [[2, 3, 2, 3, 2, 3], [4, 5, 4, 5, 4, 5], [2, 3, 2, 3, 2, 3], [4, 5, 4, 5, 4, 5], [2, 3, 2, 3, 2, 3], [4, 5, 4, 5, 4, 5]])),
+case(array!(i32, [[1, 2, 3], [4, 5, 6]]), array!(i32, [[10, 20], [30, 40], [50, 60]]), array!(i32, [[10, 20, 20, 40, 30, 60], [30, 40, 60, 80, 90, 120], [50, 60, 100, 120, 150, 180], [40, 80, 50, 100, 60, 120], [120, 160, 150, 200, 180, 240], [200, 240, 250, 300, 300, 360]])),
 )] fn test_linalg_kron(array: Result<Array<i32>, ArrayError>, other: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.kron(&other.unwrap()))
 }
