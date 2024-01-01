@@ -20,23 +20,26 @@ pub trait ArrayLinalgDecompositions<N: NumericOps> where Self: Sized + Clone {
     /// let result = array.qr().unwrap();
     /// let (q, r) = &result.clone()[0];
     ///
-    /// assert_eq!(q, &Array::new(vec![0.12309149097933272, 0.9045340337332908, 0.1111111111111111, 0.4923659639173309, 0.30151134457776335, 0.4444444444444444, 0.8616404368553291, -0.30151134457776435, 0.8888888888888888], vec![3, 3]).unwrap());
-    /// assert_eq!(r, &Array::new(vec![8.12403840463596, 9.601136296387953, 11.078234188139945, -6.494804694057166e-15, 0.9045340337332837, 1.809068067466573, 8.11111111111111, 9.555555555555555, 11.], vec![3, 3]).unwrap());
+    /// let expected_q = Array::new(vec![0.12309149097933272, 0.9045340337332908, 0.1111111111111111, 0.4923659639173309, 0.30151134457776335, 0.4444444444444444, 0.8616404368553291, -0.30151134457776435, 0.8888888888888888], vec![3, 3]).unwrap();
+    /// let expected_r = Array::new(vec![8.12403840463596, 9.601136296387953, 11.078234188139945, -6.494804694057166e-15, 0.9045340337332837, 1.809068067466573, 8.11111111111111, 9.555555555555555, 11.], vec![3, 3]).unwrap();
+    ///
+    /// assert_eq!(expected_q, q);
+    /// assert_eq!(expected_r, r);
     /// ```
     ///
     /// # Errors
     ///
     /// may returns `ArrayError`
-    fn qr(&self) -> LinalgResult<N>;
+    fn qr(&self) -> DecompResult<N>;
 }
 
 impl <N: NumericOps> ArrayLinalgDecompositions<N> for Array<N> {
 
-    fn qr(&self) -> LinalgResult<N> {
+    fn qr(&self) -> DecompResult<N> {
         self.is_dim_unsupported(&[0, 1])?;
         self.is_square()?;
         if self.ndim()? == 2 {
-            Ok(vec![Self::gram_schmidt(self)?])
+            Self::gram_schmidt(self)
         } else {
             let shape = self.get_shape()?;
             let sub_shape = shape[self.ndim()? - 2 ..].to_vec();
@@ -45,18 +48,28 @@ impl <N: NumericOps> ArrayLinalgDecompositions<N> for Array<N> {
                 .split(self.len()? / sub_shape.iter().product::<usize>(), None)?
                 .iter()
                 .map(|arr| arr.reshape(&sub_shape).qr())
-                .collect::<Vec<Result<Vec<(Self, Self)>, _>>>()
+                .collect::<Vec<Result<(Self, Self), _>>>()
                 .has_error()?.into_iter()
-                .flat_map(Result::unwrap)
+                .map(Result::unwrap)
                 .collect::<Vec<(Self, Self)>>();
-            Ok(qrs)
+
+            let qs = qrs.iter()
+                .flat_map(|item| item.clone().0)
+                .collect::<Self>()
+                .reshape(&self.get_shape()?)?;
+            let rs = qrs.iter()
+                .flat_map(|item| item.clone().1)
+                .collect::<Self>()
+                .reshape(&self.get_shape()?)?;
+
+            Ok((qs, rs))
         }
     }
 }
 
 impl <N: NumericOps> ArrayLinalgDecompositions<N> for Result<Array<N>, ArrayError> {
 
-    fn qr(&self) -> LinalgResult<N> {
+    fn qr(&self) -> DecompResult<N> {
         self.clone()?.qr()
     }
 }

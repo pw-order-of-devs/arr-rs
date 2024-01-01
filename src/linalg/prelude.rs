@@ -10,7 +10,7 @@ pub use crate::linalg::{
     types::{
         norms::norm_ord::{NormOrd, NormOrdType},
         tensor::tensor_axes::{TensorAxes, TensorAxesType},
-        LinalgResult,
+        DecompResult, EigenResult,
     },
 };
 

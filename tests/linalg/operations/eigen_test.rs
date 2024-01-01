@@ -21,7 +21,7 @@ array!(f64, [[-0.41637599816479626, 0.8265490533652102], [-0.9091925143512071, -
 )])),
 case(array!(f64, [[1, 4], [3, 2]]), Ok(vec![(
 array_flat!(f64, 4.6, -1.6).unwrap(),
-array!(f64, [[0.7071067811865475, std::f64::consts::FRAC_1_SQRT_2], [0.7071067811865475, 0.7071067811865474]]).unwrap(),
+array!(f64, [[std::f64::consts::FRAC_1_SQRT_2, std::f64::consts::FRAC_1_SQRT_2], [std::f64::consts::FRAC_1_SQRT_2, std::f64::consts::FRAC_1_SQRT_2]]).unwrap(),
 )])),
 case(array!(f64, [[2., -1., 0.], [-1., 2., -1.], [0., -1., 2.]]), Ok(vec![(
 array_flat!(f64, 2.8, 2.3428571428571425, 0.8571428571428569).unwrap(),
@@ -33,6 +33,6 @@ array!(f64, [[0.3274744043621118, 0.2741043942532785, -0.9929229419852038], [-0.
 )])),
 case(array!(f64, [1, 4, 3]), Err(ArrayError::UnsupportedDimension { supported: vec![0, 1] })),
 case(array!(f64, [[1, 4, 3], [3, 2, 4]]), Err(ArrayError::MustBeEqual { value1: "2".to_string(), value2: "3".to_string() })),
-)] fn test_linalg_eig(array: Result<Array<f64>, ArrayError>, expected: LinalgResult<f64>) {
+)] fn test_linalg_eig(array: Result<Array<f64>, ArrayError>, expected: EigenResult<f64>) {
     assert_eq!(expected, array.eig())
 }
