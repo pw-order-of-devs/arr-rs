@@ -6,5 +6,7 @@ pub mod norms;
 /// Tensor parameters types definition
 pub mod tensor;
 
-/// qr decomposition result type definition
-pub type LinalgResult<N> = Result<Vec<(Array<N>, Array<N>)>, ArrayError>;
+/// decomposition result type definition
+pub type DecompResult<N> = Result<(Array<N>, Array<N>), ArrayError>;
+/// eigen result type definition
+pub type EigenResult<N> = Result<Vec<(Array<N>, Array<N>)>, ArrayError>;

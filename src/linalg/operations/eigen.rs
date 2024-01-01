@@ -42,7 +42,7 @@ pub trait ArrayLinalgEigen<N: NumericOps> where Self: Sized + Clone {
     /// # Errors
     ///
     /// may returns `ArrayError`
-    fn eig(&self) -> LinalgResult<N>;
+    fn eig(&self) -> EigenResult<N>;
 }
 
 impl <N: NumericOps> ArrayLinalgEigen<N> for Array<N> {
@@ -55,7 +55,7 @@ impl <N: NumericOps> ArrayLinalgEigen<N> for Array<N> {
             let mut max_iter = 10000;
             // fix condition - check convergence
             while max_iter > 0 {
-                let (q, r) = h.qr()?[0].clone();
+                let (q, r) = h.qr()?.clone();
                 h = r.dot(&q)?.hessenberg_reduction()?;
                 if h.is_convergent()? { break }
                 max_iter -= 1;
@@ -83,7 +83,7 @@ impl <N: NumericOps> ArrayLinalgEigen<N> for Array<N> {
         }
     }
 
-    fn eig(&self) -> LinalgResult<N> {
+    fn eig(&self) -> EigenResult<N> {
         let mut results = vec![];
         for eigenvalues in self.eigvals()? {
             let mut vectors = vec![];
@@ -114,7 +114,7 @@ impl <N: NumericOps> ArrayLinalgEigen<N> for Result<Array<N>, ArrayError> {
         self.clone()?.eigvals()
     }
 
-    fn eig(&self) -> LinalgResult<N> {
+    fn eig(&self) -> EigenResult<N> {
         self.clone()?.eig()
     }
 }
