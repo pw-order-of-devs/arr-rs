@@ -21,6 +21,13 @@ impl<'a, N: ArrayElement> IntoIterator for &'a Array<N> {
     }
 }
 
+impl <'a, N: 'a + ArrayElement> Array<N> {
+    /// Returns an iterator over `Array` elements
+    pub fn iter(&'a self) -> std::slice::Iter<'a, N> {
+        <&'a Self as IntoIterator>::into_iter(self)
+    }
+}
+
 impl <N: ArrayElement> FromIterator<N> for Array<N> {
 
     fn from_iter<T: IntoIterator<Item=N>>(iter: T) -> Self {
