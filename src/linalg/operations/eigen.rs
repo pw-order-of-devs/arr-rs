@@ -86,8 +86,6 @@ impl <N: NumericOps + Floating> ArrayLinalgEigen<N> for Array<N> {
         let mut vectors = vec![];
         let eigenvalues = self.eigvals()?;
 
-        let solve_vec = Array::flat(vec![N::from(1), N::from(0.8), N::from(0)])?;
-        let solve_vec = Array::flat(vec![N::from(0.2), N::from(0.8), N::from(0)])?;
         let solve_vec = Self::ones(vec![self.get_shape()?[0]])?;
         for value in eigenvalues.get_elements()? {
             let mut vector = (self.clone() - (Self::eye(self.get_shape()?[0], None, None)? * value)?)

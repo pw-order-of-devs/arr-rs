@@ -119,12 +119,12 @@ impl <N: NumericOps + Floating> ArrayLinalgDecompositions<N> for Array<N> {
                 .zip(eigen_result.vectors.get_rows()?)
                 .sorted_by(|a, b| a.0.partial_cmp(&b.0).unwrap())
                 .rev()
-                .collect::<Vec<(N, Array<N>)>>();
+                .collect::<Vec<(N, Self)>>();
             let values = eigen.clone()
                 .into_iter()
                 .map(|i| i.0)
                 .collect::<Self>();
-            let vectors = eigen.clone()
+            let vectors = eigen
                 .into_iter()
                 .flat_map(|i| i.1)
                 .collect::<Self>()
@@ -204,10 +204,8 @@ trait DecompHelper<N: NumericOps + Floating> {
                     if element != N::one() {
                         return Ok(false)
                     }
-                } else {
-                    if element != N::zero() {
-                        return Ok(false)
-                    }
+                } else if element != N::zero() {
+                    return Ok(false)
                 }
             }
         }
