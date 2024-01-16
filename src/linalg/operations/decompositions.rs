@@ -100,7 +100,7 @@ impl <N: NumericOps + Floating> ArrayLinalgDecompositions<N> for Array<N> {
         self.is_square()?;
 
         if self.ndim()? == 2 {
-            if Self::is_identity(self)? {
+            if Self::is_identity(self)? || self.iter().all(|&i| i == N::zero()) {
                 return Ok(SvdData {
                     u: self.clone(),
                     s: Self::diagonal(self)?,

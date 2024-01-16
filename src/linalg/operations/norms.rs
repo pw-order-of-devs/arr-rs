@@ -1,6 +1,7 @@
 use crate::{
     core::prelude::*,
     errors::prelude::*,
+    extensions::prelude::*,
     linalg::prelude::*,
     math::prelude::*,
     numeric::prelude::*,
@@ -50,6 +51,21 @@ pub trait ArrayLinalgNorms<N: NumericOps> where Self: Sized + Clone {
     ///
     /// may returns `ArrayError`
     fn det(&self) -> Result<Array<N>, ArrayError>;
+
+    /// Return matrix rank of array using SVD method
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// assert_eq!(Array::single(4), Array::<f64>::eye(4, None, None).matrix_rank());
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
+    fn matrix_rank(&self) -> Result<Array<usize>, ArrayError>;
 }
 
 impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
@@ -188,6 +204,16 @@ impl <N: NumericOps> ArrayLinalgNorms<N> for Array<N> {
             Ok(dets)
         }
     }
+
+    fn matrix_rank(&self) -> Result<Array<usize>, ArrayError> {
+        if self.ndim()? < 2 {
+            Array::single(self.iter().all(|&i| i != N::zero()).to_usize())
+        } else {
+            self.to_array_f64()
+                .svd()?.s
+                .count_nonzero(None, None)
+        }
+    }
 }
 
 impl <N: NumericOps> ArrayLinalgNorms<N> for Result<Array<N>, ArrayError> {
@@ -198,6 +224,10 @@ impl <N: NumericOps> ArrayLinalgNorms<N> for Result<Array<N>, ArrayError> {
 
     fn det(&self) -> Self {
         self.clone()?.det()
+    }
+
+    fn matrix_rank(&self) -> Result<Array<usize>, ArrayError> {
+        self.clone()?.matrix_rank()
     }
 }
 
