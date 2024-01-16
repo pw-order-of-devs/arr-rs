@@ -30,6 +30,22 @@ pub trait ArrayLinalgSolvingInvertingProducts<N: NumericOps> where Self: Sized +
     ///
     /// may returns `ArrayError`
     fn solve(&self, other: &Array<N>) -> Result<Array<N>, ArrayError>;
+
+    /// Compute the (multiplicative) inverse of a matrix
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use arr_rs::prelude::*;
+    ///
+    /// let arr = Array::new(vec![3., 0., 4., 5.], vec![2, 2]).unwrap();
+    /// assert_eq!(Array::new(vec![0.3333333333333333, 0., 0.25, 0.2], vec![2, 2]), arr.inv());
+    /// ```
+    ///
+    /// # Errors
+    ///
+    /// may returns `ArrayError`
+    fn inv(&self) -> Result<Array<N>, ArrayError>;
 }
 
 impl <N: NumericOps> ArrayLinalgSolvingInvertingProducts<N> for Array<N> {
@@ -98,11 +114,19 @@ impl <N: NumericOps> ArrayLinalgSolvingInvertingProducts<N> for Array<N> {
             .to_array_num()
             .reshape(&other.get_shape()?)
     }
+
+    fn inv(&self) -> Result<Self, ArrayError> {
+        self.map(|&x| if x == N::zero() { N::zero() } else { N::one() / x })
+    }
 }
 
 impl <N: NumericOps> ArrayLinalgSolvingInvertingProducts<N> for Result<Array<N>, ArrayError> {
 
     fn solve(&self, other: &Array<N>) -> Self {
         self.clone()?.solve(other)
+    }
+
+    fn inv(&self) -> Self {
+        self.clone()?.inv()
     }
 }

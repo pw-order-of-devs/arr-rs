@@ -10,7 +10,9 @@ pub use crate::linalg::{
     types::{
         norms::norm_ord::{NormOrd, NormOrdType},
         tensor::tensor_axes::{TensorAxes, TensorAxesType},
-        DecompResult, EigenResult,
+        EigenData, EigenResult,
+        QrResult, QrData,
+        SvdResult, SvdData,
     },
 };
 
