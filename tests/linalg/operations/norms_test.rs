@@ -51,3 +51,16 @@ case(array!(i32, [[[1, 2, 3], [3, 2, 1], [2, 1, 3]], [[5, 6, 4], [6, 3, 5], [8, 
 )] fn test_linalg_det(array: Result<Array<i32>, ArrayError>, expected: Result<Array<i32>, ArrayError>) {
     assert_eq!(expected, array.det())
 }
+
+#[rstest(
+array, expected,
+case(array_eye!(i32, 2), array_single!(usize, 2)),
+case(array_eye!(i32, 4), array_single!(usize, 4)),
+case(array!(i32, [[1, 2], [3, 4]]), array_single!(usize, 2)),
+case(array!(i32, [[3, 8], [4, 6]]), array_single!(usize, 2)),
+case(array!(i32, [[6, 2], [1, 4]]), array_single!(usize, 2)),
+case(array!(i32, [[0, 0], [0, 0]]), array_single!(usize, 0)),
+case(array!(i32, [[1, 0, 0], [0, 1, 0], [0, 0, 1]]), array_single!(usize, 3)),
+)] fn test_linalg_matrix_rank(array: Result<Array<i32>, ArrayError>, expected: Result<Array<usize>, ArrayError>) {
+    assert_eq!(expected, array.matrix_rank())
+}
