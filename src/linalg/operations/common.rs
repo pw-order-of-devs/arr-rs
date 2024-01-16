@@ -75,7 +75,6 @@ impl <N: NumericOps> LinalgHelper<N> for Array<N> {
             let diagonal = item[i].to_f64().abs();
             let row_sum = item.iter().map(|e| e.abs()).sum::<f64>() - diagonal;
 
-
             if diagonal <= row_sum {
                 return Ok(false)
             }
