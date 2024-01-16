@@ -85,11 +85,11 @@ impl <N: NumericOps + Floating> ArrayLinalgDecompositions<N> for Array<N> {
             let q = qrs.iter()
                 .flat_map(|item| item.clone().q)
                 .collect::<Self>()
-                .reshape(&self.get_shape()?)?;
+                .reshape(&shape)?;
             let r = qrs.iter()
                 .flat_map(|item| item.clone().r)
                 .collect::<Self>()
-                .reshape(&self.get_shape()?)?;
+                .reshape(&shape)?;
 
             Ok(QrData { q, r })
         }
@@ -137,7 +137,32 @@ impl <N: NumericOps + Floating> ArrayLinalgDecompositions<N> for Array<N> {
                 .dot(&s.diag(None).inv()?)?;
             Ok(SvdData { u, s, vt })
         } else {
-            todo!()
+            let shape = self.get_shape()?;
+            let sub_shape = shape[self.ndim()? - 2 ..].to_vec();
+            let svds = self
+                .ravel()?
+                .split(self.len()? / sub_shape.iter().product::<usize>(), None)?
+                .iter()
+                .map(|arr| arr.reshape(&sub_shape).svd())
+                .collect::<Vec<Result<SvdData<N>, _>>>()
+                .has_error()?.into_iter()
+                .map(Result::unwrap)
+                .collect::<Vec<SvdData<N>>>();
+
+            let u = svds.iter()
+                .flat_map(|item| item.clone().u)
+                .collect::<Self>()
+                .reshape(&shape)?;
+            let s = svds.iter()
+                .flat_map(|item| item.clone().s)
+                .collect::<Self>()
+                .reshape(&sub_shape)?;
+            let vt = svds.iter()
+                .flat_map(|item| item.clone().vt)
+                .collect::<Self>()
+                .reshape(&shape)?;
+
+            Ok(SvdData { u, s, vt })
         }
     }
 }

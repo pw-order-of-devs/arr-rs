@@ -78,7 +78,7 @@ impl <N: NumericOps + Floating> ArrayLinalgEigen<N> for Array<N> {
                 .has_error()?.into_iter()
                 .flat_map(Result::unwrap)
                 .collect::<Self>()
-                .reshape(&self.get_shape()?)
+                .reshape(&shape)
         }
     }
 
