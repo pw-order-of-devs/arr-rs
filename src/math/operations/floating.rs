@@ -133,14 +133,21 @@ impl <N: Floating> ArrayFloating<N> for Array<N> {
             if x == 0.0 { return (sig, exp); }
 
             loop {
-                if x < 1.0 { break; }
-                x /= 2.0;
-                exp += 1;
+                if x >= 1.0 {
+                    x /= 2.0;
+                    exp += 1;
+                } else {
+                    break;
+                }
             }
+
             loop {
-                if x >= 0.5 { break; }
-                x *= 2.0;
-                exp -= 1;
+                if x < 0.5 {
+                    x *= 2.0;
+                    exp -= 1;
+                } else {
+                    break;
+                }
             }
 
             sig = x;
