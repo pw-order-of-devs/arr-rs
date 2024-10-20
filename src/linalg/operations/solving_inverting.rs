@@ -65,27 +65,27 @@ impl <N: NumericOps> ArrayLinalgSolvingInvertingProducts<N> for Array<N> {
 
         for j in 0..n {
             let mut pivot_row = j;
+
             for i in j + 1..n {
-                if arr_u[i][j].abs() > arr_u[pivot_row][j].abs() { pivot_row = i; }
+                if arr_u[i][j].abs() > arr_u[pivot_row][j].abs() {
+                    pivot_row = i;
+                }
             }
 
             if pivot_row != j {
-                let tmp = arr_u[pivot_row].clone();
-                arr_u[pivot_row] = arr_u[j].clone();
-                arr_u[j] = tmp;
-
-                let tmp = arr_l[pivot_row].clone();
-                for (idx, item) in tmp.iter().enumerate().take(j) {
-                    arr_l[pivot_row][idx] = arr_l[j][idx];
-                    arr_l[j][idx] = *item;
-                }
+                arr_u.swap(pivot_row, j);
+                arr_l.swap(pivot_row, j);
             }
+
             for i in j + 1..n {
                 let factor = arr_u[i][j] / arr_u[j][j];
                 arr_l[i][j] = factor;
-                let uu = ((arr_u[j][j..].to_vec().to_array()? * factor)?).get_elements()?;
-                for jj in j..n {
-                    arr_u[i][jj] -= uu[jj - j];
+
+                let (upper_part, lower_part) = arr_u.split_at_mut(i);
+                let u_slice = &upper_part[j][j..];  // Access slice from upper part (immutable)
+
+                for (jj, &val) in u_slice.iter().enumerate() {
+                    lower_part[0][j + jj] -= factor * val;  // Apply factor to mutable lower part
                 }
             }
         }

@@ -4,7 +4,6 @@ use criterion::measurement::WallTime;
 use arr_rs::prelude::*;
 
 #[allow(dead_code)]
-#[cfg(not(tarpaulin_include))]
 pub(crate) fn config<'a>(c: &'a mut Criterion, name: &'a str) -> BenchmarkGroup<'a, WallTime> {
     let mut criterion = c.benchmark_group(name);
     criterion

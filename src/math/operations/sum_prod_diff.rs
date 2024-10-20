@@ -330,7 +330,7 @@ impl <N: NumericOps> ArraySumProdDiff<N> for Array<N> {
                 let p_partial = other
                     .moveaxis(vec![axis.to_isize()], vec![array.ndim()?.to_isize()])
                     .ravel().split(other.get_shape()?.remove_at(axis).into_iter().product(), None)?;
-                let mut tmp_v = vec![partial, p_partial];
+                let mut tmp_v = [partial, p_partial];
                 if rev { tmp_v.reverse() };
                 let result = tmp_v[0].clone().into_iter().zip(&tmp_v[1]).map(|(arr, other)| {
                     let mut elements = other.elements.clone();
