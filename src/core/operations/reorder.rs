@@ -68,8 +68,8 @@ pub trait ArrayReorder<T: ArrayElement> where Self: Sized + Clone {
     /// # Arguments
     ///
     /// * `shift` - number of places by which elements are shifted.
-    /// if a tuple, then axis must be a tuple of the same size, and each of the given axes is shifted by the corresponding number.
-    /// if an int while axis is a tuple of ints, then the same value is used for all given axes.
+    ///   if a tuple, then axis must be a tuple of the same size, and each of the given axes is shifted by the corresponding number.
+    ///   if an int while axis is a tuple of ints, then the same value is used for all given axes.
     /// * `axes` - axes along which to roll over. if None, will flip over all of the axes.
     ///
     /// # Examples

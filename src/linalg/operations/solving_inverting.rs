@@ -55,7 +55,8 @@ impl <N: NumericOps> ArrayLinalgSolvingInvertingProducts<N> for Array<N> {
 
             if pivot_row != j {
                 let tmp = arr_u[pivot_row].clone();
-                arr_u[pivot_row] = arr_u[j].clone();
+                let source = &arr_u[j].clone();
+                arr_u[pivot_row].clone_from(source);
                 arr_u[j] = tmp;
 
                 let tmp = arr_l[pivot_row].clone();

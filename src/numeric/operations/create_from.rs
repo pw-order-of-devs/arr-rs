@@ -123,7 +123,7 @@ pub trait ArrayCreateFrom<N: Numeric> where Array<N>: Sized + Clone {
     ///
     /// * `n` - number of columns in the output. optional, by default square array is returned
     /// * `increasing` - order of the powers of the columns. optional, defaults to false
-    /// if true, the powers increase from left to right, if false, they are reversed.
+    ///   if true, the powers increase from left to right, if false, they are reversed.
     ///
     /// # Examples
     ///

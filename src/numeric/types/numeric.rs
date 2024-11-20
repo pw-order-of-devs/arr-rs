@@ -1,5 +1,4 @@
 use std::fmt::{Debug, Display};
-use std::i64;
 use std::ops::RangeInclusive;
 use std::str::FromStr;
 use rand::{Rng, distributions::Uniform};
@@ -173,11 +172,11 @@ macro_rules! impl_numeric_float {
         impl ArrayElement for $t {
 
             fn zero() -> Self {
-                0 as $t
+               0.
             }
 
             fn one() -> Self {
-                1 as $t
+                1.
             }
 
             fn is_nan(&self) -> bool {

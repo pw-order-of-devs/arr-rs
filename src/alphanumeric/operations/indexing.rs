@@ -8,7 +8,7 @@ use crate::prelude::Numeric;
 /// `ArrayTrait` - Alphanumeric Array operations
 pub trait ArrayStringIndexing<N: Alphanumeric> where Self: Sized + Clone {
 
-    /// Return string.len() element-wise
+    /// Return `string.len()` element-wise
     ///
     /// # Examples
     ///

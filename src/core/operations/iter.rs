@@ -28,6 +28,15 @@ impl <N: ArrayElement> FromIterator<N> for Array<N> {
     }
 }
 
+/// Array `iter` implementation
+impl <N: ArrayElement> Array<N> {
+
+    /// `iter` function implemented for `Array<N>`
+    pub fn iter(&self) -> std::slice::Iter<'_, N> {
+        <&Self as IntoIterator>::into_iter(self)
+    }
+}
+
 /// `ArrayTrait` - Array Iterable functions
 pub trait ArrayIter<T: ArrayElement> where Self: Sized + Clone {
 

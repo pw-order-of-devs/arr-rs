@@ -132,8 +132,16 @@ impl <N: Floating> ArrayFloating<N> for Array<N> {
             let mut exp: i32 = 0;
             if x == 0.0 { return (sig, exp); }
 
-            while x >= 1.0 { x /= 2.0; exp += 1; }
-            while x < 0.5 { x *= 2.0; exp -= 1; }
+            loop {
+                if x < 1.0 { break; }
+                x /= 2.0;
+                exp += 1;
+            }
+            loop {
+                if x >= 0.5 { break; }
+                x *= 2.0;
+                exp -= 1;
+            }
 
             sig = x;
             (sig * sign, exp)
